@@ -1,0 +1,95 @@
+---
+title: "AI-Augmented Engineering: How I Ship 3x Faster Without Sacrificing Quality"
+description: "A practical breakdown of how I use LLMs, agentic workflows, and AI tooling in my day-to-day engineering work — and what actually moves the needle vs. what's hype."
+date: "2024-11-15"
+tags: ["AI", "engineering", "productivity", "LLMs", "workflow"]
+published: true
+author: "Jeroham Sanchez"
+---
+
+# AI-Augmented Engineering: How I Ship 3x Faster Without Sacrificing Quality
+
+After 8 years of building production systems, the biggest productivity unlock I've seen — bigger than containerization, bigger than TypeScript, bigger than any framework — is AI-augmented development done right.
+
+Done *wrong*, it's copy-pasting hallucinated code that breaks in production. Done *right*, it's a force multiplier that lets a solo engineer do the work of a small team.
+
+Here's what actually works.
+
+## The Misconception: AI as an Autocomplete
+
+Most engineers use AI as a fancy autocomplete. They type a comment, accept the suggestion, move on. That's leaving 90% of the value on the table.
+
+The real power is in using AI as a **thinking partner and delegation layer** — not a keystroke saver.
+
+## What I Actually Do
+
+### 1. Architecture First, Code Second
+
+Before writing any code, I describe the problem to Claude and ask it to enumerate the approach options with trade-offs. Then I pick one and we discuss the edge cases.
+
+This takes 10 minutes but saves hours of going down the wrong path.
+
+```typescript
+// Instead of starting with this...
+async function processWebhook(payload: unknown) {
+  // TODO: figure this out
+}
+
+// I start by asking: "What are the failure modes of a webhook processor
+// that needs to handle duplicate events, ordering, and partial failures?"
+// Then I design the interface based on that conversation.
+```
+
+### 2. The "Draft → Critique → Refine" Loop
+
+My workflow for any non-trivial component:
+
+1. **Write a rough draft** (AI-assisted, fast)
+2. **Ask the AI to critique it** specifically for: performance, security, edge cases, testability
+3. **Refine** based on the critique
+
+The critique step is the one most people skip. It's where you catch the 3am bugs before they happen.
+
+### 3. Test-Driven AI Development
+
+I write the test cases first — manually — then ask AI to implement the function that passes them. This keeps me honest about the contract and prevents the AI from over-engineering a solution.
+
+```typescript
+// Tests written by me first
+describe("rateLimiter", () => {
+  it("allows requests under the limit", async () => { /* ... */ })
+  it("blocks requests over the limit", async () => { /* ... */ })
+  it("resets after the window expires", async () => { /* ... */ })
+  it("handles concurrent requests correctly", async () => { /* ... */ })
+})
+
+// Then: "Implement a rateLimiter function that passes these tests.
+// Use Redis. Handle the concurrent case with a Lua script."
+```
+
+## What Doesn't Work
+
+- **Blind acceptance**: If you can't explain every line, you don't own it
+- **Context-free prompts**: "Write a login system" produces generic garbage. Describe your stack, constraints, and existing patterns
+- **Skipping review**: AI makes mistakes. They're just different mistakes than yours
+
+## The Productivity Math
+
+A typical feature that used to take me 3 days now takes 1:
+
+- Architecture + design: 2h (was 6h — AI helps enumerate options faster)
+- Implementation: 4h (was 12h — less boilerplate, faster iteration)
+- Testing: 2h (was 4h — AI generates test cases I would have missed)
+- Review + polish: 2h (same — this is irreducible human judgment)
+
+That's the honest breakdown. The gains are real but they require skill to capture.
+
+## Getting Started
+
+If you want to try this approach, start with the **critique step**. Write something the way you normally would. Then paste it to an AI and ask: "What are the top 3 ways this could fail in production?"
+
+The answer will surprise you.
+
+---
+
+*Building something ambitious and want a second set of eyes? [Reach out](/proposal) — I consult on architecture and AI integration.*

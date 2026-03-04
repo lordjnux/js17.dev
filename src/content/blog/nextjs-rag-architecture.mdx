@@ -1,0 +1,206 @@
+---
+title: "Building a Production RAG System with Next.js, PostgreSQL, and pgvector"
+description: "A complete walkthrough of architecting a retrieval-augmented generation system that actually works in production — including chunking strategies, embedding choices, and the pitfalls I learned the hard way."
+date: "2024-12-03"
+tags: ["RAG", "Next.js", "PostgreSQL", "pgvector", "AI", "architecture"]
+published: true
+author: "Jeroham Sanchez"
+---
+
+# Building a Production RAG System with Next.js, PostgreSQL, and pgvector
+
+RAG (Retrieval-Augmented Generation) is the pattern that makes LLMs useful for domain-specific applications. Instead of fine-tuning (expensive, slow, inflexible), you retrieve relevant context at query time and inject it into the prompt.
+
+The concept is simple. The production implementation is not.
+
+This post covers the architecture I've settled on after building several RAG systems, including the mistakes that cost me weeks.
+
+## The Stack
+
+- **Next.js 14** (App Router, Server Actions)
+- **PostgreSQL + pgvector** (embeddings stored alongside your data)
+- **OpenAI text-embedding-3-small** (1536 dimensions, excellent price/performance)
+- **Claude claude-sonnet-4-6** for generation (good at following instructions, honest about uncertainty)
+
+## Why pgvector Over a Vector Database
+
+The most common mistake I see: using a dedicated vector database (Pinecone, Weaviate, Qdrant) when you already have PostgreSQL.
+
+pgvector is good enough for millions of documents. And with Postgres, you get:
+
+- **Transactions** across embeddings and your regular data
+- **Joins** — filter by metadata and vector similarity in one query
+- **Familiar tooling** — Prisma, Drizzle, backups, monitoring you already know
+
+The specialized vector DBs shine at 10M+ vectors with complex filtering. Most applications never get there.
+
+## The Schema
+
+```sql
+-- Enable the extension
+CREATE EXTENSION IF NOT EXISTS vector;
+
+-- Documents table
+CREATE TABLE documents (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  source_url TEXT,
+  title TEXT,
+  content TEXT NOT NULL,
+  metadata JSONB DEFAULT '{}',
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- Chunks table (what gets embedded)
+CREATE TABLE chunks (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  document_id UUID REFERENCES documents(id) ON DELETE CASCADE,
+  content TEXT NOT NULL,
+  embedding vector(1536),
+  chunk_index INTEGER,
+  metadata JSONB DEFAULT '{}',
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- HNSW index for fast approximate nearest neighbor
+CREATE INDEX ON chunks USING hnsw (embedding vector_cosine_ops)
+  WITH (m = 16, ef_construction = 64);
+```
+
+## Chunking Strategy: The Part Nobody Talks About
+
+Chunking is where most RAG implementations fail. Too large: irrelevant context dilutes the answer. Too small: you lose coherence.
+
+My default: **512 tokens with 64-token overlap**, but with **semantic boundary detection**.
+
+```typescript
+// src/lib/chunker.ts
+export function chunkText(text: string, options = {
+  maxTokens: 512,
+  overlap: 64,
+}): string[] {
+  // Split on semantic boundaries first
+  const paragraphs = text.split(/\n{2,}/)
+  const chunks: string[] = []
+  let currentChunk = ""
+  let currentTokens = 0
+
+  for (const paragraph of paragraphs) {
+    const paragraphTokens = estimateTokens(paragraph)
+
+    if (currentTokens + paragraphTokens > options.maxTokens && currentChunk) {
+      chunks.push(currentChunk.trim())
+      // Keep overlap from end of current chunk
+      const words = currentChunk.split(" ")
+      currentChunk = words.slice(-options.overlap).join(" ") + "\n\n"
+      currentTokens = estimateTokens(currentChunk)
+    }
+
+    currentChunk += paragraph + "\n\n"
+    currentTokens += paragraphTokens
+  }
+
+  if (currentChunk.trim()) chunks.push(currentChunk.trim())
+  return chunks
+}
+
+function estimateTokens(text: string): number {
+  // Rough estimate: 1 token ≈ 4 characters
+  return Math.ceil(text.length / 4)
+}
+```
+
+## The Query Pipeline
+
+```typescript
+// src/lib/rag.ts
+import { openai } from "./openai"
+import { db } from "./db"
+
+export async function queryRAG(question: string, topK = 5) {
+  // 1. Embed the question
+  const embedding = await openai.embeddings.create({
+    model: "text-embedding-3-small",
+    input: question,
+  })
+
+  // 2. Retrieve similar chunks
+  const chunks = await db.query<{ content: string; metadata: Record<string, unknown>; similarity: number }>(
+    `
+    SELECT content, metadata, 1 - (embedding <=> $1::vector) AS similarity
+    FROM chunks
+    WHERE 1 - (embedding <=> $1::vector) > 0.7
+    ORDER BY embedding <=> $1::vector
+    LIMIT $2
+    `,
+    [JSON.stringify(embedding.data[0].embedding), topK]
+  )
+
+  if (!chunks.rows.length) {
+    return { answer: "I don't have information about that in my knowledge base.", sources: [] }
+  }
+
+  // 3. Build context
+  const context = chunks.rows
+    .map((c, i) => `[Source ${i + 1}]\n${c.content}`)
+    .join("\n\n---\n\n")
+
+  // 4. Generate with Claude
+  const response = await anthropic.messages.create({
+    model: "claude-sonnet-4-6",
+    max_tokens: 1024,
+    messages: [
+      {
+        role: "user",
+        content: `Answer the question using only the provided context. If the context doesn't contain the answer, say so.
+
+Context:
+${context}
+
+Question: ${question}`,
+      },
+    ],
+  })
+
+  return {
+    answer: response.content[0].type === "text" ? response.content[0].text : "",
+    sources: chunks.rows.map((c) => c.metadata),
+  }
+}
+```
+
+## The Pitfalls
+
+**1. Not filtering by similarity threshold**
+
+If you just take the top K results regardless of similarity score, you'll inject irrelevant context. Set a minimum threshold (0.7 is a good start with cosine similarity).
+
+**2. Ignoring hybrid search**
+
+Pure vector search misses exact keyword matches. Add full-text search for technical terms, names, and codes that embeddings struggle with:
+
+```sql
+-- Hybrid search: vector + keyword
+SELECT *,
+  (0.7 * (1 - (embedding <=> $1::vector))) +
+  (0.3 * ts_rank(to_tsvector(content), plainto_tsquery($2))) AS score
+FROM chunks
+ORDER BY score DESC
+LIMIT $3
+```
+
+**3. Not caching embeddings**
+
+Embedding the same query repeatedly burns API money. Cache at the query level with a short TTL.
+
+## Production Checklist
+
+- [ ] Set similarity threshold (not just top-K)
+- [ ] Implement hybrid search for technical content
+- [ ] Cache embeddings for common queries
+- [ ] Log retrieval quality metrics (were retrieved chunks actually useful?)
+- [ ] Monitor embedding costs per query
+- [ ] Test with questions that have no good answer (hallucination defense)
+
+---
+
+*Working on a RAG system and running into issues? [Book a consultation](/proposal) — I've probably hit the same problem.*

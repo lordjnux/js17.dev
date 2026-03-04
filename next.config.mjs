@@ -1,4 +1,44 @@
-/** @type {import('next').NextConfig} */
-const nextConfig = {};
+import createMDX from '@next/mdx'
+import remarkGfm from 'remark-gfm'
+import rehypeSlug from 'rehype-slug'
+import rehypePrettyCode from 'rehype-pretty-code'
 
-export default nextConfig;
+/** @type {import('rehype-pretty-code').Options} */
+const prettyCodeOptions = {
+  theme: 'github-dark',
+  keepBackground: true,
+}
+
+const withMDX = createMDX({
+  options: {
+    remarkPlugins: [remarkGfm],
+    rehypePlugins: [rehypeSlug, [rehypePrettyCode, prettyCodeOptions]],
+  },
+})
+
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  pageExtensions: ['js', 'jsx', 'ts', 'tsx', 'md', 'mdx'],
+  images: {
+    remotePatterns: [
+      { protocol: 'https', hostname: 'avatars.githubusercontent.com' },
+      { protocol: 'https', hostname: 'github.com' },
+    ],
+  },
+  async redirects() {
+    return [
+      {
+        source: '/cv',
+        destination: '/CV-JEROHAM-SANCHEZ-SR-FULLSTACK-ENGINEER.pdf',
+        permanent: true,
+      },
+      {
+        source: '/resume',
+        destination: '/CV-JEROHAM-SANCHEZ-SR-FULLSTACK-ENGINEER.pdf',
+        permanent: true,
+      },
+    ]
+  },
+}
+
+export default withMDX(nextConfig)
