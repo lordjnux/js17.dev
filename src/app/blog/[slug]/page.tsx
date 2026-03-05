@@ -5,8 +5,8 @@ import { TableOfContents } from "@/components/blog/TableOfContents"
 import { CopyForLinkedIn } from "@/components/blog/CopyForLinkedIn"
 import type { Metadata } from "next"
 import { compileMDX } from "next-mdx-remote/rsc"
+import { Callout } from "@/components/blog/MDXContent"
 import {
-  Callout,
   StatRow, StatCard,
   StackGrid, StackItem,
   Timeline, TimelineStep,
@@ -14,7 +14,7 @@ import {
   SkillSection, SkillCategory,
   ChallengeCard,
   CTABlock,
-} from "@/components/blog/MDXContent"
+} from "@/components/blog/mdx-visual"
 
 export async function generateStaticParams() {
   const posts = getAllPosts()
