@@ -5,6 +5,16 @@ import { TableOfContents } from "@/components/blog/TableOfContents"
 import { CopyForLinkedIn } from "@/components/blog/CopyForLinkedIn"
 import type { Metadata } from "next"
 import { compileMDX } from "next-mdx-remote/rsc"
+import {
+  Callout,
+  StatRow, StatCard,
+  StackGrid, StackItem,
+  Timeline, TimelineStep,
+  IterationBars, IterationBar,
+  SkillSection, SkillCategory,
+  ChallengeCard,
+  CTABlock,
+} from "@/components/blog/MDXContent"
 
 export async function generateStaticParams() {
   const posts = getAllPosts()
@@ -65,6 +75,16 @@ export default async function BlogPostPage({
   const { content } = await compileMDX({
     source: post.content,
     options: { parseFrontmatter: false },
+    components: {
+      Callout,
+      StatRow, StatCard,
+      StackGrid, StackItem,
+      Timeline, TimelineStep,
+      IterationBars, IterationBar,
+      SkillSection, SkillCategory,
+      ChallengeCard,
+      CTABlock,
+    },
   })
 
   return (

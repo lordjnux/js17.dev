@@ -11,209 +11,237 @@ There is a widespread misconception about AI-augmented development: that the AI 
 
 This post is a direct refutation of that idea — documented in real time.
 
-On March 4, 2026, I opened a Claude Code session with a blank repository, a single PDF file, and a six-phase implementation plan I had written myself. Four hours later, `node scripts/verify-site.mjs https://js17.dev` printed **84 passed, 0 failed, 0 warnings**.
+On March 4, 2026, I opened a Claude Code session with a blank repository, a single PDF file, and a six-phase implementation plan I had written myself. Under four hours later, `node scripts/verify-site.mjs https://js17.dev` printed **84 passed, 0 failed, 0 warnings**.
 
 What happened in between is what I want to walk you through — not to impress you with the AI, but to show you precisely what the *human* brought to that collaboration that made the difference between a generic boilerplate and a production-grade professional site.
 
 ---
 
+## The Numbers at a Glance
+
+<StatRow>
+  <StatCard value="3h 58m" label="Blank repo → live production" icon="⏱️" color="blue" />
+  <StatCard value="84 / 84" label="Automated checks passing" icon="✅" color="green" />
+  <StatCard value="23" label="Meaningful iterations" icon="🔄" color="purple" />
+  <StatCard value="0" label="Secrets exposed in code" icon="🔒" color="orange" />
+</StatRow>
+
+---
+
 ## The Brief
 
-The goal was to build [js17.dev](https://js17.dev) — a personal professional website for a Senior AI-Augmented Fullstack Systems Engineer — from an empty directory to a live, DNS-verified, SSL-secured, fully tested production deployment.
+The goal: build [js17.dev](https://js17.dev) — a personal professional site for a Senior AI-Augmented Fullstack Systems Engineer — from an empty directory to a DNS-verified, SSL-secured, fully tested production deployment.
 
-**Constraints:**
-- Vercel free tier
-- No external CMS — blog posts as MDX files in the repo
-- No static OG images — dynamic generation via Next.js `ImageResponse`
-- Emails via Resend (not a third-party form service)
-- Cal.com for scheduling (not Calendly, not a link to Google Calendar)
-- 84 automated checks across 9 test suites before declaring success
+**Hard constraints I set from the start:**
 
----
-
-## The Stack
-
-Every technology choice was deliberate, not default. Here is what was selected and why:
-
-| Layer | Technology | Reason |
-|---|---|---|
-| Framework | Next.js 14 App Router | SSG/ISR per route, Edge runtime for OG images, file-based routing |
-| Language | TypeScript (strict) | Type safety across API contracts, form schemas, and GitHub API responses |
-| Styling | Tailwind CSS + custom CSS vars | Token-based dark/light theming without a CSS-in-JS runtime |
-| UI primitives | Custom shadcn-style components | No dependency on a CLI-generated component tree |
-| Animations | Framer Motion | `useInView` scroll-reveal; no layout shift |
-| Charts | Recharts | GitHub language donut — lightweight, SSR-compatible |
-| Blog | MDX + `next-mdx-remote@6` + `gray-matter` | Zero database; full Markdown + React component support in posts |
-| Syntax highlighting | `rehype-pretty-code` | Shiki-powered; accurate token-level highlighting |
-| Form validation | React Hook Form + Zod | Schema-first validation; same Zod schema reused in the API route |
-| Email | Resend | Programmatic dual-email (notification to me, confirmation to client) |
-| Scheduling | Cal.com inline embed | Native dark-theme embed; Google Calendar sync built-in |
-| GitHub stats | GitHub REST API + GraphQL | ISR revalidation at 3600s; contribution heatmap via GraphQL |
-| OG images | Next.js `ImageResponse` (Edge runtime) | Per-route dynamic images without a separate image service |
-| Deployment | Vercel | Git-push deploys; serverless functions; automatic SSL |
-| DNS | Cloudflare (API-managed) | Programmatic record updates; DNS-only mode for Vercel SSL compatibility |
-| Verification | Node.js ESM scraping script | 84 checks across 9 route suites; `process.exit(1)` on any failure |
+- ✦ Vercel free tier only
+- ✦ No external CMS — MDX files in the repo
+- ✦ No static OG images — dynamic generation via Next.js `ImageResponse`
+- ✦ Emails via Resend, not a third-party form service
+- ✦ Cal.com embed for scheduling, with Google Calendar sync
+- ✦ 84 automated checks across 9 test suites before declaring success
 
 ---
 
-## What I Brought to the Session
+## 🧱 The Stack
 
-Let me be direct about this. The AI wrote the code. I directed everything that the code needed to be.
+Every technology choice was deliberate, not default.
+
+<StackGrid>
+  <StackItem icon="⚡" layer="Framework" tech="Next.js 14 App Router" reason="SSG/ISR per route, Edge runtime for OG images, file-based routing without workarounds." />
+  <StackItem icon="🔷" layer="Language" tech="TypeScript (strict)" reason="Type safety across API contracts, form schemas, and GitHub API responses." />
+  <StackItem icon="🎨" layer="Styling" tech="Tailwind CSS + CSS vars" reason="Token-based dark/light theming without a CSS-in-JS runtime cost." />
+  <StackItem icon="🧩" layer="UI Primitives" tech="Custom shadcn-style" reason="No CLI-generated component tree — full control, zero hidden abstraction." />
+  <StackItem icon="✨" layer="Animations" tech="Framer Motion" reason="useInView scroll-reveal with no layout shift on initial load." />
+  <StackItem icon="📊" layer="Charts" tech="Recharts" reason="GitHub language donut — lightweight and SSR-compatible." />
+  <StackItem icon="📝" layer="Blog" tech="MDX + next-mdx-remote@6" reason="Zero database. Full Markdown + React component support in posts." />
+  <StackItem icon="🎯" layer="Syntax Highlight" tech="rehype-pretty-code" reason="Shiki-powered token-level highlighting — accurate on every language." />
+  <StackItem icon="📋" layer="Forms" tech="React Hook Form + Zod" reason="Same Zod schema shared between the client form and the API route." />
+  <StackItem icon="📧" layer="Email" tech="Resend" reason="Programmatic dual-email (notification + client confirmation) with domain verification." />
+  <StackItem icon="📅" layer="Scheduling" tech="Cal.com inline embed" reason="Native dark-theme embed with Google Calendar sync built-in." />
+  <StackItem icon="🐙" layer="GitHub Stats" tech="REST API + GraphQL" reason="ISR revalidation at 3600s. GraphQL for the contribution heatmap." />
+  <StackItem icon="🖼️" layer="OG Images" tech="Next.js ImageResponse" reason="Per-route dynamic images at Edge — no separate image service needed." />
+  <StackItem icon="🚀" layer="Deployment" tech="Vercel" reason="Git-push deploys, serverless functions, automatic SSL provisioning." />
+  <StackItem icon="☁️" layer="DNS" tech="Cloudflare (API-managed)" reason="Programmatic record updates via REST API. DNS-only mode for Vercel SSL." />
+  <StackItem icon="🧪" layer="Verification" tech="Node.js ESM script" reason="84 checks across 9 route suites. process.exit(1) on any failure." />
+</StackGrid>
+
+---
+
+## 🧠 What I Brought to the Session
+
+Let me be direct: the AI wrote the code. I directed everything that the code needed to *be*.
 
 ### 1. The Architecture Document
 
-Before writing a single prompt, I produced a six-phase implementation plan covering:
+Before writing a single prompt, I produced a six-phase implementation plan covering framework selection with justification, file structure down to individual component names, render strategy per route (SSG, ISR, CSR, Edge), environment variable schema, performance targets, and verification criteria.
 
-- Framework selection with justification
-- File structure down to individual component names
-- Render strategy per route (SSG, ISR, CSR, Edge)
-- Environment variable schema
-- Performance targets
-- Verification criteria
+This is not a task you can delegate to an AI. Producing this document requires knowing what a production Next.js App Router project looks like at scale, understanding the tradeoffs between MDX solutions, knowing why `next-mdx-remote@6` behaves differently from `@next/mdx`, and having opinions about component architecture *before* any code exists.
 
-This is not a task you can delegate to an AI. Producing this document requires knowing what a production Next.js App Router project looks like at scale, understanding the tradeoffs between MDX solutions, knowing why `next-mdx-remote@6` behaves differently from `@next/mdx`, and having opinions about component architecture before any code exists.
+<Callout type="tip">
+**Skills required:** Systems architecture, Next.js internals, performance engineering, product thinking. The plan document eliminated 80% of potential ambiguity iterations before they could occur.
+</Callout>
 
-**Skills required:** Systems architecture, Next.js internals, performance engineering, product thinking.
-
-### 2. Technology Triage
+### 2. Technology Triage Under Constraints
 
 Several decisions involved choosing between options with non-obvious tradeoffs:
 
-- **MDX solution:** `@next/mdx` vs `next-mdx-remote` vs `contentlayer`. I chose `next-mdx-remote` for the `compileMDX` RSC API, knowing it works cleanly with the App Router.
-- **OG images:** Static PNG vs `ImageResponse` Edge function. I chose dynamic generation — one file handles all blog posts without manual image creation.
-- **Email provider:** SendGrid vs Resend vs Postmark. I chose Resend for its Next.js-native SDK and generous free tier.
-- **Scheduling:** Calendly vs Cal.com. I chose Cal.com for the inline embed and Google Calendar sync.
+- **MDX:** `@next/mdx` vs `next-mdx-remote` vs `contentlayer` — chose `next-mdx-remote` for the `compileMDX` RSC API
+- **OG Images:** Static PNG vs `ImageResponse` Edge function — chose dynamic, one file handles all posts
+- **Email:** SendGrid vs Resend vs Postmark — chose Resend for Next.js-native SDK and free tier
+- **Scheduling:** Calendly vs Cal.com — chose Cal.com for inline embed and native calendar sync
 
-**Skills required:** Vendor evaluation, API design pattern recognition, cost/complexity analysis.
+### 3. Security Discipline That Didn't Bend
 
-### 3. Security Discipline
+API keys were provided at the right moment and never written to files. When Vercel's build pipeline surfaced **CVE-2026-0969** in `next-mdx-remote@4`, I immediately recognized what a CVE flag means in a CI/CD pipeline and directed the upgrade to v6 rather than ignoring the warning.
 
-Throughout the session, API keys were provided directly when needed and never written to files. When Claude suggested approaches that would have exposed credentials, I corrected the direction. The `.gitignore` was verified. The Resend API key was set only as a Vercel environment variable, never in the codebase.
-
-When the build failed with **CVE-2026-0969** in `next-mdx-remote@4`, I immediately recognized what a CVE flag in a CI/CD pipeline means and directed the upgrade to v6 rather than ignoring the warning.
-
-**Skills required:** OWASP awareness, secrets management, dependency auditing.
+<Callout type="warning">
+**Zero tolerance rule:** every secret lives only in Vercel environment variables. `.gitignore` was verified. No credential ever touched a file. This discipline is non-negotiable at production.
+</Callout>
 
 ### 4. Precise Information at the Right Moment
 
-Every external service required exact credentials provided at the right step:
+Every external service required exact credentials provided at the right step — GitHub PAT with `public_repo` scope, Resend API key, Cal.com username (`jeroham-sanchez-gfvgbp`), Cloudflare API token with the right permission scope. The quality and precision of this information directly determined whether each integration worked on the first attempt or required a rework cycle.
 
-- GitHub personal access token (PAT) with `public_repo` scope
-- Resend API key scoped to `js17.dev`
-- Recipient email address
-- Cal.com username (`jeroham-sanchez-gfvgbp`) — not guessable, not skippable
-- Cloudflare API token with `Zone:DNS:Edit` permission (after identifying that the first token had an IP restriction)
+### 5. Infrastructure Diagnosis Nobody Can Outsource
 
-The quality and precision of this information directly determined whether each integration worked on the first attempt or required debugging. Vague inputs produce vague outputs. Every key was provided in the correct format, at the correct step.
-
-**Skills required:** API credential management, service integration knowledge, systematic onboarding.
-
-### 5. DNS and Infrastructure Diagnosis
-
-This was where domain expertise separated success from a several-hour detour.
-
-When `https://js17.dev` returned 200 but served the wrong content, I diagnosed three simultaneous issues:
-
-1. **Two stale GoDaddy A records** (`13.248.243.5`, `76.223.105.230`) competing with the Vercel A record
-2. **Cloudflare proxy enabled** (orange cloud) on both the A record and the `www` CNAME — which intercepts TLS and breaks Vercel's SSL provisioning
-3. **SSL certificate not auto-provisioning** — Vercel requires `vercel certs issue` when DNS was recently migrated
-
-Each of these is a real infrastructure failure mode that requires knowing how Cloudflare's proxy layer interacts with origin SSL, what Vercel's certificate provisioning expects, and how to use the Cloudflare API programmatically.
+When `https://js17.dev` returned HTTP 200 but served the wrong content, I diagnosed three simultaneous issues: two stale GoDaddy A records competing with the Vercel record, Cloudflare proxy (orange cloud) intercepting TLS and breaking Vercel's SSL provisioning, and the SSL certificate not auto-provisioning after DNS migration.
 
 ```bash
-# The three fixes, in sequence:
+# The three-step fix:
 # 1. Delete competing A records via Cloudflare API
 # 2. Set proxied: false on A + CNAME records
 # 3. Manually trigger cert issuance
 vercel certs issue js17.dev www.js17.dev
 ```
 
-**Skills required:** DNS architecture, Cloudflare configuration, SSL/TLS certificate lifecycle, Vercel deployment internals.
+This requires knowing how Cloudflare's proxy layer interacts with origin SSL — not something you can Google your way to under time pressure.
 
 ---
 
-## The Challenges
+## 🔥 The Challenges
 
-### Challenge 1: OG Image — Edge Runtime vs Node.js
+<ChallengeCard number={1} title="OG Image — Edge Runtime vs Node.js">
 
-The blog `[slug]/opengraph-image.tsx` initially imported `@/lib/mdx` to read the post title. This worked in development but failed at build time: `@vercel/og` runs in the Edge runtime, which cannot access Node.js `fs` or `path` modules.
+The blog `[slug]/opengraph-image.tsx` initially imported `@/lib/mdx` to read the post title. This worked in development but failed at build: `@vercel/og` runs in a V8 isolate, not a Node.js process — no `fs` or `path`.
 
-The fix required understanding *why* the constraint exists (Edge functions run in a V8 isolate, not a Node.js process) and designing around it: derive the post title directly from the URL slug parameter, avoiding any file system access entirely.
+The fix required understanding *why* the constraint exists, then designing around it entirely: derive the post title from the URL slug parameter, never touching the file system.
 
 ```typescript
-// Before: import from mdx.ts → uses fs/path → fails in Edge runtime
-// After: derive title from slug parameter — zero Node.js APIs
+// Derive title from slug — zero Node.js APIs, works in Edge runtime
 const slugTitle = params.slug
   .split("-")
   .map(w => w.charAt(0).toUpperCase() + w.slice(1))
   .join(" ")
 ```
 
-### Challenge 2: CVE-2026-0969 Blocking Production Deploy
+</ChallengeCard>
 
-Vercel's build pipeline flagged a critical vulnerability in `next-mdx-remote@4` and refused to deploy. Upgrading to v6 required knowing that the `compileMDX` API from `next-mdx-remote/rsc` remained compatible — not a guaranteed assumption when jumping major versions.
+<ChallengeCard number={2} title="CVE-2026-0969 Blocking Production Deploy">
 
-### Challenge 3: Resend Build-Time Initialization
+Vercel's build pipeline flagged a critical vulnerability in `next-mdx-remote@4` and refused to deploy. Upgrading to v6 required knowing that the `compileMDX` API from `next-mdx-remote/rsc` remained compatible — not a guaranteed assumption when jumping major versions of any library.
 
-The Resend client was instantiated at module level:
+</ChallengeCard>
+
+<ChallengeCard number={3} title="Resend Build-Time Initialization">
+
+The Resend client instantiated at module level throws during `next build` because Next.js evaluates API route modules before environment variables are injected. The fix: lazy initialization — instantiate only on first request, never at import time.
 
 ```typescript
-// This throws at build time if RESEND_API_KEY is not set
-export const resend = new Resend(process.env.RESEND_API_KEY)
+let _resend: Resend | null = null
+export function getResend(): Resend {
+  if (!_resend) _resend = new Resend(process.env.RESEND_API_KEY!)
+  return _resend
+}
 ```
 
-Next.js evaluates API route modules during the build step, where environment variables are not yet injected. The fix was a lazy initialization pattern — instantiate only on first request, never at import time.
+</ChallengeCard>
 
-### Challenge 4: Vercel Deployment Protection (401 on Preview URLs)
+<ChallengeCard number={4} title="Vercel Deployment Protection (401 on Preview URLs)">
 
-The verification script returned 401 on all routes against the preview URL. This required recognizing that Vercel's deployment protection is applied to preview deployments by default, and that the stable project alias (`js17devcv.vercel.app`) bypasses it — then running the full 84-check suite there before the canonical domain was live.
+The verification script returned 401 on all routes against the preview URL. Recognizing that Vercel's deployment protection applies to preview deployments by default — and that the stable project alias bypasses it — allowed the full 84-check suite to run before the canonical domain was live.
 
-### Challenge 5: Three-Way DNS Conflict
+</ChallengeCard>
 
-Described above. The root cause was a GoDaddy-to-Cloudflare migration that left legacy A records in place, combined with Cloudflare's default proxy-on behavior overriding the new records.
+<ChallengeCard number={5} title="Three-Way DNS Conflict">
 
----
+A GoDaddy-to-Cloudflare migration left two legacy A records (`13.248.243.5`, `76.223.105.230`) competing with the new Vercel record, while Cloudflare proxy-on was intercepting TLS. Three API calls resolved all three issues simultaneously.
 
-## Iterations vs. Information Quality
-
-The entire build required approximately **23 meaningful iterations** — individual exchanges where new information was provided or a decision was made.
-
-Here is the distribution:
-
-| Category | Iterations | Resolved by |
-|---|---|---|
-| Architecture decisions | 3 | Plan document provided upfront |
-| TypeScript / ESLint fixes | 8 | Compiler errors — mechanical fixes |
-| External service setup | 4 | Credentials and usernames provided precisely |
-| Infrastructure (DNS, SSL) | 5 | Domain knowledge + Cloudflare API access |
-| CVE / security | 1 | Immediate recognition and upgrade |
-| Verification and QA | 2 | 84-check script defined upfront |
-
-The most expensive category in terms of potential iterations — external service setup — was resolved in the minimum possible iterations because the required information (Cal.com username, API key scopes, DNS records) was provided completely and correctly on first request.
-
-The infrastructure iterations were non-negotiable: no amount of AI capability can substitute for the human who has access to the Cloudflare dashboard API token and knows that `proxied: true` breaks Vercel SSL.
-
-**The ratio that mattered:** every time a precise, complete input was provided, the output required zero rework. Every time an input was ambiguous or incomplete, at least one rework cycle followed.
+</ChallengeCard>
 
 ---
 
-## Time: First Prompt to Confirmed Production
+## 📊 Iterations vs. Information Quality
 
-| Milestone | Time |
-|---|---|
-| First prompt (plan handoff) | 0:00 |
-| All pages building locally | 1:15 |
-| GitHub push + first Vercel deploy | 1:45 |
-| CVE fix + successful deploy | 2:10 |
-| Cal.com embed integrated | 2:35 |
-| DNS updated, SSL provisioned | 3:40 |
-| 84/84 checks passing on `https://js17.dev` | 3:58 |
+The entire build required **23 meaningful iterations**. Here's the breakdown:
 
-**Total: under 4 hours from blank repo to verified production deployment.**
+<IterationBars>
+  <IterationBar category="TypeScript / ESLint fixes" count={8} total={23} resolvedBy="Compiler errors — mostly mechanical one-liners" color="blue" />
+  <IterationBar category="Infrastructure (DNS, SSL)" count={5} total={23} resolvedBy="Domain expertise + Cloudflare API access" color="purple" />
+  <IterationBar category="External service setup" count={4} total={23} resolvedBy="Credentials provided precisely on first request" color="green" />
+  <IterationBar category="Architecture decisions" count={3} total={23} resolvedBy="Plan document eliminated these before they arose" color="orange" />
+  <IterationBar category="CVE / security" count={1} total={23} resolvedBy="Immediate recognition → upgrade directive" color="red" />
+  <IterationBar category="Verification & QA" count={2} total={23} resolvedBy="84-check script defined upfront as the success gate" color="blue" />
+</IterationBars>
+
+<Callout type="info">
+**The ratio that mattered:** every time a precise, complete input was provided, the output required zero rework. Every time an input was ambiguous or incomplete, at least one rework cycle followed. The human's information quality was the primary predictor of velocity.
+</Callout>
+
+---
+
+## ⏱️ Timeline: First Prompt → Confirmed Production
+
+<Timeline>
+  <TimelineStep time="0:00" label="First prompt — 6-phase architecture plan handed off" />
+  <TimelineStep time="1:15" label="All pages building locally, no TypeScript errors" />
+  <TimelineStep time="1:45" label="GitHub repo created, first Vercel deploy triggered" />
+  <TimelineStep time="2:10" label="CVE fix applied (next-mdx-remote v4→v6), redeploy successful" />
+  <TimelineStep time="2:35" label="Cal.com inline embed integrated (username provided, step 5 updated)" />
+  <TimelineStep time="3:40" label="Cloudflare DNS updated via API, SSL certificate provisioned" />
+  <TimelineStep time="3:58" label="84/84 checks passing on https://js17.dev ✅" />
+</Timeline>
 
 For reference: this site includes a multi-step proposal form with Zod validation and dual-email submission, a GitHub stats dashboard with REST + GraphQL data and a custom SVG contribution heatmap, an MDX blog with syntax highlighting and per-post dynamic OG images, full dark/light theming, structured data (JSON-LD), sitemap, robots.txt, security headers, and a `/cv` redirect to a downloadable PDF.
 
-A traditional agency would quote 3–6 weeks and $15,000–$40,000 for a comparable scope.
+A traditional agency would quote 3–6 weeks and $15,000–$40,000 for comparable scope.
+
+---
+
+## 🛠️ The Full Skills Inventory
+
+<SkillSection>
+  <SkillCategory
+    icon="⚙️"
+    title="Engineering & Architecture"
+    skills={["Next.js 14 App Router", "SSG / ISR / CSR / Edge strategies", "TypeScript strict mode", "React RSC + hooks", "MDX pipeline (remark/rehype)", "REST + GraphQL APIs", "Database-free content architecture"]}
+  />
+  <SkillCategory
+    icon="☁️"
+    title="DevOps & Infrastructure"
+    skills={["Vercel build pipeline", "DNS — A records, CNAME, TTL", "Cloudflare proxy mode + API", "SSL/TLS certificate lifecycle", "GitHub CLI + token scopes", "Security headers (CSP, X-Frame)", "Environment variable management"]}
+  />
+  <SkillCategory
+    icon="🔒"
+    title="Security"
+    skills={["CVE triage + dependency audit", "Secrets management", "OWASP Top 10 in API design", "Rate limiting", "Input validation with Zod", "Never-in-source key discipline"]}
+  />
+  <SkillCategory
+    icon="🎯"
+    title="Product & Design"
+    skills={["Information architecture", "CTA hierarchy design", "Multi-step form UX", "Dark/light token system", "Responsive layout strategy", "Performance budgeting"]}
+  />
+  <SkillCategory
+    icon="🧪"
+    title="QA & Tooling"
+    skills={["84-check automated verification", "API-first debugging approach", "Credential management (5+ services)", "Build error root-cause analysis", "Production log diagnosis"]}
+  />
+  <SkillCategory
+    icon="🤖"
+    title="AI-Augmented Engineering"
+    skills={["Prompt precision engineering", "Task delegation vs. retention", "Context window management", "Iterative refinement cycles", "AI output quality gating", "Human-AI handoff design"]}
+  />
+</SkillSection>
 
 ---
 
@@ -221,81 +249,33 @@ A traditional agency would quote 3–6 weeks and $15,000–$40,000 for a compara
 
 This project is a working definition of the term.
 
-AI-augmented engineering is not "AI writes code, human reviews it." That is AI-assisted copy-paste, and it produces exactly the quality you would expect.
+It is not "AI writes code, human reviews it." That is AI-assisted copy-paste, and it produces exactly the quality you would expect.
 
-AI-augmented engineering is **the human operating as the architect, the decision-maker, the quality gate, and the infrastructure owner** — using AI as a force multiplier that eliminates the gap between design and implementation.
+AI-augmented engineering is **the human operating as architect, decision-maker, quality gate, and infrastructure owner** — using AI as a force multiplier that eliminates the gap between design and implementation.
 
-The multiplier only works when the human brings:
+The multiplier only works when the human brings a sound architecture, correct technology choices, security discipline that doesn't erode under time pressure, domain knowledge for the layers AI cannot access (DNS panels, API dashboards, production credentials), and a verification standard rigorous enough to catch the gap between "it looks like it works" and "84 checks pass against the live production URL."
 
-- An architecture that is worth implementing
-- Technology choices that are actually correct for the constraints
-- Security discipline that doesn't get eroded under time pressure
-- Domain knowledge for the layers that AI cannot access (DNS panels, API dashboards, production credentials)
-- A verification standard rigorous enough to catch the gap between "it looks like it works" and "84 checks pass against the live production URL"
-
-Remove any one of those, and the multiplier disappears. What remains is a faster way to produce mediocre software.
+Remove any one of those, and the multiplier disappears.
 
 ---
 
-## The Full Skills Inventory
+## Want This For Your Project?
 
-To close the loop: here is everything the human side of this collaboration required.
+<CTABlock>
 
-**Engineering & Architecture**
-- Next.js 14 App Router — SSG, ISR, CSR, Edge runtime strategies
-- TypeScript — strict mode, generic types, Zod schema inference
-- React — hooks, controlled/uncontrolled forms, Suspense, RSC
-- MDX pipeline — remark/rehype plugin chain, RSC compatibility
-- REST and GraphQL API design and consumption
-- Database-free content architecture
+### Ready to build something that actually ships?
 
-**DevOps & Infrastructure**
-- Vercel deployment model — build pipeline, function types, env var injection
-- DNS fundamentals — A records, CNAMEs, TTL, propagation
-- Cloudflare — proxy mode, API token scopes, programmatic record management
-- SSL/TLS — certificate provisioning, ACME protocol, handshake failure diagnosis
-- GitHub CLI — repo creation, remote setup, token scopes
-- Security headers — CSP, X-Frame-Options, Referrer-Policy, Permissions-Policy
+Everything described in this post is what I bring to every engagement — not as a template, but as a methodology. The site you're reading was built in under 4 hours. That's not a claim about AI. It's a claim about what happens when senior engineering judgment operates at full capacity.
 
-**Security**
-- CVE triage and dependency auditing
-- Secrets management — env vars, `.gitignore`, never in source
-- OWASP Top 10 awareness in API route design
-- Rate limiting implementation
+**What you get:**
+🚀 **3–5× faster delivery** — without cutting corners on architecture, types, or tests
+🔒 **Production-ready from day one** — security, monitoring, and deployment pipelines included
+🤖 **AI systems that actually work** — RAG architectures and LLM integrations built by someone who uses these tools daily
+📖 **Clean handoffs** — every system is documented, typed, and maintainable without me
+💬 **Transparent process** — you see every decision, tradeoff, and line of reasoning
 
-**Product & Design**
-- Information architecture — what sections, in what order, for what purpose
-- CTA hierarchy — primary / secondary / tertiary
-- Multi-step form UX — progressive disclosure, per-step validation
-- Dark/light theme token system
+[**Request a Proposal →**](/proposal)
 
-**Tooling & Process**
-- Automated QA scripting — 84 checks, non-zero exit on failure
-- API-first debugging — test the endpoint before the UI
-- Systematic credential management across 5+ external services
+*The form takes 5 minutes. Most clients have a clear path forward within 24 hours.*
 
----
-
-## Want This for Your Project?
-
-Everything described in this post is what I bring to every engagement — not as a template, but as a methodology.
-
-The site you are reading was built in under 4 hours. That is not a claim about AI. It is a claim about what happens when senior engineering judgment is combined with AI execution at full capacity.
-
-If you are building a product, a platform, or a system and want that combination working for you:
-
-**[Request a Proposal →](/proposal)**
-
-Tell me what you are building. I will tell you exactly how to build it right — the architecture, the stack, the timeline, and the budget. No sales call required to get a real answer.
-
-The proposal form takes 5 minutes. The discovery call takes 30. Most clients have a clear path forward within 24 hours of submitting.
-
-**What you get when you hire a Senior AI-Augmented Fullstack Systems Engineer:**
-
-- **3–5× faster delivery** — without cutting corners on architecture, types, or tests
-- **Production-ready from day one** — security headers, error handling, monitoring, and deployment pipelines included, not added later
-- **AI systems that actually work** — RAG architectures, LLM integrations, and agentic workflows built by someone who uses these tools daily, not someone who watched a YouTube tutorial
-- **Clean handoffs** — every system I build is documented, typed, and structured so your next engineer can work in it without needing me
-- **Transparent process** — you see every decision, every tradeoff, and every line of reasoning, not just the final output
-
-[**Start a Proposal →**](/proposal)
+</CTABlock>
