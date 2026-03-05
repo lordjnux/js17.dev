@@ -5,6 +5,7 @@ import { Header } from "@/components/layout/Header"
 import { Footer } from "@/components/layout/Footer"
 import { SITE_CONFIG } from "@/lib/constants"
 import { PersonJsonLd } from "@/components/shared/JsonLd"
+import { SessionProvider } from "@/components/providers/SessionProvider"
 import "./globals.css"
 
 export const metadata: Metadata = {
@@ -53,6 +54,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" suppressHydrationWarning>
       <body className={`${inter.variable} ${jetbrainsMono.variable} font-sans`}>
         <PersonJsonLd />
+        <SessionProvider>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
           <div className="flex min-h-screen flex-col">
             <Header />
@@ -60,6 +62,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <Footer />
           </div>
         </ThemeProvider>
+        </SessionProvider>
       </body>
     </html>
   )

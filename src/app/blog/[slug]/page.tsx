@@ -6,6 +6,7 @@ import { CopyForLinkedIn } from "@/components/blog/CopyForLinkedIn"
 import type { Metadata } from "next"
 import { compileMDX } from "next-mdx-remote/rsc"
 import { Callout } from "@/components/blog/MDXContent"
+import { PublishVideoButton } from "@/components/blog/PublishVideoButton"
 import {
   StatRow, StatCard,
   StackGrid, StackItem,
@@ -94,7 +95,8 @@ export default async function BlogPostPage({
         <article className="min-w-0 flex-1 max-w-3xl">
           <PostHeader frontmatter={post.frontmatter} />
 
-          <div className="flex justify-end mb-8">
+          <div className="flex justify-between items-center mb-8">
+            <PublishVideoButton slug={params.slug} />
             <CopyForLinkedIn text={linkedInText} />
           </div>
 
