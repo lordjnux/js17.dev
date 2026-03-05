@@ -13,10 +13,8 @@ export interface ProjectDetails {
 }
 
 export interface BudgetInfo {
-  model: "hourly" | "fixed"
-  currency: "USD" | "EUR"
-  hourlyRate?: number
-  estimatedHours?: number
+  currencies: ("USD" | "EUR")[]
+  hourlyRate?: string
   fixedBudget?: string
   flexibility: "exact" | "flexible" | "tbd"
 }

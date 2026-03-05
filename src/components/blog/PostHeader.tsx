@@ -2,6 +2,8 @@ import { Badge } from "@/components/ui/badge"
 import { PostFrontmatter } from "@/types/blog"
 import { formatDate } from "@/lib/utils"
 import { Clock, CalendarDays, User } from "lucide-react"
+import { NewsletterSignup } from "./NewsletterSignup"
+import { PushSubscribe } from "./PushSubscribe"
 
 interface PostHeaderProps {
   frontmatter: PostFrontmatter
@@ -26,7 +28,8 @@ export function PostHeader({ frontmatter }: PostHeaderProps) {
         {frontmatter.description}
       </p>
 
-      <div className="flex flex-wrap items-center gap-5 text-sm text-muted-foreground">
+      {/* Meta row: date · reading time · subscribe · notify */}
+      <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
         {frontmatter.author && (
           <span className="flex items-center gap-1.5">
             <User className="h-4 w-4" />
@@ -43,6 +46,11 @@ export function PostHeader({ frontmatter }: PostHeaderProps) {
             {frontmatter.readingTime} min read
           </span>
         )}
+
+        <span className="text-border">·</span>
+
+        <NewsletterSignup variant="inline" />
+        <PushSubscribe />
       </div>
     </header>
   )

@@ -243,6 +243,35 @@
   @apply font-mono;
 }
 
+/* ─────────────────────────────────────────────
+   PROSE — theme-adaptive colors
+   dark + all custom dark palettes get inverted
+   prose variables so text is always readable
+─────────────────────────────────────────── */
+.dark .prose,
+.terminal .prose,
+.plasma .prose,
+.titanium .prose,
+.forest .prose,
+.aurora .prose {
+  --tw-prose-body: hsl(var(--foreground));
+  --tw-prose-headings: hsl(var(--foreground));
+  --tw-prose-lead: hsl(var(--muted-foreground));
+  --tw-prose-links: hsl(var(--primary));
+  --tw-prose-bold: hsl(var(--foreground));
+  --tw-prose-counters: hsl(var(--muted-foreground));
+  --tw-prose-bullets: hsl(var(--muted-foreground));
+  --tw-prose-hr: hsl(var(--border));
+  --tw-prose-quotes: hsl(var(--foreground));
+  --tw-prose-quote-borders: hsl(var(--border));
+  --tw-prose-captions: hsl(var(--muted-foreground));
+  --tw-prose-code: hsl(var(--foreground));
+  --tw-prose-pre-code: hsl(var(--foreground));
+  --tw-prose-pre-bg: hsl(var(--card));
+  --tw-prose-th-borders: hsl(var(--border));
+  --tw-prose-td-borders: hsl(var(--border));
+}
+
 /* Prose customization */
 .prose code:not([class*="language-"]) {
   @apply rounded bg-muted px-1.5 py-0.5 font-mono text-sm text-foreground;

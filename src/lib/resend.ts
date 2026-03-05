@@ -13,10 +13,11 @@ export const resend = { emails: { send: (...args: Parameters<Resend["emails"]["s
 
 export function buildProposalEmailHtml(data: ProposalData): string {
   const { client, project, budget, contact } = data
-  const budgetDisplay =
-    budget.model === "hourly"
-      ? `${budget.currency} ${budget.hourlyRate}/hr × ~${budget.estimatedHours}h`
-      : `Fixed: ${budget.currency} ${budget.fixedBudget}`
+  const currencies = budget.currencies?.join(" / ") || ""
+  const parts = []
+  if (budget.hourlyRate) parts.push(`${currencies} ${budget.hourlyRate}/hr`)
+  if (budget.fixedBudget) parts.push(`Fixed: ${currencies} ${budget.fixedBudget}`)
+  const budgetDisplay = parts.join(" · ") || "TBD"
 
   return `
 <!DOCTYPE html>
@@ -45,7 +46,7 @@ export function buildProposalEmailHtml(data: ProposalData): string {
 
     <h2 style="font-size: 16px; font-weight: 600; color: #3b82f6; margin: 0 0 12px; text-transform: uppercase; letter-spacing: 0.05em;">Budget</h2>
     <table style="width: 100%; border-collapse: collapse; margin-bottom: 24px;">
-      <tr><td style="padding: 6px 0; color: #64748b; width: 140px;">Model</td><td style="padding: 6px 0; font-weight: 500; text-transform: capitalize;">${budget.model}</td></tr>
+      <tr><td style="padding: 6px 0; color: #64748b; width: 140px;">Currency</td><td style="padding: 6px 0; font-weight: 500;">${currencies}</td></tr>
       <tr><td style="padding: 6px 0; color: #64748b;">Details</td><td style="padding: 6px 0;">${budgetDisplay}</td></tr>
       <tr><td style="padding: 6px 0; color: #64748b;">Flexibility</td><td style="padding: 6px 0; text-transform: capitalize;">${budget.flexibility}</td></tr>
     </table>

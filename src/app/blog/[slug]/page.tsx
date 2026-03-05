@@ -100,7 +100,7 @@ export default async function BlogPostPage({
             <CopyForLinkedIn text={linkedInText} />
           </div>
 
-          <div className="prose prose-slate dark:prose-invert max-w-none prose-headings:font-bold prose-headings:tracking-tight prose-a:text-blue-500 prose-a:no-underline hover:prose-a:underline prose-code:font-mono prose-code:bg-muted prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-pre:p-0 prose-pre:bg-transparent">
+          <div className="prose prose-slate max-w-none prose-headings:font-bold prose-headings:tracking-tight prose-a:no-underline hover:prose-a:underline prose-code:font-mono prose-code:bg-muted prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-pre:p-0 prose-pre:bg-transparent">
             {content}
           </div>
         </article>

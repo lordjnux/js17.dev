@@ -22,16 +22,16 @@ export function Step3Budget({ data, onNext, onBack }: StepProps) {
     register,
     handleSubmit,
     control,
-    watch,
-    setValue,
-    formState: {},
+    formState: { errors },
   } = useForm<Step3Data>({
     resolver: zodResolver(step3Schema),
-    defaultValues: data.budget,
+    defaultValues: {
+      currencies: data.budget?.currencies ?? [],
+      hourlyRate: data.budget?.hourlyRate ?? "",
+      fixedBudget: data.budget?.fixedBudget ?? "",
+      flexibility: data.budget?.flexibility ?? "flexible",
+    },
   })
-
-  const model = watch("model")
-  const currency = watch("currency")
 
   const onSubmit = (values: Step3Data) => {
     onNext({ budget: values })
@@ -41,107 +41,75 @@ export function Step3Budget({ data, onNext, onBack }: StepProps) {
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
       <div>
         <h2 className="text-xl font-semibold mb-1">Budget & Engagement Model</h2>
-        <p className="text-sm text-muted-foreground">Choose how you&apos;d like to structure this engagement.</p>
+        <p className="text-sm text-muted-foreground">
+          Fill what you know — at least one price type and one currency required.
+        </p>
       </div>
 
-      {/* Hourly vs Fixed toggle */}
+      {/* Currency — checkboxes, at least one */}
       <div className="space-y-1.5">
-        <Label>Engagement model *</Label>
-        <div className="grid grid-cols-2 gap-3">
-          {(["hourly", "fixed"] as const).map((m) => (
-            <button
-              key={m}
-              type="button"
-              onClick={() => setValue("model", m)}
-              className={cn(
-                "rounded-lg border p-4 text-left transition-all",
-                model === m
-                  ? "border-blue-500 bg-blue-500/10"
-                  : "border-border hover:border-blue-500/50"
-              )}
-            >
-              <p className="font-medium capitalize">{m}</p>
-              <p className="text-xs text-muted-foreground mt-1">
-                {m === "hourly"
-                  ? "Pay by the hour. Best for ongoing work."
-                  : "Fixed price for defined scope."}
-              </p>
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Currency */}
-      <div className="space-y-1.5">
-        <Label>Currency *</Label>
+        <Label>Currency <span className="text-muted-foreground font-normal">(select one or both)</span></Label>
         <Controller
-          name="currency"
+          name="currencies"
           control={control}
           render={({ field }) => (
             <div className="flex gap-3">
-              {(["USD", "EUR"] as const).map((c) => (
-                <button
-                  key={c}
-                  type="button"
-                  onClick={() => field.onChange(c)}
-                  className={cn(
-                    "flex-1 rounded-md border px-4 py-2 text-sm font-medium transition-all",
-                    field.value === c
-                      ? "border-blue-500 bg-blue-500/10 text-blue-500"
-                      : "border-border hover:border-blue-500/50"
-                  )}
-                >
-                  {c}
-                </button>
-              ))}
+              {(["USD", "EUR"] as const).map((c) => {
+                const selected = field.value?.includes(c)
+                return (
+                  <button
+                    key={c}
+                    type="button"
+                    onClick={() => {
+                      const next = selected
+                        ? field.value.filter((v) => v !== c)
+                        : [...(field.value ?? []), c]
+                      field.onChange(next)
+                    }}
+                    className={cn(
+                      "flex-1 rounded-md border px-4 py-2.5 text-sm font-medium transition-all",
+                      selected
+                        ? "border-primary bg-primary/10 text-primary"
+                        : "border-border hover:border-primary/50"
+                    )}
+                  >
+                    {c === "USD" ? "$ USD" : "€ EUR"}
+                  </button>
+                )
+              })}
             </div>
           )}
         />
+        {errors.currencies && (
+          <p className="text-xs text-destructive">{errors.currencies.message as string}</p>
+        )}
       </div>
 
-      {/* Hourly fields */}
-      {model === "hourly" && (
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-1.5">
-            <Label>Rate (per hour)</Label>
-            <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">
-                {currency === "USD" ? "$" : "€"}
-              </span>
-              <Input
-                type="number"
-                className="pl-7"
-                placeholder="150"
-                {...register("hourlyRate", { valueAsNumber: true })}
-              />
-            </div>
-          </div>
-          <div className="space-y-1.5">
-            <Label>Estimated hours</Label>
-            <Input
-              type="number"
-              placeholder="40"
-              {...register("estimatedHours", { valueAsNumber: true })}
-            />
-          </div>
-        </div>
-      )}
-
-      {/* Fixed fields */}
-      {model === "fixed" && (
+      {/* Price fields — show both, fill at least one */}
+      <div className="grid grid-cols-2 gap-4">
         <div className="space-y-1.5">
-          <Label>Budget range</Label>
-          <div className="relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">
-              {currency === "USD" ? "$" : "€"}
-            </span>
-            <Input
-              className="pl-7"
-              placeholder="5,000 – 10,000"
-              {...register("fixedBudget")}
-            />
-          </div>
+          <Label>
+            Hourly rate
+            <span className="ml-1 text-xs text-muted-foreground font-normal">optional</span>
+          </Label>
+          <Input
+            placeholder="e.g. 120/hr"
+            {...register("hourlyRate")}
+          />
         </div>
+        <div className="space-y-1.5">
+          <Label>
+            Fixed budget
+            <span className="ml-1 text-xs text-muted-foreground font-normal">optional</span>
+          </Label>
+          <Input
+            placeholder="e.g. 5,000 – 10,000"
+            {...register("fixedBudget")}
+          />
+        </div>
+      </div>
+      {errors.hourlyRate && (
+        <p className="text-xs text-destructive -mt-3">{errors.hourlyRate.message}</p>
       )}
 
       {/* Flexibility */}

@@ -17,14 +17,19 @@ export const step2Schema = z.object({
   features: z.array(z.string()).min(1, "Add at least one key feature"),
 })
 
-export const step3Schema = z.object({
-  model: z.enum(["hourly", "fixed"]),
-  currency: z.enum(["USD", "EUR"]),
-  hourlyRate: z.number().positive().optional(),
-  estimatedHours: z.number().positive().optional(),
-  fixedBudget: z.string().optional(),
-  flexibility: z.enum(["exact", "flexible", "tbd"]),
-})
+export const step3Schema = z
+  .object({
+    currencies: z
+      .array(z.enum(["USD", "EUR"]))
+      .min(1, "Select at least one currency"),
+    hourlyRate: z.string().optional(),
+    fixedBudget: z.string().optional(),
+    flexibility: z.enum(["exact", "flexible", "tbd"]),
+  })
+  .refine((d) => (d.hourlyRate?.trim() || d.fixedBudget?.trim()), {
+    message: "Enter at least an hourly rate or a fixed budget",
+    path: ["hourlyRate"],
+  })
 
 export const step4Schema = z.object({
   email: z.string().email("Enter a valid email address"),
@@ -43,6 +48,12 @@ export const proposalSchema = z.object({
 
 export type Step1Data = z.infer<typeof step1Schema>
 export type Step2Data = z.infer<typeof step2Schema>
-export type Step3Data = z.infer<typeof step3Schema>
+// Step3Data is the inferred type after .refine(), use the base shape for form
+export type Step3Data = {
+  currencies: ("USD" | "EUR")[]
+  hourlyRate?: string
+  fixedBudget?: string
+  flexibility: "exact" | "flexible" | "tbd"
+}
 export type Step4Data = z.infer<typeof step4Schema>
 export type ProposalData = z.infer<typeof proposalSchema>

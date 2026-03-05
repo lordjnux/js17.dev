@@ -13,10 +13,8 @@ const INITIAL_DATA: ProposalFormData = {
     features: [],
   },
   budget: {
-    model: "hourly",
-    currency: "USD",
-    hourlyRate: undefined,
-    estimatedHours: undefined,
+    currencies: [],
+    hourlyRate: "",
     fixedBudget: "",
     flexibility: "flexible",
   },

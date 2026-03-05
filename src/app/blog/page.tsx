@@ -1,6 +1,8 @@
 import { getAllPosts } from "@/lib/mdx"
 import { PostCard } from "@/components/blog/PostCard"
 import { SectionHeader } from "@/components/shared/SectionHeader"
+import { NewsletterSignup } from "@/components/blog/NewsletterSignup"
+import { PushSubscribe } from "@/components/blog/PushSubscribe"
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
@@ -20,6 +22,12 @@ export default function BlogPage() {
         description="Technical articles on AI engineering, architecture, and building production systems."
         align="left"
       />
+
+      {/* Subscribe strip */}
+      <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-lg border bg-card px-4 py-3">
+        <NewsletterSignup variant="banner" />
+        <PushSubscribe />
+      </div>
 
       {posts.length === 0 ? (
         <p className="text-muted-foreground">No posts published yet. Check back soon.</p>
