@@ -1,0 +1,18 @@
+{
+  "types": [
+    { "type": "feat",     "section": "Features" },
+    { "type": "fix",      "section": "Bug Fixes" },
+    { "type": "perf",     "section": "Performance" },
+    { "type": "refactor", "section": "Refactoring" },
+    { "type": "blog",     "section": "Blog & Content" },
+    { "type": "ci",       "section": "CI/CD" },
+    { "type": "build",    "section": "Build System" },
+    { "type": "docs",     "hidden": true },
+    { "type": "style",    "hidden": true },
+    { "type": "test",     "hidden": true },
+    { "type": "chore",    "hidden": true }
+  ],
+  "commitUrlFormat": "https://github.com/lordjnux/js17.dev/commit/{{hash}}",
+  "compareUrlFormat": "https://github.com/lordjnux/js17.dev/compare/{{previousTag}}...{{currentTag}}",
+  "issueUrlFormat": "https://github.com/lordjnux/js17.dev/issues/{{id}}"
+}
