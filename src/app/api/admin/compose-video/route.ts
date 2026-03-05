@@ -80,5 +80,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: data.message || "Shotstack error" }, { status: 500 })
   }
 
-  return NextResponse.json({ jobId: data.response.id })
+  const jobId = data?.response?.id
+  if (!jobId) {
+    return NextResponse.json({ error: "No job ID in Shotstack response" }, { status: 500 })
+  }
+
+  return NextResponse.json({ jobId })
 }

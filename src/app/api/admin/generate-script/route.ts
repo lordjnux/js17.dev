@@ -55,6 +55,10 @@ Return ONLY valid JSON, no markdown:
     temperature: 0.7,
   })
 
-  const script = JSON.parse(completion.choices[0].message.content || "{}")
-  return NextResponse.json(script)
+  try {
+    const script = JSON.parse(completion.choices[0].message.content || "{}")
+    return NextResponse.json(script)
+  } catch {
+    return NextResponse.json({ error: "GPT-4o returned invalid JSON" }, { status: 500 })
+  }
 }

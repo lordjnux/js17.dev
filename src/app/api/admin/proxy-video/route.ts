@@ -12,6 +12,18 @@ export async function GET(req: NextRequest) {
   const url = req.nextUrl.searchParams.get("url")
   if (!url) return new Response("Missing url", { status: 400 })
 
+  // Whitelist Shotstack CDN — prevent SSRF / open redirect abuse
+  const allowedHosts = ["api.shotstack.io", "shotstack-create-prod-output.s3-accelerate.amazonaws.com"]
+  let parsedUrl: URL
+  try {
+    parsedUrl = new URL(url)
+  } catch {
+    return new Response("Invalid url", { status: 400 })
+  }
+  if (!allowedHosts.some((h) => parsedUrl.hostname === h || parsedUrl.hostname.endsWith(`.${h}`))) {
+    return new Response("URL not allowed", { status: 403 })
+  }
+
   const videoRes = await fetch(url)
   if (!videoRes.ok) return new Response("Failed to fetch video", { status: 502 })
 
