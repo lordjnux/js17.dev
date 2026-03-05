@@ -111,60 +111,26 @@ export function PublishVideoButton({ slug }: { slug: string }) {
   }
 
   async function handlePublishToYoutube() {
-    if (!videoUrl || !script || !session?.accessToken) return
+    if (!videoUrl || !script) return
     setStep("uploading")
     setProgress("Uploading to YouTube…")
     setError(null)
 
     try {
-      // Proxy download to avoid CORS
-      const proxyRes = await fetch(`/api/admin/proxy-video?url=${encodeURIComponent(videoUrl)}`)
-      if (!proxyRes.ok) throw new Error("Failed to download video")
-      const videoBlob = await proxyRes.blob()
-
-      // Step 1: Initialize resumable YouTube upload
-      const initRes = await fetch(
-        "https://www.googleapis.com/upload/youtube/v3/videos?uploadType=resumable&part=snippet,status",
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${session.accessToken}`,
-            "Content-Type": "application/json",
-            "X-Upload-Content-Type": "video/mp4",
-            "X-Upload-Content-Length": String(videoBlob.size),
-          },
-          body: JSON.stringify({
-            snippet: {
-              title: script.youtubeTitle,
-              description: script.youtubeDescription,
-              tags: script.youtubeTags,
-              categoryId: "28", // Science & Technology
-            },
-            status: { privacyStatus: "public", selfDeclaredMadeForKids: false },
-          }),
-        }
-      )
-
-      if (!initRes.ok) {
-        const err = await initRes.json()
-        throw new Error(err.error?.message || "YouTube init failed")
-      }
-
-      const uploadUrl = initRes.headers.get("Location")
-      if (!uploadUrl) throw new Error("No upload URL from YouTube")
-
-      // Step 2: Upload video blob
-      setProgress("Uploading video to YouTube…")
-      const uploadRes = await fetch(uploadUrl, {
-        method: "PUT",
-        headers: { "Content-Type": "video/mp4" },
-        body: videoBlob,
+      // Server-side upload — avoids CORS and handles token refresh automatically
+      const res = await fetch("/api/admin/upload-youtube", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          videoUrl,
+          title: script.youtubeTitle,
+          description: script.youtubeDescription,
+          tags: script.youtubeTags,
+        }),
       })
-
-      if (!uploadRes.ok) throw new Error("YouTube upload failed")
-      const videoData = await uploadRes.json()
-      const ytId = videoData.id
-      setYoutubeUrl(`https://youtube.com/watch?v=${ytId}`)
+      if (!res.ok) throw new Error((await res.json()).error)
+      const { youtubeUrl: ytUrl } = await res.json()
+      setYoutubeUrl(ytUrl)
       setStep("done")
     } catch (e) {
       setError(e instanceof Error ? e.message : "YouTube upload failed")
