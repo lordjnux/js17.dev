@@ -3,22 +3,20 @@
 import { useEffect, useRef, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft, Loader2, Send, Calendar, ExternalLink } from "lucide-react"
-import { SITE_CONFIG } from "@/lib/constants"
-
 interface StepProps {
   onBack: () => void
   onSubmit: () => void
   isSubmitting: boolean
   error: string | null
+  calUsername: string
+  calEventType: string
 }
 
 type EmbedState = "loading" | "ready" | "failed"
 
 const CAL_EMBED_TIMEOUT_MS = 10000
 
-export function Step5Schedule({ onBack, onSubmit, isSubmitting, error }: StepProps) {
-  const calUsername = SITE_CONFIG.calcom.username
-  const calEventType = SITE_CONFIG.calcom.eventType
+export function Step5Schedule({ onBack, onSubmit, isSubmitting, error, calUsername, calEventType }: StepProps) {
   const [embedState, setEmbedState] = useState<EmbedState>("loading")
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 

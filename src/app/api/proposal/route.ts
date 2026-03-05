@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { proposalSchema } from "@/lib/validations"
 import { resend, buildProposalEmailHtml, buildClientConfirmationHtml } from "@/lib/resend"
+import { moderateContent, recordSubmission } from "@/lib/moderation"
 
 // Simple in-memory rate limiting (per IP, per minute)
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>()
@@ -40,6 +41,43 @@ export async function POST(req: NextRequest) {
 
   const data = result.data
 
+  // Build text for moderation: combine all free-text fields
+  const textToModerate = [
+    data.client.name,
+    data.client.company,
+    data.project.title,
+    data.project.description,
+    data.project.features.join(" "),
+    data.contact.additionalNotes || "",
+  ].join(" ")
+
+  const modResult = await moderateContent(textToModerate)
+
+  const submissionId = crypto.randomUUID()
+  const excerpt = textToModerate.slice(0, 120).replace(/\s+/g, " ").trim()
+
+  if (modResult.flagged) {
+    // Record blocked submission for observability (non-blocking)
+    recordSubmission({
+      id: submissionId,
+      timestamp: new Date().toISOString(),
+      flagged: true,
+      action: "blocked",
+      reason: modResult.reason,
+      categories: modResult.categories,
+      scores: modResult.scores,
+      source: modResult.source,
+      excerpt,
+      clientName: data.client.name,
+      company: data.client.company,
+      projectTitle: data.project.title,
+      contactEmail: data.contact.email,
+    }).catch(() => {})
+
+    // Return success to client — don't reveal moderation decision
+    return NextResponse.json({ success: true })
+  }
+
   try {
     const fromEmail = process.env.RESEND_FROM_EMAIL || "proposals@js17.dev"
     const toEmail = process.env.RESEND_TO_EMAIL || "jeroham@js17.dev"
@@ -61,6 +99,23 @@ export async function POST(req: NextRequest) {
         html: buildClientConfirmationHtml(data),
       }),
     ])
+
+    // Record sent submission for observability (non-blocking)
+    recordSubmission({
+      id: submissionId,
+      timestamp: new Date().toISOString(),
+      flagged: false,
+      action: "sent",
+      reason: null,
+      categories: modResult.categories,
+      scores: modResult.scores,
+      source: modResult.source,
+      excerpt,
+      clientName: data.client.name,
+      company: data.client.company,
+      projectTitle: data.project.title,
+      contactEmail: data.contact.email,
+    }).catch(() => {})
 
     return NextResponse.json({ success: true })
   } catch (error) {
