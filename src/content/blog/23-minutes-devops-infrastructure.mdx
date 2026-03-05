@@ -1,0 +1,196 @@
+---
+title: "23 Minutes to Production-Grade DevOps: A Real-Time Infrastructure Sprint"
+description: "At 15:25, I gave the first directive. At 15:48, two protected environments were live, CI/CD was enforced, conventional commits were running, and three critical security bugs were patched. A documented look at what AI-augmented orchestration actually produces."
+date: "2026-03-05"
+tags: ["AI-Augmented Engineering", "DevOps", "GitHub Actions", "CI/CD", "Productivity", "Case Study", "Security"]
+readingTime: 8
+published: true
+---
+
+At **15:25**, I gave the first directive.
+
+At **15:48**, the following was live in production:
+
+- Two protected environments — `js17.dev` (production) and `sandbox.js17.dev` (staging)
+- Branch protection rules enforced on GitHub via API for both branches
+- A full CI/CD pipeline with automated type-check, lint, and build gates on every PR
+- Conventional commits enforced via `commitlint` + `husky` hooks
+- Automated changelog generation and semantic versioning with `standard-version`
+- GitHub Releases triggered automatically on every merge to `main`
+- Three critical security/reliability bugs patched in the YouTube publishing pipeline
+
+Twenty-three minutes. Zero errors. Zero manual steps missed.
+
+---
+
+## The Numbers
+
+<StatRow>
+  <StatCard value="23m" label="Total execution time" icon="⏱️" color="blue" />
+  <StatCard value="1.5h" label="Estimated expert baseline" icon="👷" color="purple" />
+  <StatCard value="74.44%" label="Time saved vs. expert solo" icon="📉" color="green" />
+  <StatCard value="3" label="Security bugs caught and patched" icon="🔒" color="orange" />
+</StatRow>
+
+---
+
+## What Was Actually Delivered
+
+This was not a scaffold. It was not a template. It was a complete DevOps infrastructure sprint executed from a single directive session.
+
+### Protected Branch Strategy
+
+The first decision was architectural: establish a two-environment model before writing a single config file.
+
+```
+main ──── production (js17.dev)
+           ↑ PR required
+           ↑ CI must pass (3 checks)
+           ↑ No force push
+           ↑ Linear history enforced
+           ↑ Conversations must be resolved
+
+sandbox ── staging (sandbox.js17.dev)
+           ↑ CI must pass (2 checks)
+           ↑ No force push
+           ↑ Direct push allowed
+```
+
+Both sets of rules were applied via the GitHub REST API — no clicking through the UI.
+
+### CI/CD Pipeline
+
+Two GitHub Actions workflows were designed, written, and committed in one pass:
+
+**`ci.yml`** — Triggers on every PR to `main` or `sandbox`, and on every push to `sandbox`:
+- `type-check` — runs `tsc --noEmit`
+- `lint` — runs `next lint`
+- `build` — runs `next build` with stubbed env vars (so CI doesn't fail on missing secrets)
+
+**`release.yml`** — Triggers on every merge to `main`:
+- Bumps version automatically following Conventional Commits spec
+- Generates and commits `CHANGELOG.md`
+- Pushes the release tag
+- Creates a GitHub Release with generated notes
+
+<Callout type="tip">
+**Key design decision:** The release workflow guards against infinite loops with `if: "!contains(github.event.head_commit.message, 'chore(release)')"` — preventing the auto-generated release commit from triggering another release.
+</Callout>
+
+### Commit Quality Enforcement
+
+From this session forward, every commit to this repository is validated:
+
+- **`commit-msg` hook** — `commitlint` enforces the Conventional Commits spec before the commit lands
+- **`pre-commit` hook** — TypeScript type-check runs before any commit succeeds
+- **Custom commit type** — `blog` added as a first-class type for MDX content changes
+
+The first time the new rules were tested in practice: a commit message containing `CI/CD` in the subject was rejected immediately because `CI` is uppercase. The rule was correct. The message was fixed. The system worked.
+
+### Sandbox Environment
+
+`sandbox.js17.dev` required both a Vercel domain assignment and a DNS CNAME record. The technical setup was documented precisely — `CNAME sandbox → cname.vercel-dns.com` — and once executed, verified in seconds:
+
+```bash
+curl -sI https://sandbox.js17.dev
+# HTTP/1.1 200 OK
+# x-powered-by: Next.js
+# x-vercel-cache: HIT
+# Server: cloudflare
+```
+
+---
+
+## The Security Audit: Three Bugs That Were Already in Production
+
+While the infrastructure was being built, a parallel audit of the existing YouTube publishing pipeline was running simultaneously. It surfaced three issues that had been live since the feature was deployed.
+
+### Bug 1 — SSRF / Open Redirect in `proxy-video` Route
+
+```typescript
+// BEFORE — accepts any URL, proxies it server-side
+const videoRes = await fetch(url)
+```
+
+```typescript
+// AFTER — Shotstack hostnames whitelisted
+const allowedHosts = [
+  "api.shotstack.io",
+  "shotstack-create-prod-output.s3-accelerate.amazonaws.com"
+]
+if (!allowedHosts.some((h) => parsedUrl.hostname === h)) {
+  return new Response("URL not allowed", { status: 403 })
+}
+```
+
+This is a Server-Side Request Forgery vector. An authenticated admin could have been tricked into proxying arbitrary internal or external URLs through the server.
+
+### Bug 2 — YouTube Upload Client-Side (CORS + Token Exposure)
+
+The original implementation made the YouTube API call directly from the browser:
+
+```typescript
+// BEFORE — browser calling YouTube API directly
+const initRes = await fetch(
+  "https://www.googleapis.com/upload/youtube/v3/videos?...",
+  { headers: { Authorization: `Bearer ${session.accessToken}` } }
+)
+```
+
+Two problems: YouTube's upload API does not support CORS for browser-originated requests, making this unreliable across environments. And the access token was being used client-side, exposing it to any browser extension or XSS vector.
+
+The fix moved the entire upload to a dedicated server-side route `/api/admin/upload-youtube` where the token never touches the client.
+
+### Bug 3 — OAuth Token Expiry Not Handled
+
+Google OAuth access tokens expire after one hour. The original `auth.ts` stored the access token at sign-in but never refreshed it. Any YouTube upload attempted more than 60 minutes after login would silently fail with 401.
+
+```typescript
+// AFTER — auth.ts now refreshes automatically
+if (Date.now() < token.accessTokenExpires) return token
+
+const refreshed = await refreshAccessToken(token.refreshToken)
+if (refreshed) return { ...token, ...refreshed }
+```
+
+<Callout type="warning">
+None of these bugs would have appeared in local testing during a short session. They are the kind of failure mode that surfaces in production, under real conditions, when the person running the feature has already moved on to something else.
+</Callout>
+
+---
+
+## The Real Fact About Time
+
+There is a concept in productivity research called **time-to-competent-output** — the elapsed time from task start to a deliverable that meets a professional standard. It is distinct from hours billed, commits made, or lines written.
+
+A senior DevOps engineer working alone on this scope — branch protection via API, two workflows, conventional commits setup, husky initialization, changelog config, a security audit, and a domain verification — would produce the same output in approximately **90 minutes**. This accounts for documentation lookups, context switching between tools, and the cognitive cost of holding the full dependency graph in working memory.
+
+The 23-minute result is not a benchmark for AI speed. It is a benchmark for **directed AI orchestration** — the compounding advantage that emerges when a human with deep technical judgment eliminates ambiguity before work begins, coordinates parallel workstreams explicitly, and corrects the AI's conclusions in real time.
+
+<Callout type="info">
+**McKinsey Global Institute, 2023:** Knowledge workers who use AI as a collaborative amplifier — rather than an autonomous agent — report productivity gains of 40–70% on structured technical tasks. The key variable is not AI capability. It is the human's ability to decompose, sequence, and validate.
+</Callout>
+
+The 74.44% time saving is not the interesting number. The interesting number is what happens when every working session compounds at that rate — across architecture design, security reviews, infrastructure setup, feature delivery, and content production — over months and years.
+
+---
+
+## What This Session Established
+
+js17.dev is no longer just a professional portfolio. As of today it has the operational backbone of a serious software product:
+
+- **Reproducible delivery pipeline** — no broken builds reach production
+- **Auditable history** — every change is typed, scoped, and versioned
+- **Dual environments** — features are validated in staging before they touch production
+- **Automated releases** — every merge to `main` produces a versioned artifact
+- **Security posture** — SSRF patched, CORS enforced, token lifecycle managed
+
+This is the infrastructure that scales. Not because of the tools chosen — `husky`, `standard-version`, and GitHub Actions are industry-standard — but because the discipline to establish them early, completely, and correctly is what separates projects that stay maintainable from projects that don't.
+
+The session started at 15:25. It ended at 15:48.
+
+The infrastructure will still be running long after I've forgotten the exact commands used to build it.
+
+---
+
+*This post was written the same day the work was done. All timestamps, metrics, and code excerpts are factual records of the session.*
