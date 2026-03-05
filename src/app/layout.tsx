@@ -55,7 +55,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className={`${inter.variable} ${jetbrainsMono.variable} font-sans`}>
         <PersonJsonLd />
         <SessionProvider>
-        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          themes={["light", "dark", "terminal", "plasma", "titanium", "forest", "aurora"]}
+          disableTransitionOnChange
+        >
           <div className="flex min-h-screen flex-col">
             <Header />
             <main className="flex-1">{children}</main>

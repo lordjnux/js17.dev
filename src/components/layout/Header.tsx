@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { ThemeToggle } from "./ThemeToggle"
+import { ThemePicker } from "./ThemePicker"
 import { CVDownloadButton } from "@/components/shared/CVDownloadButton"
 import { NAV_ITEMS } from "@/lib/constants"
 import { cn } from "@/lib/utils"
@@ -60,7 +60,7 @@ export function Header() {
 
         {/* Actions */}
         <div className="flex items-center gap-2">
-          <ThemeToggle />
+          <ThemePicker />
           <CVDownloadButton size="sm" className="hidden md:inline-flex" />
           <Button
             variant="ghost"
