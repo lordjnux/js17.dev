@@ -6,6 +6,7 @@ import { Footer } from "@/components/layout/Footer"
 import { SITE_CONFIG } from "@/lib/constants"
 import { PersonJsonLd } from "@/components/shared/JsonLd"
 import { SessionProvider } from "@/components/providers/SessionProvider"
+import { ThemeInitializer } from "@/components/providers/ThemeInitializer"
 import "./globals.css"
 
 export const metadata: Metadata = {
@@ -61,6 +62,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           themes={["light", "dark", "terminal", "plasma", "titanium", "forest", "aurora"]}
           disableTransitionOnChange
         >
+          <ThemeInitializer />
           <div className="flex min-h-screen flex-col">
             <Header />
             <main className="flex-1">{children}</main>

@@ -4,6 +4,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { ThemePicker } from "./ThemePicker"
 import { CVDownloadButton } from "@/components/shared/CVDownloadButton"
+import { LogoMark } from "@/components/shared/Logo"
 import { NAV_ITEMS } from "@/lib/constants"
 import { cn } from "@/lib/utils"
 import { useState, useEffect } from "react"
@@ -34,9 +35,10 @@ export function Header() {
         {/* Logo */}
         <Link
           href="/"
-          className="flex items-center gap-2 font-bold text-lg tracking-tight hover:text-primary transition-colors"
+          className="flex items-center gap-2 font-bold text-lg tracking-tight hover:text-primary transition-colors group"
         >
-          <span className="text-blue-500 font-mono">js17</span>
+          <LogoMark size={26} className="text-primary transition-colors" />
+          <span className="font-mono text-foreground">js17</span>
           <span className="text-muted-foreground font-mono">.dev</span>
         </Link>
 
