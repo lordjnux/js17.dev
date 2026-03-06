@@ -11,7 +11,10 @@
     "release": "standard-version",
     "release:patch": "standard-version --release-as patch",
     "release:minor": "standard-version --release-as minor",
-    "release:major": "standard-version --release-as major"
+    "release:major": "standard-version --release-as major",
+    "test:proposal": "node scripts/test-proposal.mjs",
+    "test:proposal:sandbox": "node scripts/test-proposal.mjs https://sandbox.js17.dev",
+    "test:proposal:prod": "node scripts/test-proposal.mjs https://js17.dev"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
