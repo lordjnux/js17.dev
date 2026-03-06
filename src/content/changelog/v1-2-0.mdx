@@ -1,0 +1,44 @@
+---
+version: "1.2.0"
+date: "2026-02-28"
+title: "Brand Identity, Themes & Proposal UX"
+headline: "A real visual identity. Seven colour palettes. A proposal form that actually works end-to-end."
+category: "feature"
+skills:
+  - Design systems
+  - CSS custom properties
+  - Next.js App Router
+  - Cal.com embed API
+  - Multi-step form patterns
+  - Web Push API
+  - Cloudinary CDN
+  - SVG icon systems
+clientValue: "The site now has a distinctive brand that looks intentional across every device and theme. Potential clients can submit a detailed project proposal and book a discovery call — all in a single guided flow without leaving the page."
+devNotes: "The palette system uses CSS custom property blocks per theme class on <html>. Each palette defines 12 semantic tokens (background, foreground, primary, accent, gradient-from/to, etc.) — no Tailwind class changes needed when switching themes. The Cal.com embed has a MutationObserver-based ready detection (no native callback exists) with a 10s timeout fallback to a direct booking link. The preloader starts injecting the Cal script at step 3 so it's warm by step 5."
+---
+
+## What shipped
+
+### Circuit tree logo & brand mark
+A geometric circuit-tree SVG mark — monochromatic, `currentColor`, fully theme-adaptive. The icon appears in the header alongside the wordmark and in the footer as the full mark. One SVG responds correctly to every theme and dark/light mode without extra CSS.
+
+### Seven visual themes
+Forest Node (default for first-time visitors), Circuit Dark, Circuit Light, Terminal Green, Plasma Purple, Titanium Gray, and Aurora. Each palette is a complete design token set — headings, code blocks, gradients, borders, and prose typography all adapt. Returning visitors get a random theme on each session.
+
+### Theme picker
+A popover component with colour swatches, theme names, and descriptions. The active theme shows a live primary-colour dot on the trigger button. Replaces the plain dark/light toggle with something that expresses the breadth of the visual system.
+
+### Multi-step proposal form (5 steps)
+Client info → Project details → Budget → Contact → Schedule. Each step validates independently with Zod before advancing. The budget step accepts both hourly and fixed-price inputs in USD and EUR, with a flexibility selector. Error messages are inline and field-level.
+
+### Cal.com discovery call scheduler (Step 5)
+Embedded Cal.com calendar on the final step with loading skeleton, MutationObserver-based ready detection, and a fallback direct-booking link if the embed times out. The script preloads from step 3 to eliminate cold-start latency.
+
+### Web push notifications
+Visitors can opt into push notifications for new blog posts. A service worker handles delivery. VAPID key pair configured for both production and sandbox environments.
+
+### Newsletter sign-up
+Minimalist inline and banner variants on the blog index and per-article header. Subscribers stored in Vercel Blob with deduplication.
+
+### Prose readability on dark themes
+Custom `--tw-prose-*` CSS variable overrides for every dark palette class, so article text, headings, links, and code blocks are readable regardless of which theme is active — not just the built-in `.dark` class that Tailwind Typography assumes.

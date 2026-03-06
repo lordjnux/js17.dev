@@ -1,0 +1,47 @@
+---
+version: "1.1.0"
+date: "2026-02-15"
+title: "YouTube Pipeline & DevOps Infrastructure"
+headline: "Blog posts can now become YouTube videos in one click. The codebase got branch protection, CI/CD, and conventional versioning — in 23 minutes."
+category: "infrastructure"
+skills:
+  - YouTube Data API v3
+  - OpenAI GPT-4o + TTS
+  - Shotstack video rendering
+  - GitHub Actions CI/CD
+  - Branch protection strategy
+  - OAuth 2.0 token refresh
+  - Vercel Blob storage
+  - Server-side media pipeline
+clientValue: "A single 'Publish to YouTube' button on any blog post triggers a full AI-powered video production pipeline: GPT-4o writes a script, OpenAI TTS narrates it in a professional voice, Shotstack renders slides with motion graphics, and the result uploads directly to YouTube. The entire DevOps foundation took 23 minutes to establish — the kind of velocity available when working with AI-augmented engineering."
+devNotes: "The YouTube upload is server-side via a Next.js API route — a critical fix from the original client-side approach which hit CORS blocks. The Shotstack job is polled via a /video-status/[jobId] route until complete. OAuth token refresh is handled in the NextAuth JWT callback: refresh_token stored on initial sign-in, auto-refreshed when accessTokenExpires is past. The SSRF vulnerability in the proxy-video route is mitigated by a Shotstack CDN hostname allowlist."
+---
+
+## What shipped
+
+### AI-powered blog-to-YouTube pipeline
+Every blog post gets a "Publish to YouTube" button visible only to the admin. The pipeline:
+1. GPT-4o reads the post and writes a structured video script
+2. OpenAI TTS (onyx voice) narrates each section
+3. Shotstack composes the audio with animated slide visuals
+4. The finished video uploads directly to the YouTube channel via the Data API v3
+
+All processing is server-side. The UI shows live progress with per-step status indicators.
+
+### Google OAuth with automatic token refresh
+Admin authentication via Google OAuth 2.0. Access tokens (1-hour lifespan) are automatically refreshed using the stored refresh_token — no re-authentication required mid-session.
+
+### Branch protection & CI/CD (23 minutes)
+Established via the GitHub REST API in a single directed session:
+- `main` branch requires PR + 3 passing CI checks + linear history + no force push
+- GitHub Actions CI: TypeScript type-check, ESLint, and Next.js build on every PR
+- GitHub Actions release: standard-version auto-bumps version + generates CHANGELOG on every merge to main
+- Conventional Commits enforced via commitlint + Husky pre-commit hook
+
+### Sandbox environment
+A `sandbox` branch deploys automatically to `sandbox.js17.dev` on Vercel — a complete staging environment with its own env vars, domain, and deployment pipeline. All new features ship to sandbox first.
+
+### Security hardening
+- YouTube upload moved server-side (eliminated CORS vulnerability)
+- Proxy video route restricted to Shotstack CDN hostnames only (SSRF mitigation)
+- MDX CVE patch: upgraded `next-mdx-remote` to v6 (CVE-2026-0969)

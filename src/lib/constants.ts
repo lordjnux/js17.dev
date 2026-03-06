@@ -77,6 +77,7 @@ export const TECH_STACK = {
 
 export const NAV_ITEMS = [
   { label: "Blog", href: "/blog" },
+  { label: "Changelog", href: "/changelog" },
   { label: "Proposal", href: "/proposal" },
 ] as const
 

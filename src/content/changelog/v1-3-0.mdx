@@ -1,0 +1,37 @@
+---
+version: "1.3.0"
+date: "2026-03-05"
+title: "Security, Credentials & Quality Gates"
+headline: "Every proposal is now screened for abuse. Your certifications are live. The codebase has its first automated test suite."
+category: "security"
+skills:
+  - OpenAI Moderation API
+  - DNS MX validation
+  - Vercel Blob storage
+  - OAuth 2.0 debugging
+  - Credly REST API
+  - Integration testing
+  - Rate limiting
+clientValue: "Your inbox is protected by a multi-layer content filter — hostile submissions are silently blocked before any email is sent. Verified credentials from MongoDB, Google Cloud, and Certiprof are now visible to anyone evaluating your profile."
+devNotes: "Moderation runs three layers: a hardcoded keyword blocklist (seeded from a real abuse case), a custom Vercel Blob blocklist that grows autonomously when OpenAI flags new patterns, and the OpenAI Moderation API as a final layer. The system fails open — if the API is unavailable, legitimate proposals still go through. The newsletter endpoint gained MX record DNS resolution to reject fake domains without any external API dependency."
+---
+
+## What shipped
+
+### Scam & abuse detection on the proposal form
+Hostile submissions — insults, spam, discriminatory content — are silently blocked before any email reaches the inbox. The filter runs three layers: keyword matching, an AI content policy check (OpenAI Moderation API, free endpoint), and an autonomous learning system that extracts new block-terms from flagged content and persists them to cloud storage for future fast-path blocking.
+
+### Admin moderation dashboard
+A private dashboard at `/admin/submissions` shows every proposal ever submitted — clean and blocked alike — with detection source, categories flagged, confidence scores, and a submission excerpt. No personal data stored beyond what's needed for observability.
+
+### Certified credentials section
+Your 10 verified badges from MongoDB, Google Cloud, Certiprof, and others now appear on the homepage, pulled live from the Credly API and cached for 24 hours. Each badge links back to the verified credential on credly.com.
+
+### Newsletter security hardening
+The subscribe endpoint now validates that the email domain actually accepts mail (DNS MX check), rejects 20+ known disposable/throwaway providers (mailinator, guerrillamail, yopmail…), and enforces a per-IP rate limit of 2 subscriptions per hour — all without a third-party service.
+
+### Google OAuth fixed
+Root cause: environment variable set with a trailing newline character (`%0A`), making Google's client lookup fail with `invalid_client`. Re-added all credentials using `printf '%s'` to prevent shell newline injection. Both production and sandbox now authenticate correctly.
+
+### Proposal flow integration tests
+8 automated test cases run against the live API: valid submission, validation errors (short title, invalid email, empty currency, no price), silent moderation block, rate limit enforcement, and malformed JSON. Run with `npm run test:proposal:sandbox` or `npm run test:proposal:prod`.

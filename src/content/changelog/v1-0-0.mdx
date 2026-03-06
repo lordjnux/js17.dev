@@ -1,0 +1,46 @@
+---
+version: "1.0.0"
+date: "2026-01-20"
+title: "Platform Launch"
+headline: "js17.dev goes live — a full-stack personal command centre built with Next.js 14, AI-augmented from day one."
+category: "launch"
+skills:
+  - Next.js 14 App Router
+  - TypeScript
+  - Tailwind CSS
+  - MDX blog engine
+  - GitHub API integration
+  - Resend transactional email
+  - Zod validation
+  - Framer Motion
+  - Edge runtime
+clientValue: "A production-grade personal site built to the same standards as client projects: typed end-to-end, server-rendered where it matters, static where it's fast, with email infrastructure, dynamic OG images, and a multi-step contact flow. Every component here is a real-world example of the quality you get when you hire this engineer."
+devNotes: "The MDX pipeline uses next-mdx-remote for dynamic compilation with gray-matter for frontmatter. GitHub stats use ISR with a 1-hour revalidation window against the GitHub REST API. Resend is lazily initialized at handler time (not module level) to avoid build-time errors when RESEND_API_KEY is absent. All OG images are Edge-runtime-rendered dynamically — no static PNG needed."
+---
+
+## What shipped
+
+### Full-stack Next.js 14 site
+Built on the App Router with a clear separation between server components (data fetching, OG images, GitHub stats), client components (animations, forms, theme), and edge functions (OG image rendering). TypeScript throughout — no `any`.
+
+### MDX blog engine
+Author posts in Markdown + JSX. Frontmatter drives metadata, OG images, and the post list. Syntax highlighting via `rehype-pretty-code`. Reading time calculated automatically. Posts live in `src/content/blog/` as `.mdx` files — no CMS, no database, no subscription.
+
+### Live GitHub activity
+Contribution graph and repository stats fetched server-side from the GitHub API with a 1-hour ISR cache. Displays real commit history, language breakdown, and streak data — auto-updating without any manual maintenance.
+
+### Multi-step proposal form
+A guided 5-step contact flow with per-step Zod validation, email delivery via Resend, and a confirmation email to the sender. Covers client info, project scope, budget expectations, contact preferences, and optional discovery call scheduling.
+
+### Dynamic OG images
+Every page and every blog post generates a branded Open Graph image at request time using the Edge runtime — no image editing, no static files to maintain. Correct previews on Twitter, LinkedIn, Slack, and iMessage automatically.
+
+### Transactional email
+Proposal submissions trigger two emails: a structured HTML brief to the inbox (with client info, project details, budget, contact, and notes) and a professional confirmation to the client with next steps. Powered by Resend with lazy initialization.
+
+### Performance & SEO baseline
+- Lighthouse score: 95+ across all pages
+- `robots.txt` and `sitemap.xml` generated at build time
+- Semantic HTML throughout
+- All images with explicit width/height to prevent CLS
+- Inter + JetBrains Mono loaded via `next/font` (zero layout shift)
