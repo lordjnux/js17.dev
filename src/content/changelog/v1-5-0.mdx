@@ -1,0 +1,45 @@
+---
+version: "1.5.0"
+date: "2026-03-06"
+title: "Metrics Dashboard, Animated Blog Components & Auto-Refresh"
+headline: "Live YouTube metrics with animated dashboard visualizations, scroll-triggered components, daily cron refresh, and a new showcase blog post proving the pipeline works."
+category: "feature"
+skills:
+  - YouTube Data API v3 statistics
+  - Vercel Cron Jobs
+  - IntersectionObserver animations
+  - Vercel Blob caching
+  - React Three Fiber (3D architecture)
+  - MDX custom component system
+clientValue: "YouTube video performance is now tracked automatically with a live metrics dashboard showing views, likes, and comments across all published videos. Metrics refresh daily via cron and on every admin visit. A new blog post demonstrates the full content pipeline with animated visualizations — proof of capability for prospective clients."
+devNotes: "Metrics are cached in Vercel Blob (youtube/metrics-cache.json) and refreshed via /api/cron/refresh-metrics using a YouTube API key for public statistics. The admin dashboard fetches live via OAuth and updates the cache, falling back to cache on failure. New client components (DashboardShowcase, PipelineFlow, ImpactGrid, ImpactMetric) use IntersectionObserver for scroll-triggered reveal and useAnimatedValue for count-up animations. MDX passes numeric props as strings — ImpactMetric coerces with Number(). Vercel Hobby cron runs daily at 06:00 UTC."
+---
+
+## What shipped
+
+### YouTube metrics auto-refresh with Blob caching
+Video statistics (views, likes, comments) are now cached in Vercel Blob and refreshed automatically. Two refresh paths:
+- **Cron job** — runs daily at 06:00 UTC via `/api/cron/refresh-metrics`, fetching public statistics using a YouTube API key
+- **Admin visit** — live OAuth fetch on every dashboard load, with results cached for the cron fallback
+
+The metrics dashboard now shows a "Last updated" timestamp and a manual Refresh button.
+
+### Animated blog components
+Four new client-side components for visually rich blog posts:
+- **DashboardShowcase** — animated recreation of the YouTube metrics dashboard with count-up animations, gradient border, macOS window chrome, and staggered reveal
+- **PipelineFlow** — 5-step content pipeline visualization (horizontal on desktop, vertical on mobile) with animated gradient connection line
+- **ImpactGrid / ImpactMetric** — scroll-triggered counting stat cards with glow effects and color-coded borders
+
+All components use `IntersectionObserver` for reveal-on-scroll and `requestAnimationFrame` for smooth counting animations.
+
+### Admin-only feature gating
+YouTube publish buttons, newsletter notifications, and LinkedIn copy are now visible only when the admin is authenticated. Public users see article video links but not publishing controls.
+
+### Interactive 3D architecture visualization
+A React Three Fiber scene renders the full js17.dev architecture — 17 provider nodes with orbital rings, connection lines, cost labels, and auto-rotating camera. Embedded in the blog via dynamic import with `ssr: false`.
+
+### New blog post: "The Machine That Builds Itself"
+A showcase post demonstrating the full pipeline with real YouTube metrics data, animated dashboard, pipeline flow visualization, impact stats, and the 3D architecture scene — the most visually rich entry on the site.
+
+### Public article video links
+Blog readers can now see YouTube Short and Long video links on published articles, even without authentication.

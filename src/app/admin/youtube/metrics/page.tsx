@@ -14,6 +14,7 @@ import {
   ExternalLink,
   Loader2,
   ArrowLeft,
+  RefreshCw,
 } from "lucide-react"
 import { ADMIN_EMAIL } from "@/lib/auth"
 import { cn } from "@/lib/utils"
@@ -49,6 +50,22 @@ export default function YouTubeMetricsPage() {
   const [totals, setTotals] = useState<Totals>({ videos: 0, shorts: 0, longs: 0, views: 0, likes: 0, comments: 0 })
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [lastUpdated, setLastUpdated] = useState<string | null>(null)
+
+  function loadMetrics() {
+    setLoading(true)
+    setError(null)
+    fetch("/api/admin/youtube/metrics")
+      .then(async (res) => {
+        if (!res.ok) throw new Error("Failed to load metrics")
+        const data = await res.json()
+        setVideos(data.videos)
+        setTotals(data.totals)
+        setLastUpdated(data.lastUpdated)
+      })
+      .catch((e) => setError(e.message))
+      .finally(() => setLoading(false))
+  }
 
   useEffect(() => {
     if (status === "loading") return
@@ -56,16 +73,8 @@ export default function YouTubeMetricsPage() {
       router.replace("/auth/signin?callbackUrl=/admin/youtube/metrics")
       return
     }
-
-    fetch("/api/admin/youtube/metrics")
-      .then(async (res) => {
-        if (!res.ok) throw new Error("Failed to load metrics")
-        const data = await res.json()
-        setVideos(data.videos)
-        setTotals(data.totals)
-      })
-      .catch((e) => setError(e.message))
-      .finally(() => setLoading(false))
+    loadMetrics()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session, status, router])
 
   if (status === "loading" || loading) {
@@ -93,13 +102,30 @@ export default function YouTubeMetricsPage() {
           <ArrowLeft className="h-3.5 w-3.5" />
           YouTube Management
         </button>
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-red-500/10">
-            <BarChart3 className="h-5 w-5 text-red-500" />
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-red-500/10">
+              <BarChart3 className="h-5 w-5 text-red-500" />
+            </div>
+            <div>
+              <h1 className="text-xl font-bold">YouTube Video Metrics</h1>
+              <p className="text-sm text-muted-foreground">Performance overview for all published videos</p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-xl font-bold">YouTube Video Metrics</h1>
-            <p className="text-sm text-muted-foreground">Performance overview for all published videos</p>
+          <div className="flex items-center gap-3">
+            {lastUpdated && (
+              <span className="text-[11px] text-muted-foreground hidden sm:inline">
+                Updated {new Date(lastUpdated).toLocaleString("en-US", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
+              </span>
+            )}
+            <button
+              onClick={loadMetrics}
+              disabled={loading}
+              className="flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50"
+            >
+              <RefreshCw className={cn("h-3 w-3", loading && "animate-spin")} />
+              Refresh
+            </button>
           </div>
         </div>
       </div>
