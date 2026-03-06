@@ -34,8 +34,11 @@ type Step =
   | "error"
 
 interface Slide {
+  type?: string
+  icon?: string
   title: string
-  bullets: string[]
+  visual?: { icon: string; label: string }[]
+  bullets?: string[]
   narration: string
   estimatedDuration: number
 }
@@ -126,11 +129,11 @@ export function PublishVideoButton({ slug }: { slug: string }) {
     try {
       // 1. Audio
       set((j) => ({ ...j, step: "generating-audio", progress: "Generating narration audio…" }))
-      const narration = script.slides.map((s) => s.narration).join("\n\n")
+      const narration = script.slides.map((s) => s.narration).join("\n...\n")
       const audioRes = await fetch("/api/admin/generate-audio", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ narration }),
+        body: JSON.stringify({ narration, videoFormat: format }),
       })
       if (!audioRes.ok) throw new Error((await audioRes.json()).error)
       const { url: audioUrl } = await audioRes.json()
