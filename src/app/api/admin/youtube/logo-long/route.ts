@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { getServerSession } from "next-auth"
-import { authOptions, ADMIN_EMAIL } from "@/lib/auth"
+import { verifyAdmin } from "@/lib/auth"
 import { put } from "@vercel/blob"
 import OpenAI from "openai"
 
@@ -59,9 +58,7 @@ function buildSlideHtml(title: string, bullets: string[], isLast: boolean): stri
 }
 
 export async function POST(req: NextRequest) {
-  void req
-  const session = await getServerSession(authOptions)
-  if (!session || session.user?.email !== ADMIN_EMAIL) {
+  if (!await verifyAdmin(req)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 

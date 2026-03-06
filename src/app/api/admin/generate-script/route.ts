@@ -1,15 +1,13 @@
 import { NextRequest, NextResponse } from "next/server"
-import { getServerSession } from "next-auth"
-import { authOptions, ADMIN_EMAIL } from "@/lib/auth"
+import { verifyAdmin } from "@/lib/auth"
 import { getPostBySlug } from "@/lib/mdx"
 import OpenAI from "openai"
 
 export async function POST(req: NextRequest) {
-  const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
-  const session = await getServerSession(authOptions)
-  if (!session || session.user?.email !== ADMIN_EMAIL) {
+  if (!await verifyAdmin(req)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
+  const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
 
   const { slug, videoFormat = "long" } = await req.json()
   const post = getPostBySlug(slug)

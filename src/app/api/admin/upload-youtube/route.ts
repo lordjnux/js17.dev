@@ -1,15 +1,14 @@
 import { NextRequest, NextResponse } from "next/server"
-import { getServerSession } from "next-auth"
-import { authOptions, ADMIN_EMAIL } from "@/lib/auth"
+import { verifyAdmin } from "@/lib/auth"
 import { put, list } from "@vercel/blob"
 
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions)
-  if (!session || session.user?.email !== ADMIN_EMAIL) {
+  const token = await verifyAdmin(req)
+  if (!token) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
-  const accessToken = session.accessToken
+  const accessToken = token.accessToken as string | undefined
   if (!accessToken) {
     return NextResponse.json({ error: "No YouTube access token. Please sign out and sign in again." }, { status: 401 })
   }

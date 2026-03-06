@@ -1,12 +1,10 @@
-import { NextResponse } from "next/server"
-import { getServerSession } from "next-auth"
-import { authOptions, ADMIN_EMAIL } from "@/lib/auth"
+import { NextRequest, NextResponse } from "next/server"
+import { verifyAdmin } from "@/lib/auth"
 import { list } from "@vercel/blob"
 import type { SubmissionRecord } from "@/lib/moderation"
 
-export async function GET() {
-  const session = await getServerSession(authOptions)
-  if (!session?.user?.email || session.user.email !== ADMIN_EMAIL) {
+export async function GET(req: NextRequest) {
+  if (!await verifyAdmin(req)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 

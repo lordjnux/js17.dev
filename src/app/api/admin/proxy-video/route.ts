@@ -1,11 +1,9 @@
 import { NextRequest } from "next/server"
-import { getServerSession } from "next-auth"
-import { authOptions, ADMIN_EMAIL } from "@/lib/auth"
+import { verifyAdmin } from "@/lib/auth"
 
 // Proxies a Shotstack video URL to the client to avoid CORS issues during YouTube upload
 export async function GET(req: NextRequest) {
-  const session = await getServerSession(authOptions)
-  if (!session || session.user?.email !== ADMIN_EMAIL) {
+  if (!await verifyAdmin(req)) {
     return new Response("Unauthorized", { status: 401 })
   }
 

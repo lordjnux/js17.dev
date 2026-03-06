@@ -1,7 +1,20 @@
 import type { NextAuthOptions } from "next-auth"
 import GoogleProvider from "next-auth/providers/google"
+import { getToken } from "next-auth/jwt"
+import type { NextRequest } from "next/server"
 
 export const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "jeroham.sanchez@gmail.com"
+
+/**
+ * Use this in App Router route handlers instead of getServerSession.
+ * getToken reads the JWT cookie directly from the request — reliable in all contexts.
+ * Returns the token (including accessToken) when admin, null otherwise.
+ */
+export async function verifyAdmin(req: NextRequest) {
+  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET })
+  if (!token || token.email !== ADMIN_EMAIL) return null
+  return token
+}
 
 async function refreshAccessToken(refreshToken: string): Promise<{ accessToken: string; accessTokenExpires: number } | null> {
   try {

@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { getServerSession } from "next-auth"
-import { authOptions, ADMIN_EMAIL } from "@/lib/auth"
+import { verifyAdmin } from "@/lib/auth"
 import { getPostBySlug } from "@/lib/mdx"
 import { put, list } from "@vercel/blob"
 import { getResend } from "@/lib/resend"
@@ -208,9 +207,8 @@ Unsubscribe: ${unsubUrl}
 }
 
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions)
-  if (!session || session.user?.email !== ADMIN_EMAIL) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 403 })
+  if (!await verifyAdmin(req)) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
   const { slug } = await req.json().catch(() => ({}))
