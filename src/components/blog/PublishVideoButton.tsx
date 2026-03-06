@@ -33,6 +33,9 @@ export function PublishVideoButton({ slug }: { slug: string }) {
   const [youtubeUrl, setYoutubeUrl] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [progress, setProgress] = useState("")
+  const [playlistId, setPlaylistId] = useState<string | null>(null)
+  const [description, setDescription] = useState<string | null>(null)
+  const [descCopied, setDescCopied] = useState(false)
 
   // Only show for admin
   if (!session || session.user?.email !== ADMIN_EMAIL) return null
@@ -41,6 +44,13 @@ export function PublishVideoButton({ slug }: { slug: string }) {
     setStep("generating-script")
     setError(null)
     try {
+      // Ensure playlist exists (non-blocking — don't fail if YouTube auth missing)
+      const plRes = await fetch("/api/admin/youtube/ensure-playlist", { method: "POST" })
+      if (plRes.ok) {
+        const plData = await plRes.json()
+        if (plData.playlistId) setPlaylistId(plData.playlistId)
+      }
+
       const res = await fetch("/api/admin/generate-script", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -103,6 +113,26 @@ export function PublishVideoButton({ slug }: { slug: string }) {
 
       if (!renderedUrl) throw new Error("Render timed out after 5 minutes")
       setVideoUrl(renderedUrl)
+
+      // Generate full YouTube description
+      if (script) {
+        const descRes = await fetch("/api/admin/youtube/generate-description", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            videoType: "article",
+            slug,
+            slides: script.slides.map((s) => ({ title: s.title, estimatedDuration: s.estimatedDuration })),
+            youtubeTitle: script.youtubeTitle,
+            youtubeTags: script.youtubeTags,
+          }),
+        })
+        if (descRes.ok) {
+          const { description: desc } = await descRes.json()
+          setDescription(desc)
+        }
+      }
+
       setStep("ready")
     } catch (e) {
       setError(e instanceof Error ? e.message : "Video generation failed")
@@ -124,8 +154,9 @@ export function PublishVideoButton({ slug }: { slug: string }) {
         body: JSON.stringify({
           videoUrl,
           title: script.youtubeTitle,
-          description: script.youtubeDescription,
+          description: description || script.youtubeDescription,
           tags: script.youtubeTags,
+          playlistId,
         }),
       })
       if (!res.ok) throw new Error((await res.json()).error)
@@ -297,8 +328,8 @@ export function PublishVideoButton({ slug }: { slug: string }) {
 
               {/* READY TO PUBLISH */}
               {step === "ready" && videoUrl && (
-                <div className="space-y-4">
-                  <div className="rounded-lg border bg-green-500/10 border-green-500/30 p-4 flex items-center gap-3">
+                <div className="space-y-3">
+                  <div className="rounded-lg border bg-green-500/10 border-green-500/30 p-3 flex items-center gap-3">
                     <CheckCircle className="h-5 w-5 text-green-400 flex-shrink-0" />
                     <div>
                       <p className="text-sm font-semibold text-green-400">Video rendered successfully</p>
@@ -310,7 +341,21 @@ export function PublishVideoButton({ slug }: { slug: string }) {
                   {script && (
                     <div className="rounded-lg border bg-muted/30 p-3 text-xs text-muted-foreground">
                       <strong className="text-foreground block mb-1">{script.youtubeTitle}</strong>
-                      {script.youtubeDescription.slice(0, 120)}…
+                      {playlistId && <span className="text-green-400">✓ Playlist ready</span>}
+                    </div>
+                  )}
+                  {description && (
+                    <div className="rounded-lg border bg-muted/20 p-3">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">YouTube Description</span>
+                        <button
+                          onClick={() => { navigator.clipboard.writeText(description); setDescCopied(true); setTimeout(() => setDescCopied(false), 2000) }}
+                          className="text-xs text-blue-400 hover:text-blue-300 transition-colors"
+                        >
+                          {descCopied ? "Copied!" : "Copy"}
+                        </button>
+                      </div>
+                      <pre className="text-xs text-muted-foreground whitespace-pre-wrap max-h-28 overflow-auto font-mono">{description.slice(0, 300)}…</pre>
                     </div>
                   )}
                   <Button className="w-full gap-2 bg-red-600 hover:bg-red-700 text-white" onClick={handlePublishToYoutube}>

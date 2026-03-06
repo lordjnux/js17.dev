@@ -53,10 +53,11 @@ function buildEmailHtml(post: Post, synopsis: string, email: string, token: stri
     year: "numeric",
     month: "long",
     day: "numeric",
-  }).format(new Date(post.frontmatter.date))
+  }).format(new Date(post.frontmatter.date)).toUpperCase()
   const tags = post.frontmatter.tags.slice(0, 4)
   const readingTime = post.frontmatter.readingTime || 8
   const preheader = synopsis.slice(0, 110).replace(/"/g, "&quot;")
+  const year = new Date().getFullYear()
 
   return `<!DOCTYPE html>
 <html lang="en" xmlns:v="urn:schemas-microsoft-com:vml">
@@ -71,109 +72,104 @@ function buildEmailHtml(post: Post, synopsis: string, email: string, token: stri
   <noscript><xml><o:OfficeDocumentSettings><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml></noscript>
   <![endif]-->
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
     * { box-sizing: border-box; }
-    body { margin: 0; padding: 0; background-color: #f1f5f9; }
-    @media (prefers-color-scheme: dark) {
-      .email-body { background-color: #f1f5f9 !important; }
-      .email-card { background-color: #ffffff !important; }
-    }
+    body { margin: 0; padding: 0; background-color: #f7f6f3; }
   </style>
 </head>
-<body class="email-body" style="margin:0;padding:0;background-color:#f1f5f9;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;-webkit-font-smoothing:antialiased;">
+<body style="margin:0;padding:0;background-color:#f7f6f3;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;-webkit-font-smoothing:antialiased;">
 
   <!-- Preheader text (hidden) -->
-  <div style="display:none;max-height:0;overflow:hidden;font-size:1px;line-height:1px;color:#f1f5f9;white-space:nowrap;">${preheader} — Read on js17.dev</div>
-  <div style="display:none;max-height:0;overflow:hidden;font-size:1px;line-height:1px;">&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;</div>
+  <div style="display:none;max-height:0;overflow:hidden;font-size:1px;line-height:1px;color:#f7f6f3;white-space:nowrap;">${preheader} — js17.dev</div>
+  <div style="display:none;max-height:0;overflow:hidden;font-size:1px;line-height:1px;">&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;</div>
 
   <!-- Outer wrapper -->
-  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color:#f1f5f9;min-width:320px;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color:#f7f6f3;min-width:320px;">
     <tr>
-      <td align="center" style="padding:32px 16px 40px;">
+      <td align="center" style="padding:32px 16px 44px;">
 
         <!-- Container -->
         <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width:560px;width:100%;">
 
-          <!-- Blue accent bar -->
+          <!-- Masthead top rule -->
           <tr>
-            <td style="height:3px;border-radius:3px 3px 0 0;background:linear-gradient(90deg,#2563eb,#60a5fa);font-size:0;line-height:0;">&nbsp;</td>
+            <td style="height:4px;background:#0f172a;font-size:0;line-height:0;">&nbsp;</td>
           </tr>
 
           <!-- Card -->
           <tr>
-            <td class="email-card" style="background:#ffffff;border-radius:0 0 16px 16px;padding:36px 40px 32px;box-shadow:0 1px 4px rgba(0,0,0,0.06),0 8px 32px rgba(0,0,0,0.06);">
+            <td style="background:#ffffff;padding:36px 40px 32px;border:1px solid #e5e3dc;border-top:none;border-radius:0 0 3px 3px;">
 
-              <!-- Header row: brand + badge -->
-              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin-bottom:32px;">
+              <!-- Masthead row: brand + badge -->
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin-bottom:20px;">
                 <tr>
                   <td valign="middle">
-                    <span style="font-family:'Courier New',Courier,monospace;font-size:15px;font-weight:700;color:#2563eb;letter-spacing:-0.3px;">js17.dev</span>
+                    <span style="font-family:'Courier New',Courier,monospace;font-size:17px;font-weight:700;color:#0f172a;letter-spacing:-0.5px;">js17.dev</span>
                   </td>
                   <td align="right" valign="middle">
-                    <span style="display:inline-block;background:#eff6ff;color:#2563eb;font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:4px 12px;border-radius:20px;border:1px solid #bfdbfe;">New Article</span>
+                    <span style="font-size:9px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:#64748b;border:1px solid #cbd5e1;padding:3px 9px;border-radius:2px;">New Article</span>
                   </td>
                 </tr>
               </table>
 
-              <!-- Meta: date + reading time -->
-              <p style="margin:0 0 10px;font-size:12px;color:#94a3b8;letter-spacing:0.03em;">${date}&nbsp;&nbsp;·&nbsp;&nbsp;${readingTime} min read</p>
+              <!-- Full-width rule under masthead -->
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin-bottom:20px;">
+                <tr><td style="height:1px;background:#0f172a;font-size:0;line-height:0;">&nbsp;</td></tr>
+              </table>
 
-              <!-- Title -->
-              <h1 style="margin:0 0 18px;font-size:22px;font-weight:800;color:#0f172a;line-height:1.32;letter-spacing:-0.4px;">${post.frontmatter.title.replace(/</g, "&lt;")}</h1>
+              <!-- Meta: date + reading time -->
+              <p style="margin:0 0 14px;font-size:10px;font-weight:700;color:#94a3b8;letter-spacing:0.14em;text-transform:uppercase;">${date}&nbsp;&nbsp;&middot;&nbsp;&nbsp;${readingTime} MIN READ</p>
+
+              <!-- Headline -->
+              <h1 style="margin:0 0 18px;font-size:26px;font-weight:800;color:#0f172a;line-height:1.22;letter-spacing:-0.5px;">${post.frontmatter.title.replace(/</g, "&lt;")}</h1>
 
               <!-- Tags -->
-              <div style="margin-bottom:26px;">
-                ${tags.map((t) => `<span style="display:inline-block;background:#f8fafc;border:1px solid #e2e8f0;color:#64748b;font-size:11px;font-weight:500;padding:3px 10px;border-radius:6px;margin:0 4px 4px 0;">${t}</span>`).join("")}
+              <div style="margin-bottom:22px;">
+                ${tags.map((t) => `<span style="display:inline-block;border:1px solid #d1d5db;color:#374151;font-size:11px;font-weight:500;padding:2px 9px;border-radius:2px;margin:0 4px 4px 0;background:#ffffff;letter-spacing:0.01em;">${t}</span>`).join("")}
               </div>
 
-              <!-- Divider -->
-              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin-bottom:26px;">
-                <tr><td style="height:1px;background:#f1f5f9;font-size:0;line-height:0;">&nbsp;</td></tr>
+              <!-- Section rule -->
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin-bottom:22px;">
+                <tr><td style="height:1px;background:#e5e3dc;font-size:0;line-height:0;">&nbsp;</td></tr>
               </table>
 
               <!-- AI-generated synopsis -->
-              <p style="margin:0 0 28px;font-size:16px;color:#334155;line-height:1.78;">${synopsis.replace(/</g, "&lt;").replace(/\n/g, "<br>")}</p>
+              <p style="margin:0 0 28px;font-size:16px;color:#374151;line-height:1.82;">${synopsis.replace(/</g, "&lt;").replace(/\n/g, "<br>")}</p>
 
               <!-- CTA button -->
-              <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+              <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin-bottom:28px;">
                 <tr>
-                  <td style="border-radius:8px;background:#2563eb;">
-                    <!--[if mso]><v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" href="${postUrl}" style="height:48px;v-text-anchor:middle;width:220px;" arcsize="10%" strokecolor="#2563eb" fillcolor="#2563eb"><w:anchorlock/><center style="color:#ffffff;font-family:sans-serif;font-size:15px;font-weight:600;">Read the Full Article →</center></v:roundrect><![endif]-->
+                  <td style="background:#0f172a;border-radius:3px;">
+                    <!--[if mso]><v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" href="${postUrl}" style="height:46px;v-text-anchor:middle;width:210px;" arcsize="5%" strokecolor="#0f172a" fillcolor="#0f172a"><w:anchorlock/><center style="color:#ffffff;font-family:sans-serif;font-size:14px;font-weight:600;">Read the Full Article →</center></v:roundrect><![endif]-->
                     <!--[if !mso]><!-->
-                    <a href="${postUrl}" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:14px 28px;color:#ffffff;font-size:15px;font-weight:600;text-decoration:none;letter-spacing:0.01em;border-radius:8px;line-height:1;">Read the Full Article &rarr;</a>
+                    <a href="${postUrl}" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:13px 26px;color:#ffffff;font-size:14px;font-weight:600;text-decoration:none;letter-spacing:0.03em;border-radius:3px;line-height:1;">Read the Full Article &rarr;</a>
                     <!--<![endif]-->
                   </td>
                 </tr>
               </table>
 
-              <!-- Divider -->
-              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin:32px 0 28px;">
-                <tr><td style="height:1px;background:#f1f5f9;font-size:0;line-height:0;">&nbsp;</td></tr>
+              <!-- Section rule -->
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin-bottom:22px;">
+                <tr><td style="height:1px;background:#e5e3dc;font-size:0;line-height:0;">&nbsp;</td></tr>
               </table>
 
-              <!-- Author signature -->
-              <table role="presentation" cellspacing="0" cellpadding="0" border="0">
-                <tr>
-                  <td>
-                    <p style="margin:0 0 3px;font-size:13px;font-weight:700;color:#0f172a;">Jeroham Sanchez</p>
-                    <p style="margin:0;font-size:12px;color:#94a3b8;">Senior AI-Augmented Fullstack Engineer &mdash; <a href="${SITE_URL}" style="color:#94a3b8;text-decoration:none;">js17.dev</a></p>
-                  </td>
-                </tr>
-              </table>
+              <!-- Author byline -->
+              <p style="margin:0 0 3px;font-size:13px;font-weight:700;color:#0f172a;">Jeroham Sanchez</p>
+              <p style="margin:0;font-size:12px;color:#94a3b8;">Senior AI-Augmented Fullstack Engineer &mdash; <a href="${SITE_URL}" style="color:#94a3b8;text-decoration:none;">js17.dev</a></p>
 
             </td>
           </tr>
 
           <!-- Footer -->
           <tr>
-            <td style="padding:22px 8px 4px;text-align:center;">
-              <p style="margin:0 0 6px;font-size:11px;color:#94a3b8;line-height:1.65;">
-                You're receiving this because you subscribed to updates from <strong style="color:#64748b;">js17.dev</strong>.<br>
+            <td style="padding:20px 8px 4px;text-align:center;">
+              <p style="margin:0 0 5px;font-size:11px;color:#94a3b8;line-height:1.65;">
+                You're receiving this because you subscribed to <strong style="color:#64748b;">js17.dev</strong>.<br>
                 <a href="${unsubUrl}" style="color:#94a3b8;text-decoration:underline;text-underline-offset:2px;">Unsubscribe</a>
                 &nbsp;&middot;&nbsp;
                 <a href="${postUrl}" style="color:#94a3b8;text-decoration:underline;text-underline-offset:2px;">View online</a>
               </p>
-              <p style="margin:0;font-size:10px;color:#cbd5e1;">&copy; ${new Date().getFullYear()} js17.dev &mdash; All rights reserved</p>
+              <p style="margin:0;font-size:10px;color:#cbd5e1;">&copy; ${year} js17.dev &mdash; All rights reserved</p>
             </td>
           </tr>
 

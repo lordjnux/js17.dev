@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "No YouTube access token. Please sign out and sign in again." }, { status: 401 })
   }
 
-  const { videoUrl, title, description, tags } = await req.json()
+  const { videoUrl, title, description, tags, playlistId } = await req.json()
   if (!videoUrl || !title) {
     return NextResponse.json({ error: "Missing videoUrl or title" }, { status: 400 })
   }
@@ -88,6 +88,23 @@ export async function POST(req: NextRequest) {
   const ytId = videoData.id
   if (!ytId) {
     return NextResponse.json({ error: "No video ID in YouTube response" }, { status: 500 })
+  }
+
+  // Add to playlist if provided (non-blocking — don't fail the upload if this fails)
+  if (playlistId) {
+    await fetch("https://www.googleapis.com/youtube/v3/playlistItems?part=snippet", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        snippet: {
+          playlistId,
+          resourceId: { kind: "youtube#video", videoId: ytId },
+        },
+      }),
+    }).catch(() => {})
   }
 
   return NextResponse.json({
