@@ -33,10 +33,21 @@ function checkRateLimit(ip: string): boolean {
 
 async function hasMxRecord(domain: string): Promise<boolean> {
   try {
-    const mx = await resolveMx(domain)
-    return mx.length > 0
+    const check = new Promise<boolean>((resolve) => {
+      resolveMx(domain)
+        .then((mx) => resolve(mx.length > 0))
+        .catch((err: NodeJS.ErrnoException) => {
+          // Only block when domain provably doesn't exist.
+          // For timeouts, SERVFAIL, or ENODATA give benefit of the doubt —
+          // Vercel's Lambda DNS can fail on MX lookups for valid domains.
+          resolve(err.code !== "ENOTFOUND")
+        })
+    })
+    // Hard timeout: default to accepting if DNS is unresponsive
+    const timeout = new Promise<boolean>((resolve) => setTimeout(() => resolve(true), 4000))
+    return await Promise.race([check, timeout])
   } catch {
-    return false
+    return true
   }
 }
 
