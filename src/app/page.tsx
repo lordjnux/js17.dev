@@ -13,9 +13,9 @@ export default function Home() {
       <HeroSection />
       <AboutSection />
       <TechStackSection />
-      <GitHubStatsSection />
       <CertificationsSection />
       <CTASection />
+      <GitHubStatsSection />
     </>
   )
 }

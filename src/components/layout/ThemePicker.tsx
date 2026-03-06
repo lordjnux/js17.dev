@@ -20,28 +20,10 @@ const THEMES = [
     swatches: ["#FFFFFF", "#3B82F6"],
   },
   {
-    id: "terminal",
-    label: "Terminal",
-    description: "Void black · Phosphor green",
-    swatches: ["#0A0A0A", "#00CC33"],
-  },
-  {
-    id: "plasma",
-    label: "Plasma",
-    description: "Deep space · Vivid violet",
-    swatches: ["#0D0720", "#A855F7"],
-  },
-  {
     id: "titanium",
     label: "Titanium",
     description: "Warm charcoal · Amber gold",
     swatches: ["#111110", "#F59E0B"],
-  },
-  {
-    id: "forest",
-    label: "Forest Node",
-    description: "Dark emerald · Circuit green",
-    swatches: ["#071210", "#10B981"],
   },
   {
     id: "aurora",

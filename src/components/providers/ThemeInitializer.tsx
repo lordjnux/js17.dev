@@ -3,9 +3,9 @@
 import { useEffect } from "react"
 import { useTheme } from "next-themes"
 
-const ALL_THEMES = ["light", "dark", "terminal", "plasma", "titanium", "forest", "aurora"]
+const ALL_THEMES = ["light", "dark", "titanium", "aurora"]
 const VISITED_KEY = "js17-visited"
-const FIRST_VISIT_THEME = "forest"
+const FIRST_VISIT_THEME = "dark"
 
 /**
  * ThemeInitializer — sets theme based on visit history.
