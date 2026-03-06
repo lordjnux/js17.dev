@@ -1,0 +1,322 @@
+---
+title: "One Day, Fourteen Features: How I Hardened js17.dev Into a Real Platform"
+description: "A full walkthrough of the platform sprint that added content moderation, legal compliance, Credly certifications, a changelog page, newsletter security, CI/CD automation, OAuth fixes, theme cleanup, and more — all built and deployed in a single session."
+date: "2026-03-05"
+tags: ["AI-Augmented Engineering", "Security", "Legal Compliance", "Next.js", "DevOps", "UX", "Case Study"]
+readingTime: 16
+published: true
+---
+
+The site launched on March 4. By March 5 it already had a problem.
+
+A real one — a real abuse submission from a real person, sent through the proposal form, filled with hostile language. Within hours of the site going live. Welcome to production.
+
+That moment triggered a full-day platform sprint. Not panic — a sprint. One session, a clear backlog, disciplined priorities. By end of day, js17.dev had grown from a professional portfolio into a hardened, legally compliant, observable client intake platform.
+
+This post documents every decision made, every problem solved, and every system shipped.
+
+---
+
+## The Inciting Incident
+
+<Callout type="warning">
+**Real event.** The PDF is sitting in the project root. Subject line: *"New Proposal: who careeessss — stupid, dont disturb the seminar."* It hit the inbox at 9:47 AM. At 9:48 AM, the sprint backlog was written.
+</Callout>
+
+The proposal form had no abuse protection. The system had no moderation. The site had no legal terms. Submissions had no compliance stamps. These were acceptable gaps for a day-one MVP — they were not acceptable for a day-two platform.
+
+---
+
+## What Was Built
+
+<StatRow>
+  <StatCard value="14" label="Features shipped" icon="🚀" color="blue" />
+  <StatCard value="3" label="Security layers added" icon="🔒" color="orange" />
+  <StatCard value="3" label="Legal documents published" icon="⚖️" color="purple" />
+  <StatCard value="0" label="Breaking changes" icon="✅" color="green" />
+</StatRow>
+
+---
+
+## 1. Content Moderation — Three-Layer Abuse Prevention
+
+The first order of business was making sure that submission never gets through again.
+
+The system I designed operates in three layers, each faster and cheaper than the next:
+
+<ChallengeCard number={1} title="Layer 1 — Keyword Blocklist (instant, free)">
+
+A hardcoded `BASE_BLOCKLIST` seeded from the real abuse case, combined with a dynamic custom list stored in Vercel Blob. Every submission is checked against the full combined list before any API call is made.
+
+```typescript
+const BASE_BLOCKLIST = [
+  "stupid", "dont disturb", "who cares", "idiot", "moron",
+  "dumb", "hate", "kill", "die", "racist", "harassment",
+  // seeded from the real incident
+]
+```
+
+Cost: zero. Latency: microseconds.
+
+</ChallengeCard>
+
+<ChallengeCard number={2} title="Layer 2 — OpenAI Moderation API (free endpoint)">
+
+If the keyword layer passes, the full submission text is sent to `https://api.openai.com/v1/moderations` — OpenAI's free content policy endpoint. It returns a flagged boolean, category breakdown, and per-category confidence scores.
+
+This catches nuanced abuse that simple keywords miss: subtle harassment, coded language, policy violations that don't match any keyword.
+
+</ChallengeCard>
+
+<ChallengeCard number={3} title="Layer 3 — Autonomous Learning">
+
+When OpenAI flags a submission, the system doesn't just block it — it **learns from it**. It extracts likely offensive terms from the flagged text and appends them to the custom Vercel Blob blocklist automatically, so that same pattern hits the fast keyword layer on every future request.
+
+```typescript
+// Flagged by OpenAI? Teach the keyword layer for next time.
+const newTerms = extractBlocklistTerms(text)
+await saveCustomBlocklist([...customBlocklist, ...newTerms])
+```
+
+</ChallengeCard>
+
+**The critical UX decision:** blocked submissions return `{ success: true }` to the client. The sender doesn't know they were blocked. This prevents probing for what gets through.
+
+---
+
+## 2. Admin Moderation Dashboard — `/admin/submissions`
+
+Blocking submissions without visibility is flying blind. I needed a way to observe what the system was catching.
+
+The dashboard at `/admin/submissions` shows:
+
+- Total / sent / blocked counts with block rate
+- Detection source breakdown: keyword vs. OpenAI vs. clean
+- A full scrollable records table with timestamp, client name, company, project title, action, detection source, and reason
+
+Auth is gated: you must be signed in as `ADMIN_EMAIL` (Google OAuth) to access it. Anyone else gets a 403 — or rather, a clean redirect to the sign-in page.
+
+Which brings up the bug I had to fix.
+
+---
+
+## 3. The OAuth Redirect Bug — Fixing `/admin/submissions` Direct Navigation
+
+**Symptom:** Navigating directly to `/admin/submissions` while unauthenticated redirected correctly to Google OAuth — but after completing the OAuth flow, the system sent me to `/blog` instead of back to `/admin/submissions`.
+
+**Root cause:** Two separate problems compounding each other:
+
+1. The submissions page called `redirect("/auth/signin")` without a `callbackUrl` parameter
+2. The sign-in page hardcoded `callbackUrl: "/blog"` instead of reading from the URL
+
+```typescript
+// Before — wrong
+redirect("/auth/signin")
+signIn("google", { callbackUrl: "/blog" })
+
+// After — correct
+redirect("/auth/signin?callbackUrl=/admin/submissions")
+const callbackUrl = searchParams.get("callbackUrl") || "/blog"
+signIn("google", { callbackUrl })
+```
+
+There was a third wrinkle: `useSearchParams()` in Next.js 14 requires a Suspense boundary. The fix required splitting the sign-in component into a `SignInContent` (which reads params) and a `SignInPage` wrapper that provides the boundary.
+
+---
+
+## 4. Newsletter Security — Three Layers of Abuse Prevention
+
+The newsletter subscription endpoint was similarly unprotected. I hardened it with:
+
+**IP rate limiting:** 2 subscriptions per hour per IP. Abuse gets a `429 Too Many Requests`.
+
+**Disposable domain blocklist:** 20+ known disposable/temporary email providers blocked at the domain level. `mailinator.com`, `guerrillamail.com`, `10minutemail.com`, and many more.
+
+**MX record validation:** Before accepting an email address, the server performs a real DNS lookup to verify that the domain actually has mail exchange records. A domain with no MX records cannot receive email — it's either fake or broken.
+
+**Terms acceptance gate:** No subscription is recorded without `termsAccepted: true` in the payload. The API rejects unauthenticated consent.
+
+---
+
+## 5. Legal Compliance — ToS, Privacy Policy, Habeas Data
+
+A professional site collecting personal data with no legal framework is a liability. Three documents were authored and published:
+
+<StackGrid>
+  <StackItem icon="📋" layer="/legal/terms" tech="Terms of Service" reason="Governing rules for site use, proposal submissions, IP ownership, limitation of liability, Colombia jurisdiction." />
+  <StackItem icon="🔐" layer="/legal/privacy" tech="Privacy Policy" reason="GDPR-aligned + Colombian Ley 1581 de 2012. Data collected, purposes, legal bases, retention periods, data subject rights." />
+  <StackItem icon="🇨🇴" layer="/legal/habeas-data" tech="Habeas Data" reason="Required by Colombian law. Full Spanish-language data treatment policy per Ley 1581 + Decreto 1377 de 2013." />
+</StackGrid>
+
+<Callout type="info">
+**The Habeas Data document is a legal requirement** for any Colombian business or individual collecting personal data, not a formality. Ley 1581 de 2012 mandates a published data treatment policy with specific content including the data controller's identity, treatment purposes, data subject rights, and the procedure to exercise them.
+</Callout>
+
+All legal contact points use `legal@js17.dev` — a dedicated masked email, separate from `proposals@js17.dev`, keeping operational and legal channels clean.
+
+Every legal version is tracked in `src/lib/legal.ts`:
+
+```typescript
+export const LEGAL_VERSIONS = {
+  terms:   { version: "1.0", effective: "2026-03-06" },
+  privacy: { version: "1.0", effective: "2026-03-06" },
+  habeas:  { version: "1.0", effective: "2026-03-06" },
+}
+```
+
+Every proposal submission and newsletter subscription now stamps the version string users consented to: `terms-v1.0|privacy-v1.0|habeas-v1.0`. If a version changes, the record proves what they agreed to.
+
+---
+
+## 6. Consent Checkboxes — No Friction, Full Compliance
+
+Legal documents are only meaningful if users actually consent to them. A `LegalConsent` reusable component was added at two touchpoints:
+
+- **Proposal form Step 4** — requires ToS + Privacy Policy + Habeas Data consent before submission
+- **Newsletter signup** — requires Privacy Policy + Habeas Data consent before subscribing
+
+<Callout type="tip">
+**Design decision:** the checkboxes are unchecked by default, explicit, and required. Not pre-checked. Not buried. GDPR requires freely given, specific, informed, and unambiguous consent — pre-checked boxes fail all four.
+</Callout>
+
+The Zod schema enforces this at the API layer too:
+
+```typescript
+termsAccepted: z.boolean().refine((v) => v === true, {
+  message: "You must accept the terms to continue"
+})
+```
+
+Note: `z.literal(true, { errorMap })` was attempted first — Zod v4 broke that API. The `.refine()` pattern is the correct approach.
+
+---
+
+## 7. Credly Certifications Section
+
+**Jeroham's certifications:**
+- MongoDB Associate Developer
+- Google Cloud Fundamentals
+- Certiprof Scrum Master Professional
+- Certiprof Agile Fundamentals
+- And 6 more from `credly.com/users/jeroham-david-sanchez-bermudez`
+
+Rather than maintaining a static list that would drift out of sync, I built a live integration with Credly's public REST API. The `CertificationsSection` fetches badges at build time with 24-hour ISR revalidation, renders issuer logos, certification names, skill tags, and links to the public wallet.
+
+The section is inactive until the `CREDLY_USERNAME` environment variable is set — zero code change required to enable or disable it.
+
+The home page section order was also redesigned this session:
+**Hero → About → Tech Stack → Certifications → Let's Work Together → GitHub Stats**
+
+Certifications lead with credibility. CTA follows while attention is high. GitHub Stats provide the technical depth for visitors who dig further.
+
+---
+
+## 8. Changelog Page — `/changelog`
+
+Every meaningful platform has a changelog. Not for compliance — for trust.
+
+The page at `/changelog` is designed for two audiences simultaneously:
+
+**For developers:** version numbers, conventional commit categories (feat, fix, security, perf), technical detail on what changed and why.
+
+**For clients:** plain-language descriptions of what improved, why it matters to them, what capabilities are now available.
+
+<Callout type="tip">
+**The key insight:** a changelog is a living proof of competence. When a client lands on `/changelog` and sees a documented, versioned history of deliberate improvements — moderation, legal compliance, certifications, security hardening — it communicates something a portfolio page cannot: *this platform is actively maintained by someone who cares about quality.*
+</Callout>
+
+The implementation uses MDX files in `src/content/changelog/`, sorted by semver, rendered with version badges, category chips, client-value callouts, and collapsible developer notes.
+
+---
+
+## 9. CI/CD Automation — GitHub Actions + Vercel Token
+
+The sandbox deployment process was manual: push to GitHub, then run `vercel` CLI. This required a terminal session every deploy.
+
+The fix: a GitHub Actions `alias-sandbox` job that automatically aliases the latest Preview deployment to `sandbox.js17.dev` on every push to `main`.
+
+```yaml
+- name: Alias sandbox
+  run: |
+    PREVIEW_URL=$(npx vercel ls --token $VERCEL_TOKEN | grep js17dev | head -1 | awk '{print $2}')
+    npx vercel alias $PREVIEW_URL sandbox.js17.dev --token $VERCEL_TOKEN
+```
+
+The `VERCEL_TOKEN`, `VERCEL_ORG_ID`, and `VERCEL_PROJECT_ID` are stored in GitHub Secrets. Zero credentials in the repository.
+
+---
+
+## 10. Cal.com Scheduler Preloader
+
+Step 5 of the proposal form embeds the Cal.com scheduler. The problem: the Cal.com embed script takes 3–5 seconds to load cold, and step 5 felt broken while it was initializing.
+
+The fix: inject the Cal.com script at **step 3** — two steps before it's needed. By the time the user reaches step 5, the embed is fully warm. A `MutationObserver` detects when the iframe appears in the DOM, with a 10-second timeout that reveals a direct booking link as fallback.
+
+No loading spinners. No skeleton states. Just a working scheduler by the time the user arrives.
+
+---
+
+## 11. Theme Cleanup — Four Palettes, No Noise
+
+The original theme picker offered 7 palettes. Feedback was clear: too many options, too much cognitive load.
+
+**Removed permanently:** Terminal (phosphor green), Plasma (deep space violet), Forest Node (dark emerald)
+
+**Kept:** Dark (Circuit Dark, default), Light (Circuit Light), Titanium (warm charcoal + amber gold), Aurora (arctic teal + electric cyan)
+
+Every removal required cleaning four places: `ThemePicker.tsx`, `ThemeInitializer.tsx`, `layout.tsx`, and `globals.css`. Terminal and Forest had 27 lines of CSS vars each — gone entirely.
+
+The first-visit default was also changed from Forest to **Dark** — the primary brand experience.
+
+---
+
+## The Full Session Metrics
+
+<StatRow>
+  <StatCard value="12" label="Files created" icon="📄" color="blue" />
+  <StatCard value="18" label="Files modified" icon="✏️" color="purple" />
+  <StatCard value="-106" label="Lines of dead CSS removed" icon="🗑️" color="orange" />
+  <StatCard value="4" label="Vercel deployments" icon="🚀" color="green" />
+</StatRow>
+
+---
+
+## What This Session Proves
+
+Day one proved that AI-augmented engineering can build a full professional site in under 4 hours.
+
+Day two proved something different: **it can operate as a full product organization** — security team, legal team, DevOps, QA, product design, and content — in a single session, without dropping any of those balls.
+
+<Callout type="info">
+**The pattern:** every system built today followed the same structure: define the problem precisely → design the solution before writing code → implement in the right file with the right abstractions → verify it builds → ship. The AI accelerates steps 3 and 4 by an order of magnitude. Steps 1 and 2 are irreducibly human.
+</Callout>
+
+The abuse email that triggered this sprint was unwelcome. But it was the best possible forcing function: it revealed a real gap at exactly the moment when the gap was cheapest to close. Production feedback on day one is a gift.
+
+---
+
+## What's Next
+
+The moderation system is observing. The legal framework is in place. The CI pipeline automates deployments. The certification section is live.
+
+The platform foundation is solid. Next sprint: client portal features, subscription tiers, and the first AI-native product integration.
+
+If you want a platform that ships this fast and this completely:
+
+<CTABlock>
+
+### Let's talk about your project
+
+Every system on this page — moderation, legal, CI/CD, scheduling, OAuth — was designed with the same methodology I bring to client work. Fast, secure, documented, and maintainable.
+
+**What you get:**
+🔒 **Security-first by default** — abuse prevention, rate limiting, input validation built in from day one
+⚖️ **Legal compliance included** — GDPR-aligned, jurisdiction-aware, versioned consent tracking
+🚀 **CI/CD from the start** — automated deploys, staging environments, no-downtime releases
+🤖 **AI-augmented velocity** — senior judgment at AI speed
+
+[**Request a Proposal →**](/proposal)
+
+*Most clients have a scoped plan within 24 hours of submitting.*
+
+</CTABlock>
