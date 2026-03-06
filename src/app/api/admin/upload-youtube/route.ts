@@ -2,6 +2,53 @@ import { NextRequest, NextResponse } from "next/server"
 import { verifyAdmin } from "@/lib/auth"
 import { put, list } from "@vercel/blob"
 
+export async function DELETE(req: NextRequest) {
+  const token = await verifyAdmin(req)
+  if (!token) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  }
+
+  const accessToken = token.accessToken as string | undefined
+  if (!accessToken) {
+    return NextResponse.json({ error: "No YouTube access token" }, { status: 401 })
+  }
+
+  const { videoIds } = await req.json()
+  if (!videoIds || !Array.isArray(videoIds)) {
+    return NextResponse.json({ error: "Missing videoIds array" }, { status: 400 })
+  }
+
+  const results: { videoId: string; deleted: boolean; error?: string }[] = []
+  for (const videoId of videoIds) {
+    const res = await fetch(`https://www.googleapis.com/youtube/v3/videos?id=${videoId}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${accessToken}` },
+    })
+    if (res.ok || res.status === 204) {
+      results.push({ videoId, deleted: true })
+    } else {
+      const err = await res.json().catch(() => ({}))
+      results.push({ videoId, deleted: false, error: err?.error?.message || `HTTP ${res.status}` })
+    }
+  }
+
+  // Clean up blob tracking
+  try {
+    const BLOB = "youtube/article-videos.json"
+    const { blobs } = await list({ prefix: BLOB })
+    if (blobs.length > 0) {
+      const res = await fetch(blobs[0].url, { cache: "no-store" })
+      type ArticleVideoRecord = { slug: string; format: string; youtubeUrl: string; videoId: string; publishedAt: string }
+      let records: ArticleVideoRecord[] = await res.json().catch(() => [])
+      const deletedIds = new Set(videoIds)
+      records = records.filter((r) => !deletedIds.has(r.videoId))
+      await put(BLOB, JSON.stringify(records), { access: "public", contentType: "application/json", addRandomSuffix: false, allowOverwrite: true })
+    }
+  } catch { /* non-blocking */ }
+
+  return NextResponse.json({ results })
+}
+
 export async function POST(req: NextRequest) {
   const token = await verifyAdmin(req)
   if (!token) {
