@@ -39,7 +39,7 @@ async function removeSubscriber(email: string): Promise<boolean> {
 function sendGoodbyeEmail(email: string): void {
   if (!process.env.RESEND_API_KEY) return
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://js17.dev"
-  const from = process.env.RESEND_FROM_EMAIL || "Jeroham @ js17.dev <hello@js17.dev>"
+  const from = "Jeroham @ js17.dev <news@js17.dev>"
   getResend().emails.send({
     from,
     to: email,

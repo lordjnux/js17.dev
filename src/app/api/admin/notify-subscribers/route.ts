@@ -250,7 +250,7 @@ export async function POST(req: NextRequest) {
 
   // Send in batches of 10
   const resend = getResend()
-  const from = process.env.RESEND_FROM_EMAIL || "Jeroham @ js17.dev <hello@js17.dev>"
+  const from = "Jeroham @ js17.dev <news@js17.dev>"
   const BATCH = 10
   let sent = 0
   let failed = 0

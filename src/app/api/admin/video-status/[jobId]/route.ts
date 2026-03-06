@@ -9,7 +9,8 @@ export async function GET(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
-  const res = await fetch(`https://api.shotstack.io/v1/render/${params.jobId}`, {
+  const shotstackEnv = process.env.SHOTSTACK_ENV || "stage"
+  const res = await fetch(`https://api.shotstack.io/${shotstackEnv}/render/${params.jobId}`, {
     headers: { "x-api-key": process.env.SHOTSTACK_API_KEY! },
   })
 

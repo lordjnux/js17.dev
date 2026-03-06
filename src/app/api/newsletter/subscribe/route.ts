@@ -174,7 +174,7 @@ export async function POST(req: NextRequest) {
     // Welcome email (non-blocking)
     if (process.env.RESEND_API_KEY) {
       const resend = getResend()
-      const from = process.env.RESEND_FROM_EMAIL || "Jeroham @ js17.dev <hello@js17.dev>"
+      const from = "Jeroham @ js17.dev <news@js17.dev>"
       const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://js17.dev"
       resend.emails.send({
         from,

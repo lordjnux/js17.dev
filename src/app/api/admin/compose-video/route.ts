@@ -63,7 +63,8 @@ export async function POST(req: NextRequest) {
     ? { format: "mp4", size: { width: 1080, height: 1920 }, fps: 30, quality: "high" }
     : { format: "mp4", resolution: "hd", fps: 25, quality: "high" }
 
-  const res = await fetch("https://api.shotstack.io/v1/render", {
+  const shotstackEnv = process.env.SHOTSTACK_ENV || "stage"
+  const res = await fetch(`https://api.shotstack.io/${shotstackEnv}/render`, {
     method: "POST",
     headers: {
       "x-api-key": process.env.SHOTSTACK_API_KEY!,
@@ -72,12 +73,12 @@ export async function POST(req: NextRequest) {
     body: JSON.stringify({ timeline, output }),
   })
 
-  const data = await res.json()
+  const respData = await res.json()
   if (!res.ok) {
-    return NextResponse.json({ error: data.message || "Shotstack error" }, { status: 500 })
+    return NextResponse.json({ error: respData.message || respData.error || JSON.stringify(respData) }, { status: 500 })
   }
 
-  const jobId = data?.response?.id
+  const jobId = respData?.response?.id
   if (!jobId) {
     return NextResponse.json({ error: "No job ID in Shotstack response" }, { status: 500 })
   }
