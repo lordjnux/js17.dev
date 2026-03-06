@@ -7,6 +7,7 @@ import type { Metadata } from "next"
 import { compileMDX } from "next-mdx-remote/rsc"
 import { Callout } from "@/components/blog/MDXContent"
 import { PublishVideoButton } from "@/components/blog/PublishVideoButton"
+import { NotifySubscribersButton } from "@/components/blog/NotifySubscribersButton"
 import {
   StatRow, StatCard,
   StackGrid, StackItem,
@@ -96,7 +97,10 @@ export default async function BlogPostPage({
           <PostHeader frontmatter={post.frontmatter} />
 
           <div className="flex justify-between items-center mb-8">
-            <PublishVideoButton slug={params.slug} />
+            <div className="flex items-center gap-2">
+              <PublishVideoButton slug={params.slug} />
+              <NotifySubscribersButton slug={params.slug} />
+            </div>
             <CopyForLinkedIn text={linkedInText} />
           </div>
 

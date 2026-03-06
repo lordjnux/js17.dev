@@ -9,7 +9,10 @@ export function getResend(): Resend {
   }
   return _resend
 }
-export const resend = { emails: { send: (...args: Parameters<Resend["emails"]["send"]>) => getResend().emails.send(...args) } }
+export const resend = {
+  emails: { send: (...args: Parameters<Resend["emails"]["send"]>) => getResend().emails.send(...args) },
+  batch: { send: (...args: Parameters<Resend["batch"]["send"]>) => getResend().batch.send(...args) },
+}
 
 export function buildProposalEmailHtml(data: ProposalData): string {
   const { client, project, budget, contact } = data
