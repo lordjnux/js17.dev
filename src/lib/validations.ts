@@ -37,6 +37,7 @@ export const step4Schema = z.object({
   timezone: z.string().min(1, "Please select your timezone"),
   preferredContact: z.enum(["email", "video", "whatsapp"]),
   additionalNotes: z.string().max(1000).optional(),
+  termsAccepted: z.boolean().refine((v) => v === true, { message: "You must accept the terms to continue" }),
 })
 
 export const proposalSchema = z.object({

@@ -24,6 +24,7 @@ const INITIAL_DATA: ProposalFormData = {
     timezone: "",
     preferredContact: "email",
     additionalNotes: "",
+    termsAccepted: false,
   },
 }
 

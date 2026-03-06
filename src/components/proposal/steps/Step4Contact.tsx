@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ProposalFormData } from "@/types/proposal"
+import { LegalConsent } from "@/components/shared/LegalConsent"
 import { ArrowLeft, ArrowRight } from "lucide-react"
 
 const TIMEZONES = [
@@ -112,6 +113,20 @@ export function Step4Contact({ data, onNext, onBack }: StepProps) {
           {...register("additionalNotes")}
         />
       </div>
+
+      <Controller
+        name="termsAccepted"
+        control={control}
+        render={({ field }) => (
+          <LegalConsent
+            id="proposal-terms"
+            checked={field.value === true}
+            onChange={field.onChange}
+            error={errors.termsAccepted?.message}
+            variant="proposal"
+          />
+        )}
+      />
 
       <div className="flex justify-between pt-2">
         <Button type="button" variant="ghost" onClick={onBack} className="gap-2">

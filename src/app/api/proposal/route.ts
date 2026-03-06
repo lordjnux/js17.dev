@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { proposalSchema } from "@/lib/validations"
 import { resend, buildProposalEmailHtml, buildClientConfirmationHtml } from "@/lib/resend"
 import { moderateContent, recordSubmission } from "@/lib/moderation"
+import { legalVersionString } from "@/lib/legal"
 
 // Simple in-memory rate limiting (per IP, per minute)
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>()
@@ -72,6 +73,7 @@ export async function POST(req: NextRequest) {
       company: data.client.company,
       projectTitle: data.project.title,
       contactEmail: data.contact.email,
+      termsVersion: legalVersionString(),
     }).catch(() => {})
 
     // Return success to client — don't reveal moderation decision
@@ -115,6 +117,7 @@ export async function POST(req: NextRequest) {
       company: data.client.company,
       projectTitle: data.project.title,
       contactEmail: data.contact.email,
+      termsVersion: legalVersionString(),
     }).catch(() => {})
 
     return NextResponse.json({ success: true })

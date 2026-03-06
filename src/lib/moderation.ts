@@ -23,6 +23,7 @@ export interface SubmissionRecord {
   company: string
   projectTitle: string
   contactEmail: string
+  termsVersion?: string
 }
 
 // Hardcoded base blocklist — seeded from real abuse case

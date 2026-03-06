@@ -25,6 +25,7 @@ export interface ContactInfo {
   timezone: string
   preferredContact: "email" | "video" | "whatsapp"
   additionalNotes?: string
+  termsAccepted: boolean
 }
 
 export interface ProposalFormData {

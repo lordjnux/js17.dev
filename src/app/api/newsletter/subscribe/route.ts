@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { put, list } from "@vercel/blob"
 import { getResend } from "@/lib/resend"
+import { legalVersionString } from "@/lib/legal"
 import dns from "dns"
 import { promisify } from "util"
 
@@ -56,6 +57,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Email required" }, { status: 400 })
   }
 
+  const termsAccepted = (body as Record<string, unknown>)?.termsAccepted
+  if (termsAccepted !== true) {
+    return NextResponse.json({ error: "You must accept the privacy policy to subscribe" }, { status: 422 })
+  }
+
   // Normalize: lowercase + trim
   const email = raw.toLowerCase().trim()
 
@@ -79,18 +85,22 @@ export async function POST(req: NextRequest) {
 
   try {
     const { blobs } = await list({ prefix: "newsletter/subscribers.json" })
-    let subscribers: string[] = []
+    type SubscriberRecord = { email: string; subscribedAt: string; termsVersion: string }
+    let subscribers: SubscriberRecord[] = []
     if (blobs.length > 0) {
       const res = await fetch(blobs[0].url, { cache: "no-store" })
-      subscribers = await res.json()
+      const raw = await res.json()
+      // support legacy plain-string array
+      subscribers = Array.isArray(raw)
+        ? raw.map((r) => (typeof r === "string" ? { email: r, subscribedAt: "", termsVersion: "legacy" } : r))
+        : []
     }
 
-    if (subscribers.includes(email)) {
-      // Return success — don't leak whether email is registered
+    if (subscribers.some((s) => s.email === email)) {
       return NextResponse.json({ message: "Subscribed" })
     }
 
-    subscribers.push(email)
+    subscribers.push({ email, subscribedAt: new Date().toISOString(), termsVersion: legalVersionString() })
     await put("newsletter/subscribers.json", JSON.stringify(subscribers), {
       access: "public",
       contentType: "application/json",
