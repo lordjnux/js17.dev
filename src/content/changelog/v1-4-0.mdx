@@ -1,0 +1,43 @@
+---
+version: "1.4.0"
+date: "2026-03-06"
+title: "YouTube Publishing Pipeline & Newsletter Intelligence"
+headline: "Every blog post can now become a narrated video on YouTube — generated, composed, and uploaded without leaving the admin panel."
+category: "feature"
+skills:
+  - GPT-4o script generation
+  - OpenAI TTS (onyx voice)
+  - Shotstack video composition API
+  - YouTube Data API v3
+  - OAuth 2.0 token refresh
+  - Vercel Blob storage
+  - Server-side video upload
+  - AI-powered newsletter synopsis
+clientValue: "Blog content now reaches audiences on YouTube automatically. Subscribers receive AI-summarized email notifications when new posts are published. The entire content distribution pipeline — from written article to narrated video to email blast — runs from a single admin interface."
+devNotes: "The video pipeline chains four API calls: GPT-4o generates a narration script from the article, OpenAI TTS (onyx voice) produces audio stored in Vercel Blob, Shotstack composes the video with slides rendered via a Next.js API route, and the final video uploads to YouTube server-side. Per-article tracking in Blob (youtube/article-videos.json) prevents duplicate publishing. OAuth token auto-refresh in auth.ts handles the 1-hour Google token expiry. All OpenAI/Shotstack clients are instantiated inside handlers (not module-level) to avoid build-time errors. The admin auth layer uses getToken from next-auth/jwt instead of getServerSession, which fails in App Router route handlers."
+---
+
+## What shipped
+
+### AI-powered YouTube video publishing
+Every blog post now has a "Publish to YouTube" button visible to the admin. One click triggers the full pipeline: GPT-4o generates a narration script tailored to the article, OpenAI TTS converts it to audio (onyx voice), Shotstack composes a video with custom slides, and the result uploads directly to YouTube — all server-side, no manual editing required.
+
+Two formats are supported per article: **Short** (1080x1920, vertical, under 60 seconds) and **Long** (1280x720, horizontal, full narration). Each format tracks its own YouTube URL to prevent duplicate uploads.
+
+### Brand video management page
+A dedicated admin page at `/admin/youtube` manages brand-level videos (logo animations) in both short and long formats. Publishing status, YouTube URLs, and format metadata are all visible in one place.
+
+### Newsletter post notifications with AI synopsis
+When a new blog post is published, the admin can notify all subscribers with a single click. GPT-4o-mini generates a concise synopsis of the article, which is embedded in a redesigned email template. Sent posts are tracked in Vercel Blob to prevent double-sends.
+
+### Newsletter email redesign
+Both the welcome email and post notification emails received a visual overhaul — branded header, clean typography, prominent CTA buttons, and proper unsubscribe links compliant with RFC 8058 one-click unsubscribe.
+
+### OAuth token auto-refresh
+Google OAuth access tokens (1-hour TTL) are now refreshed automatically in `auth.ts` using the stored refresh token. YouTube uploads no longer fail silently after 60 minutes of session time.
+
+### Admin auth hardening
+All admin API routes now use `verifyAdmin(req)` with `getToken` from `next-auth/jwt` instead of `getServerSession`, which cannot read cookies reliably in Next.js 14 App Router route handlers. This fixed 401 errors on all admin endpoints.
+
+### Environment variable hygiene
+All Vercel environment variables were re-added using `printf '%s'` to prevent trailing newline characters (`%0A`) that caused silent authentication failures with Google OAuth and the Shotstack API.
