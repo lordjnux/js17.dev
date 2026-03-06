@@ -18,6 +18,7 @@ import {
   CTABlock,
 } from "@/components/blog/mdx-visual"
 import { ArchitectureScene } from "@/components/blog/ArchitectureScene"
+import { DashboardShowcase, PipelineFlow, ImpactGrid, ImpactMetric } from "@/components/blog/DashboardShowcase"
 import { ArticleVideos } from "@/components/blog/ArticleVideos"
 
 export async function generateStaticParams() {
@@ -89,6 +90,10 @@ export default async function BlogPostPage({
       ChallengeCard,
       CTABlock,
       ArchitectureScene,
+      DashboardShowcase,
+      PipelineFlow,
+      ImpactGrid,
+      ImpactMetric,
     },
   })
 
