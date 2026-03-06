@@ -18,6 +18,7 @@ const withMDX = createMDX({
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  transpilePackages: ['three', '@react-three/fiber', '@react-three/drei'],
   pageExtensions: ['js', 'jsx', 'ts', 'tsx', 'md', 'mdx'],
   images: {
     remotePatterns: [

@@ -1,16 +1,21 @@
 "use client"
 
 import { useState } from "react"
+import { useSession } from "next-auth/react"
 import { Linkedin, Copy, Check, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { ADMIN_EMAIL } from "@/lib/auth"
 
 interface CopyForLinkedInProps {
   text: string
 }
 
 export function CopyForLinkedIn({ text }: CopyForLinkedInProps) {
+  const { data: session } = useSession()
   const [open, setOpen] = useState(false)
   const [copied, setCopied] = useState(false)
+
+  if (!session || session.user?.email !== ADMIN_EMAIL) return null
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(text)

@@ -1,0 +1,174 @@
+---
+title: "The Architecture of Omnipresence: A Full Platform for Under $50/Month"
+description: "An interactive 3D exploration of the architecture behind js17.dev — every provider, every connection, every dollar. How a single engineer built website, blog, video pipeline, email marketing, and AI integrations for less than most teams spend on coffee."
+date: "2026-03-06"
+tags: ["Architecture", "AI-Augmented Engineering", "Business Strategy", "DevOps", "Cost Optimization", "Three.js"]
+readingTime: 10
+published: true
+---
+
+What does it cost to be everywhere at once?
+
+A professional website. A technical blog with SEO and dynamic OG images. An automated video pipeline that turns articles into YouTube content. An AI-powered email newsletter. Abuse-proof contact forms. Legal compliance across jurisdictions. CI/CD with zero-downtime deployments. Verified professional credentials. Four visual themes. All of it running, all of it monitored, all of it maintained by one person.
+
+The answer: **~$36 per month.**
+
+This post breaks down every layer of the architecture, every provider connection, every dollar spent — and explains why this matters far beyond a personal site.
+
+---
+
+## The Architecture — Explore It
+
+The visualization below is the complete architecture of js17.dev rendered in 3D. Every sphere is a real service. Every line is a real data flow. Every cost is the actual monthly bill.
+
+Drag to orbit around the architecture. Scroll to zoom. Hover over nodes for details.
+
+<ArchitectureScene />
+
+---
+
+## The Cost Breakdown
+
+Every service was chosen with a single constraint: **maximum capability at minimum cost.** Not minimum effort — minimum cost. The engineering effort is where the value lives.
+
+<StackGrid>
+  <StackItem icon="$0" layer="Hosting" tech="Vercel Free Tier" reason="Edge network, serverless functions, preview deployments, automatic SSL. Handles the full site including API routes, OG image generation, and ISR." />
+  <StackItem icon="$0" layer="DNS + CDN" tech="Cloudflare Free" reason="Global DNS resolution, DDoS protection, SSL certificate management. API-managed records — no manual dashboard clicks." />
+  <StackItem icon="$1" layer="Domain" tech="GoDaddy" reason="js17.dev — the only hard cost. Renewed annually at ~$12/year." />
+  <StackItem icon="$0" layer="Email" tech="Resend Free" reason="100 emails/day free tier. Handles proposal notifications, newsletter broadcasts, welcome/goodbye emails." />
+  <StackItem icon="$0" layer="Auth" tech="Google OAuth" reason="NextAuth.js with JWT strategy. Admin-only gating for publishing controls." />
+  <StackItem icon="$0" layer="Storage" tech="Vercel Blob" reason="Audio files, subscriber lists, moderation records, video tracking, blocklists — all stored in Vercel's blob store." />
+  <StackItem icon="$0" layer="CI/CD" tech="GitHub Actions" reason="Automated type-check, lint, build on every PR. Release automation on merge to main." />
+  <StackItem icon="$0" layer="Credentials" tech="Credly API" reason="10 verified certifications pulled live with 24h ISR cache." />
+  <StackItem icon="$0" layer="Video Host" tech="YouTube API" reason="Auto-upload of generated videos. Unlimited hosting and distribution." />
+  <StackItem icon="~$10" layer="AI Content" tech="OpenAI API" reason="GPT-4o for video scripts + newsletter synopsis. TTS for audio narration. Moderation API for abuse detection (free endpoint)." />
+  <StackItem icon="~$25" layer="Video Engine" tech="Shotstack" reason="Server-side video composition from slides + audio. Two formats per article (short + long)." />
+</StackGrid>
+
+<StatRow>
+  <StatCard value="$36" label="Monthly total" icon="1" color="green" />
+  <StatCard value="$0" label="Setup cost (infra)" icon="2" color="blue" />
+  <StatCard value="11" label="Integrated providers" icon="3" color="purple" />
+  <StatCard value="99.8%" label="Savings vs traditional" icon="4" color="orange" />
+</StatRow>
+
+---
+
+## The Traditional Equivalent
+
+To put these numbers in perspective, here is what a company typically pays for comparable capabilities:
+
+<StackGrid>
+  <StackItem icon="$3K+" layer="Per month" tech="Web Development Agency" reason="Ongoing development, bug fixes, feature requests. Most agencies bill $150-250/hr." />
+  <StackItem icon="$2K+" layer="Per month" tech="Content Writer" reason="Blog posts, social copy, email campaigns. Professional content requires professional writers." />
+  <StackItem icon="$3K+" layer="Per video" tech="Video Production" reason="Script, voiceover, editing, rendering. A single polished YouTube video costs more than a year of the js17.dev approach." />
+  <StackItem icon="$500+" layer="Per month" tech="Email Marketing Platform" reason="Mailchimp, HubSpot, ConvertKit at scale. Plus the copywriter to draft each email." />
+  <StackItem icon="$2K+" layer="Per month" tech="SEO Agency" reason="Technical SEO, content strategy, link building, reporting." />
+  <StackItem icon="$4K+" layer="Per month" tech="Social Media Manager" reason="Content calendar, posting, engagement, analytics across platforms." />
+  <StackItem icon="$8K+" layer="Per month" tech="DevOps Engineer" reason="CI/CD, monitoring, security, infrastructure management. Part-time at minimum." />
+</StackGrid>
+
+**Traditional total: $22,500+/month** — plus a $30,000-80,000 initial build.
+
+**js17.dev approach: $36/month** — built and maintained by one AI-augmented engineer.
+
+That is not a rounding error. That is an **architectural advantage.**
+
+---
+
+## How the Pipeline Works
+
+The architecture is not just a collection of services. It is a **content multiplication pipeline** where each piece of content flows through multiple distribution channels automatically.
+
+<ChallengeCard number={1} title="Write Once, Distribute Everywhere">
+
+A single MDX blog post triggers the following chain:
+
+1. **Website** — SSG renders the post with full SEO, structured data, and dynamic OG image
+2. **YouTube** — GPT-4o generates a narration script, OpenAI TTS produces audio, Shotstack composes video, YouTube API uploads it
+3. **Email** — GPT-4o-mini generates a synopsis, Resend delivers branded newsletters to all subscribers
+4. **LinkedIn** — Pre-generated post copy with hashtags, ready to paste
+5. **Search** — Sitemap auto-updates, Google indexes within hours
+
+One article. Five distribution channels. One click each.
+
+</ChallengeCard>
+
+<ChallengeCard number={2} title="Security Without a Security Team">
+
+The architecture includes three-layer content moderation (keyword blocklist + OpenAI Moderation API + autonomous learning), rate limiting, MX record validation, disposable domain blocking, SSRF protection, OAuth token lifecycle management, and admin-only route gating.
+
+All built in. No additional cost. No third-party security vendor.
+
+</ChallengeCard>
+
+<ChallengeCard number={3} title="Legal Compliance Without a Legal Department">
+
+Terms of Service, Privacy Policy, and Colombian Habeas Data policy — all published, versioned, and consent-tracked. Every submission stamps the exact legal version the user agreed to. Total cost of the legal compliance system: $0/month.
+
+</ChallengeCard>
+
+---
+
+## Why This Matters for Your Business
+
+This architecture was built for a personal site. But every pattern in it solves a real enterprise problem.
+
+### The Pain Points This Architecture Solves
+
+**"Our content reaches one channel."** — This pipeline turns one piece of content into five distribution touchpoints automatically. No additional headcount required.
+
+**"We can't afford a video production team."** — AI-generated scripts, automated narration, server-side video composition. The cost of a YouTube presence drops from $3,000/video to $0.50/video.
+
+**"Our deployment process is fragile."** — Branch protection, automated CI/CD gates, conventional commits, and dual-environment validation mean nothing ships broken. Built on free-tier infrastructure.
+
+**"Security is always deferred."** — When security is built into the architecture from day one, it costs nothing extra. When it is retrofitted after an incident, it costs 10x.
+
+**"IT is a cost center."** — This is the core misconception. When IT builds systems that multiply content reach, automate distribution, enforce compliance, and protect brand reputation — it is not a cost center. It is the engine that makes strategy executable.
+
+---
+
+## The Omnipresence Formula
+
+<Callout type="info">
+**Omnipresence** does not mean being on every platform manually. It means building an architecture where presence is automated — where creating one asset triggers distribution across every relevant channel, with compliance, security, and brand consistency built in.
+</Callout>
+
+The formula is three components:
+
+**1. A content pipeline that multiplies, not duplicates.** Written content is the single source of truth. Every other format — video, email, social — is derived automatically.
+
+**2. Free-tier infrastructure that scales.** Vercel, Cloudflare, GitHub Actions, Resend, YouTube, Credly — each offers a free tier that handles professional-grade workloads. The only variable costs are AI APIs, which scale with actual usage.
+
+**3. AI augmentation at every layer.** Script generation, audio narration, content synopsis, abuse detection, video composition — AI is not a feature. It is the connective tissue that makes the pipeline economically viable.
+
+Total cost to reach omnipresence: **one senior engineer for one week, plus ~$36/month ongoing.**
+
+Traditional cost for the same result: **a team of 6-8 specialists, 3-6 months of build time, plus $22,000+/month ongoing.**
+
+---
+
+## The Invitation
+
+This is not a closed system. Every pattern described here — the content pipeline, the video automation, the security layers, the compliance framework, the CI/CD infrastructure — is designed to be transplanted into any organization.
+
+The question is not whether your business can afford this approach. The question is whether you can afford not to have it while your competitors figure it out.
+
+<CTABlock>
+
+### Let's build your omnipresence engine
+
+I bring the same methodology, the same architectural discipline, and the same AI-augmented velocity to every client engagement. The systems documented on this site are not demos — they are the proof.
+
+**What you get:**
+- A content multiplication pipeline tailored to your channels
+- Security and compliance built into the architecture, not bolted on
+- AI integrations that actually reduce cost, not just add novelty
+- Infrastructure that runs on free tiers until you outgrow them
+- A clean handoff — every system documented, typed, and maintainable
+
+[**Request a Proposal**](/proposal)
+
+*Most clients have a scoped architecture plan within 24 hours.*
+
+</CTABlock>

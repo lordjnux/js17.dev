@@ -17,6 +17,7 @@ import {
   ChallengeCard,
   CTABlock,
 } from "@/components/blog/mdx-visual"
+import { ArchitectureScene } from "@/components/blog/ArchitectureScene"
 
 export async function generateStaticParams() {
   const posts = getAllPosts()
@@ -86,6 +87,7 @@ export default async function BlogPostPage({
       SkillSection, SkillCategory,
       ChallengeCard,
       CTABlock,
+      ArchitectureScene,
     },
   })
 
