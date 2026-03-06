@@ -48,6 +48,7 @@ async function saveCustomBlocklist(terms: string[]): Promise<void> {
     access: "public",
     contentType: "application/json",
     addRandomSuffix: false,
+    allowOverwrite: true,
   })
 }
 
@@ -152,6 +153,7 @@ export async function recordSubmission(record: SubmissionRecord): Promise<void> 
       access: "public",
       contentType: "application/json",
       addRandomSuffix: false,
+      allowOverwrite: true,
     })
   } catch {
     // Non-blocking — don't fail the submission if storage fails

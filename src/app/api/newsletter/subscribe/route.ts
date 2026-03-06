@@ -7,6 +7,58 @@ import { promisify } from "util"
 
 const resolveMx = promisify(dns.resolveMx)
 
+function buildWelcomeEmailHtml(siteUrl: string): string {
+  const blogUrl = `${siteUrl}/blog`
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light">
+  <title>Welcome to js17.dev</title>
+</head>
+<body style="margin:0;padding:0;background-color:#f1f5f9;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color:#f1f5f9;">
+    <tr>
+      <td align="center" style="padding:32px 16px 40px;">
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width:540px;width:100%;">
+          <tr><td style="height:3px;border-radius:3px 3px 0 0;background:linear-gradient(90deg,#2563eb,#60a5fa);font-size:0;line-height:0;">&nbsp;</td></tr>
+          <tr>
+            <td style="background:#ffffff;border-radius:0 0 16px 16px;padding:36px 40px 32px;box-shadow:0 4px 24px rgba(0,0,0,0.06);">
+              <p style="margin:0 0 28px;font-family:'Courier New',monospace;font-size:15px;font-weight:700;color:#2563eb;">js17.dev</p>
+              <h1 style="margin:0 0 16px;font-size:22px;font-weight:800;color:#0f172a;line-height:1.3;letter-spacing:-0.4px;">You're in. Welcome.</h1>
+              <p style="margin:0 0 20px;font-size:16px;color:#334155;line-height:1.75;">
+                Thanks for subscribing. You'll get an email whenever I publish a new article — no spam, no noise, just engineering content worth reading.
+              </p>
+              <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin:24px 0 28px;">
+                <tr>
+                  <td style="border-radius:8px;background:#2563eb;">
+                    <a href="${blogUrl}" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:13px 26px;color:#ffffff;font-size:15px;font-weight:600;text-decoration:none;border-radius:8px;">Browse the Blog &rarr;</a>
+                  </td>
+                </tr>
+              </table>
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin:28px 0 24px;">
+                <tr><td style="height:1px;background:#f1f5f9;font-size:0;line-height:0;">&nbsp;</td></tr>
+              </table>
+              <p style="margin:0 0 3px;font-size:13px;font-weight:700;color:#0f172a;">Jeroham Sanchez</p>
+              <p style="margin:0;font-size:12px;color:#94a3b8;">Senior AI-Augmented Fullstack Engineer &mdash; <a href="${siteUrl}" style="color:#94a3b8;text-decoration:none;">js17.dev</a></p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:18px 8px 4px;text-align:center;">
+              <p style="margin:0;font-size:11px;color:#94a3b8;line-height:1.65;">
+                You subscribed at js17.dev. If this was a mistake, simply ignore this email &mdash; you can unsubscribe from any future notification.
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`
+}
+
 // Disposable / throwaway email domain blocklist
 const DISPOSABLE_DOMAINS = new Set([
   "mailinator.com", "guerrillamail.com", "temp-mail.org", "throwam.com",
@@ -116,22 +168,25 @@ export async function POST(req: NextRequest) {
       access: "public",
       contentType: "application/json",
       addRandomSuffix: false,
+      allowOverwrite: true,
     })
 
     // Welcome email (non-blocking)
     if (process.env.RESEND_API_KEY) {
       const resend = getResend()
+      const from = process.env.RESEND_FROM_EMAIL || "Jeroham @ js17.dev <hello@js17.dev>"
+      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://js17.dev"
       resend.emails.send({
-        from: process.env.RESEND_FROM_EMAIL || "js17.dev <hello@js17.dev>",
+        from,
         to: email,
         subject: "You're subscribed to js17.dev",
-        html: `<p>Thanks for subscribing to js17.dev.</p><p>You'll get notified when new articles are published.</p><p style="margin-top:24px;font-size:12px;color:#666">— Jeroham Sanchez · <a href="https://js17.dev">js17.dev</a></p>`,
+        html: buildWelcomeEmailHtml(siteUrl),
+        text: `Welcome to js17.dev updates.\n\nYou'll receive an email whenever a new article is published.\n\nRead the blog: ${siteUrl}/blog\n\n— Jeroham Sanchez\n${siteUrl}`,
       }).catch(() => {})
     }
 
     return NextResponse.json({ message: "Subscribed" })
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err)
-    return NextResponse.json({ error: "Subscription failed", detail: msg }, { status: 500 })
+  } catch {
+    return NextResponse.json({ error: "Subscription failed" }, { status: 500 })
   }
 }
