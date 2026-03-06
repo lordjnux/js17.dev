@@ -18,7 +18,7 @@ async function getSubmissions() {
 export default async function SubmissionsPage() {
   const session = await getServerSession(authOptions)
   if (!session?.user?.email || session.user.email !== ADMIN_EMAIL) {
-    redirect("/auth/signin")
+    redirect("/auth/signin?callbackUrl=/admin/submissions")
   }
 
   const records = await getSubmissions()
