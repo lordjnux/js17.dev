@@ -325,7 +325,7 @@ export function ImpactMetric({
   color?: "blue" | "green" | "red" | "purple" | "orange"
 }) {
   const { visible, ref } = useScrollReveal(0.3)
-  const count = useAnimatedValue(value, visible, 2500)
+  const count = useAnimatedValue(Number(value) || 0, visible, 2500)
 
   const colorMap: Record<string, { border: string; text: string; glow: string }> = {
     blue: { border: "border-blue-500/40", text: "text-blue-400", glow: "shadow-blue-500/10" },
