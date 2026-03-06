@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
       },
       start: currentTime,
       length: slide.estimatedDuration,
-      effect: i === 0 ? "zoomIn" : "fadeIn",
+      effect: i === 0 ? "zoomIn" : "zoomInSlow",
       transition: { in: "fade", out: "fade" },
     }
     currentTime += slide.estimatedDuration
@@ -75,7 +75,7 @@ export async function POST(req: NextRequest) {
 
   const respData = await res.json()
   if (!res.ok) {
-    const detail = respData?.errors?.[0]?.detail || respData.message || respData.error || JSON.stringify(respData)
+    const detail = respData?.response?.message || respData?.errors?.[0]?.detail || respData.message || JSON.stringify(respData)
     return NextResponse.json({ error: `Shotstack ${shotstackEnv}: ${detail}` }, { status: 500 })
   }
 
