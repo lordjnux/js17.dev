@@ -11,7 +11,7 @@ export async function GET(
 
   const shotstackEnv = process.env.SHOTSTACK_ENV || "stage"
   const res = await fetch(`https://api.shotstack.io/${shotstackEnv}/render/${params.jobId}`, {
-    headers: { "x-api-key": process.env.SHOTSTACK_API_KEY! },
+    headers: { "x-api-key": (process.env.SHOTSTACK_API_KEY || "").trim() },
   })
 
   const data = await res.json()

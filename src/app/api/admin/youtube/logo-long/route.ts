@@ -136,7 +136,7 @@ export async function POST(req: NextRequest) {
   const shotRes = await fetch(`https://api.shotstack.io/${shotstackEnv}/render`, {
     method: "POST",
     headers: {
-      "x-api-key": process.env.SHOTSTACK_API_KEY!,
+      "x-api-key": (process.env.SHOTSTACK_API_KEY || "").trim(),
       "Content-Type": "application/json",
     },
     body: JSON.stringify({ timeline, output }),
@@ -144,7 +144,8 @@ export async function POST(req: NextRequest) {
 
   const shotData = await shotRes.json()
   if (!shotRes.ok) {
-    return NextResponse.json({ error: shotData.message || shotData.error || JSON.stringify(shotData) }, { status: 500 })
+    const detail = shotData?.errors?.[0]?.detail || shotData.message || shotData.error || JSON.stringify(shotData)
+    return NextResponse.json({ error: `Shotstack ${shotstackEnv}: ${detail}` }, { status: 500 })
   }
 
   const jobId = shotData?.response?.id
