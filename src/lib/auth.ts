@@ -3,7 +3,7 @@ import GoogleProvider from "next-auth/providers/google"
 import { getToken } from "next-auth/jwt"
 import type { NextRequest } from "next/server"
 
-export const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "jeroham.sanchez@gmail.com"
+export const ADMIN_EMAIL = (process.env.ADMIN_EMAIL || "jeroham.sanchez@gmail.com").trim()
 
 /**
  * Use this in App Router route handlers instead of getServerSession.
@@ -11,7 +11,9 @@ export const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "jeroham.sanchez@gmail.com
  * Returns the token (including accessToken) when admin, null otherwise.
  */
 export async function verifyAdmin(req: NextRequest) {
-  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET })
+  const secret = (process.env.NEXTAUTH_SECRET || "").trim()
+  if (!secret) return null
+  const token = await getToken({ req, secret })
   if (!token || token.email !== ADMIN_EMAIL) return null
   return token
 }
@@ -51,6 +53,7 @@ export const authOptions: NextAuthOptions = {
             "email",
             "profile",
             "https://www.googleapis.com/auth/youtube.upload",
+            "https://www.googleapis.com/auth/youtube",
           ].join(" "),
           access_type: "offline",
           prompt: "consent",
@@ -86,7 +89,7 @@ export const authOptions: NextAuthOptions = {
       return session
     },
   },
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: (process.env.NEXTAUTH_SECRET || "").trim(),
   pages: {
     signIn: "/auth/signin",
   },
