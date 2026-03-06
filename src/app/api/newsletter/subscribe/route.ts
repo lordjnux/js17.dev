@@ -130,7 +130,8 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json({ message: "Subscribed" })
-  } catch {
-    return NextResponse.json({ error: "Subscription failed" }, { status: 500 })
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err)
+    return NextResponse.json({ error: "Subscription failed", detail: msg }, { status: 500 })
   }
 }
