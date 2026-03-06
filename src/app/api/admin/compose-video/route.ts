@@ -14,8 +14,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
-  const { slides, audioUrl, totalDuration } = await req.json()
+  const { slides, audioUrl, totalDuration, videoFormat = "long" } = await req.json()
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://js17.dev"
+  const isShort = videoFormat === "short"
 
   // Build slide clips — each slide encoded as base64 data URL param
   let currentTime = 0
@@ -26,6 +27,7 @@ export async function POST(req: NextRequest) {
         bullets: slide.bullets,
         slideNum: i + 1,
         total: slides.length,
+        format: videoFormat,
       })
     ).toString("base64")
 
@@ -59,12 +61,9 @@ export async function POST(req: NextRequest) {
     ],
   }
 
-  const output = {
-    format: "mp4",
-    resolution: "hd",
-    fps: 25,
-    quality: "high",
-  }
+  const output = isShort
+    ? { format: "mp4", size: { width: 1080, height: 1920 }, fps: 30, quality: "high" }
+    : { format: "mp4", resolution: "hd", fps: 25, quality: "high" }
 
   const res = await fetch("https://api.shotstack.io/v1/render", {
     method: "POST",

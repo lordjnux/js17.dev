@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions, ADMIN_EMAIL } from "@/lib/auth"
+import { put, list } from "@vercel/blob"
 
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions)
@@ -13,7 +14,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "No YouTube access token. Please sign out and sign in again." }, { status: 401 })
   }
 
-  const { videoUrl, title, description, tags, playlistId } = await req.json()
+  const { videoUrl, title, description, tags, playlistId, slug, videoFormat } = await req.json()
   if (!videoUrl || !title) {
     return NextResponse.json({ error: "Missing videoUrl or title" }, { status: 400 })
   }
@@ -105,6 +106,24 @@ export async function POST(req: NextRequest) {
         },
       }),
     }).catch(() => {})
+  }
+
+  // Track published article videos to prevent double-publish
+  if (slug && videoFormat) {
+    try {
+      const BLOB = "youtube/article-videos.json"
+      const { blobs } = await list({ prefix: BLOB })
+      type ArticleVideoRecord = { slug: string; format: string; youtubeUrl: string; videoId: string; publishedAt: string }
+      let records: ArticleVideoRecord[] = []
+      if (blobs.length > 0) {
+        const res = await fetch(blobs[0].url, { cache: "no-store" })
+        records = await res.json().catch(() => [])
+      }
+      records.push({ slug, format: videoFormat, youtubeUrl: `https://youtube.com/watch?v=${ytId}`, videoId: ytId, publishedAt: new Date().toISOString() })
+      await put(BLOB, JSON.stringify(records), { access: "public", contentType: "application/json", addRandomSuffix: false, allowOverwrite: true })
+    } catch {
+      // Non-blocking — don't fail the upload response
+    }
   }
 
   return NextResponse.json({

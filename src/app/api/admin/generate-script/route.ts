@@ -11,11 +11,46 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
-  const { slug } = await req.json()
+  const { slug, videoFormat = "long" } = await req.json()
   const post = getPostBySlug(slug)
   if (!post) return NextResponse.json({ error: "Post not found" }, { status: 404 })
 
-  const prompt = `You are an expert YouTube content creator specializing in tech/engineering content. Convert the following blog post into a viral YouTube video script structured as slides.
+  const isShort = videoFormat === "short"
+
+  const prompt = isShort
+    ? `You are an expert YouTube Shorts creator for tech/engineering content. Convert the following blog post into a 55–60 second YouTube Short script structured as slides.
+
+Requirements:
+- youtubeTitle: Compelling hook, max 60 chars, ends with "#Shorts", sparks curiosity
+- youtubeDescription: 150-200 chars, punchy, includes 2-3 hashtags at the end
+- youtubeTags: 8-10 relevant tags as array, include "Shorts"
+- slides: EXACTLY 4 slides, total ~55–60 seconds
+  - Slide 1 (12–14s): Hook — one bold claim or question that stops the scroll
+  - Slide 2–3 (13–15s each): The core insight, fast and punchy
+  - Slide 4 (12–14s): Payoff + CTA — visit js17.dev
+  - Each slide: title (3-5 words max), bullets (2-3 points, very short), narration (fast-paced, spoken English, fits the seconds)
+- estimatedDuration: total seconds (sum of slide durations, must be 55–60)
+
+Blog post title: ${post.frontmatter.title}
+Blog post content:
+${post.content.slice(0, 3000)}
+
+Return ONLY valid JSON, no markdown:
+{
+  "youtubeTitle": string,
+  "youtubeDescription": string,
+  "youtubeTags": string[],
+  "estimatedDuration": number,
+  "slides": [
+    {
+      "title": string,
+      "bullets": string[],
+      "narration": string,
+      "estimatedDuration": number
+    }
+  ]
+}`
+    : `You are an expert YouTube content creator specializing in tech/engineering content. Convert the following blog post into a viral YouTube video script structured as slides.
 
 Requirements:
 - youtubeTitle: Compelling, max 70 chars, includes power words, sparks curiosity
