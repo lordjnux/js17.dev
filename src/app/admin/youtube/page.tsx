@@ -15,7 +15,9 @@ import {
   Zap,
   Copy,
   ExternalLink,
+  BarChart3,
 } from "lucide-react"
+import Link from "next/link"
 import { cn } from "@/lib/utils"
 
 type JobStep = "idle" | "rendering" | "polling" | "uploading" | "done" | "error"
@@ -166,7 +168,16 @@ export default function AdminYoutubePage() {
           <Youtube className="h-6 w-6 text-red-500" />
           YouTube Management
         </h1>
-        <p className="text-sm text-muted-foreground mt-1">Playlist management and brand video publishing</p>
+        <div className="flex items-center gap-3 mt-1">
+          <p className="text-sm text-muted-foreground">Playlist management and brand video publishing</p>
+          <Link
+            href="/admin/youtube/metrics"
+            className="inline-flex items-center gap-1.5 rounded-full border border-blue-500/20 bg-blue-500/10 px-3 py-1 text-xs font-medium text-blue-400 hover:bg-blue-500/20 transition-colors"
+          >
+            <BarChart3 className="h-3 w-3" />
+            Metrics
+          </Link>
+        </div>
       </div>
 
       {/* Playlist section */}
