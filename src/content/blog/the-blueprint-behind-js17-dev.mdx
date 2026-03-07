@@ -1,0 +1,203 @@
+---
+title: "The Blueprint: Every Provider, Every Connection, Every Dollar Behind js17.dev"
+description: "A fully transparent architecture map of js17.dev — 13 providers, 6 connection types, $36/month total. Every integration documented, every cost justified, every decision explained."
+date: "2026-03-07"
+tags: ["Architecture", "Infrastructure", "DevOps", "Cost Optimization", "Transparency", "System Design"]
+readingTime: 10
+published: true
+---
+
+Most portfolios show you the result. This article shows you the entire machine.
+
+Every provider. Every API connection. Every dollar. Fully documented, fully interactive.
+
+---
+
+## The Architecture
+
+<InfrastructureBlueprint />
+
+That is not a concept diagram. It is the **live production architecture** powering the page you are reading right now. Click any provider to expand its details.
+
+13 integrated services. 6 connection types. One engineer. **~$36/month.**
+
+---
+
+## How Traffic Flows
+
+Every request to js17.dev passes through a precise chain of services before reaching your browser. Here is the path:
+
+<Timeline>
+  <TimelineStep time="Step 1" label="DNS resolves js17.dev via Cloudflare (proxied, DDoS-protected)" />
+  <TimelineStep time="Step 2" label="Cloudflare terminates SSL, applies edge caching and security rules" />
+  <TimelineStep time="Step 3" label="Request forwarded to Vercel's Edge Network via HTTPS" />
+  <TimelineStep time="Step 4" label="Vercel routes to serverless function (API) or serves static page (SSG/ISR)" />
+  <TimelineStep time="Step 5" label="Next.js App Router renders with React Server Components" />
+  <TimelineStep time="Step 6" label="Dynamic data fetched from Vercel Blob, external APIs, or ISR cache" />
+  <TimelineStep time="Step 7" label="Response sent back through Cloudflare CDN to user" />
+</Timeline>
+
+Average response time: **under 200ms globally.** Zero servers to manage. Zero containers to orchestrate.
+
+---
+
+## The Cost Equation
+
+<StatRow>
+  <StatCard value="$0" label="Hosting (Vercel Hobby)" icon="$" color="green" />
+  <StatCard value="$0" label="CDN + SSL (Cloudflare)" icon="$" color="green" />
+  <StatCard value="~$35" label="AI + Video services" icon="$" color="orange" />
+  <StatCard value="~$1" label="Domain (GoDaddy)" icon="$" color="blue" />
+</StatRow>
+
+**10 out of 13 providers run on free tiers.** The only paid services are the ones that generate revenue-driving content: OpenAI for AI-powered script generation and content moderation, Shotstack for automated video rendering, and GoDaddy for the domain registration.
+
+This is not accidental frugality. It is **architectural discipline** — choosing providers that offer generous free tiers, designing systems that stay within those limits, and only paying for services that directly produce value.
+
+---
+
+## Layer-by-Layer Breakdown
+
+### Edge Layer: The First Line
+
+<ProviderGrid>
+  <ProviderDetail name="Cloudflare" icon="\u{1F6E1}\uFE0F" connection="DNS Proxy" cost="$0/mo" tier="Free">
+    All traffic flows through Cloudflare before reaching Vercel. This provides automatic SSL/TLS certificates, global CDN edge caching, DDoS protection, and DNS management. The free plan includes unlimited bandwidth and requests.
+  </ProviderDetail>
+  <ProviderDetail name="GoDaddy" icon="\uD83C\uDF10" connection="DNS Delegation" cost="~$12/yr" tier="Paid">
+    Domain registrar for js17.dev. Nameservers are delegated to Cloudflare (ns1/ns2.cloudflare.com) for full DNS control. GoDaddy handles only the annual domain renewal.
+  </ProviderDetail>
+</ProviderGrid>
+
+### Platform Layer: The Foundation
+
+<ProviderGrid>
+  <ProviderDetail name="Vercel" icon="\u25B2" connection="Git Deploy" cost="$0/mo" tier="Free">
+    The Hobby plan provides serverless functions, Edge runtime, automatic preview deployments on every PR, Vercel Blob storage, and cron jobs. Two live environments: production (js17.dev) and sandbox (sandbox.js17.dev). Every git push triggers an automatic deployment.
+  </ProviderDetail>
+  <ProviderDetail name="GitHub" icon="\uD83D\uDC19" connection="Git + REST API" cost="$0/mo" tier="Free">
+    Source control with branch protection rules enforced via API. GitHub Actions runs CI on every PR: type-check, lint, and build. Automated releases via standard-version. Conventional commits enforced by commitlint + husky pre-commit hooks.
+  </ProviderDetail>
+</ProviderGrid>
+
+### Application Core: The Engine
+
+The core application is built entirely on open-source technology:
+
+<StackGrid>
+  <StackItem icon="\u26A1" layer="Framework" tech="Next.js 14" reason="App Router with React Server Components, static generation, ISR, Edge API routes, and middleware. TypeScript strict mode." />
+  <StackItem icon="\u269B\uFE0F" layer="UI Runtime" tech="React 18 + R3F" reason="Server Components for zero-JS rendering. Client components with hooks. React Three Fiber for 3D architecture visualizations." />
+  <StackItem icon="\uD83C\uDFA8" layer="Styling" tech="Tailwind CSS + shadcn/ui" reason="Utility-first CSS with 4 custom palettes. shadcn-style components on Radix UI primitives. CSS variable-based theming." />
+  <StackItem icon="\uD83D\uDCDD" layer="Content" tech="MDX Engine" reason="next-mdx-remote for dynamic compilation. rehype-pretty-code + shiki for syntax highlighting. Custom component registry for interactive content." />
+</StackGrid>
+
+### AI Services: The Intelligence
+
+<ProviderGrid>
+  <ProviderDetail name="OpenAI" icon="\uD83E\uDDE0" connection="REST API (SDK)" cost="~$10/mo" tier="Paid">
+    GPT-4o generates structured video narration scripts. OpenAI TTS (onyx voice, HD) produces broadcast-quality audio. Moderation API powers 3-layer content filtering with autonomous learning blocklist. GPT-4o-mini generates newsletter synopses. All clients instantiated inside handlers to avoid build-time errors.
+  </ProviderDetail>
+  <ProviderDetail name="Shotstack" icon="\uD83C\uDFAC" connection="REST API" cost="~$25/mo" tier="Paid">
+    Cloud video composition API. Composites AI-generated slide images with TTS audio into MP4 videos. 8 visual templates across dual formats: 1080x1920 (YouTube Short) and 1280x720 (Long). Approximately 3 minutes render time per video. SSRF-protected via hostname whitelist.
+  </ProviderDetail>
+</ProviderGrid>
+
+### Distribution: The Amplifiers
+
+<ProviderGrid>
+  <ProviderDetail name="YouTube" icon="\uD83D\uDCFA" connection="OAuth 2.0 + REST" cost="$0/mo" tier="Free">
+    YouTube Data API v3 for automated server-side video upload, metadata management, categorization, and playlist organization. OAuth 2.0 with automatic token refresh on 1-hour expiry. Per-article tracking persisted in Vercel Blob.
+  </ProviderDetail>
+  <ProviderDetail name="Resend" icon="\uD83D\uDCE7" connection="REST API (SDK)" cost="$0/mo" tier="Free">
+    Full email infrastructure: transactional emails for proposals, newsletter system with HMAC-SHA256 unsubscribe tokens (RFC 8058), MX DNS validation, IP rate limiting, disposable domain blocklist, welcome/goodbye emails, and batch send with AI-generated synopsis.
+  </ProviderDetail>
+  <ProviderDetail name="Credly" icon="\uD83C\uDFC5" connection="REST API (Public)" cost="$0/mo" tier="Free">
+    Public API for verified professional certification badges. Server-side fetch with 24-hour ISR caching. No authentication required — fully public endpoint.
+  </ProviderDetail>
+</ProviderGrid>
+
+### Auth and Storage: The Backbone
+
+<ProviderGrid>
+  <ProviderDetail name="Google OAuth" icon="\uD83D\uDD10" connection="OAuth 2.0" cost="$0/mo" tier="Free">
+    NextAuth.js v4 with Google provider. JWT-based sessions with automatic refresh token rotation. Admin access gated by ADMIN_EMAIL. OAuth scopes include YouTube upload permissions. Uses getToken (JWT) in API route handlers for reliable auth.
+  </ProviderDetail>
+  <ProviderDetail name="Vercel Blob" icon="\uD83D\uDCBE" connection="SDK (@vercel/blob)" cost="$0/mo" tier="Free">
+    Object storage for TTS audio, moderation records, newsletter subscribers, blocklist, YouTube tracking, metrics cache, and sent-posts log. Included in Vercel Hobby plan at no additional cost.
+  </ProviderDetail>
+</ProviderGrid>
+
+---
+
+## Connection Architecture
+
+Every external integration uses one of six connection patterns:
+
+| Pattern | Providers | Security |
+|---------|-----------|----------|
+| **REST API** | OpenAI, Shotstack, Resend, Credly | API keys in server-side env vars |
+| **SDK** | Vercel Blob, OpenAI (node), Resend | Native client libraries with key injection |
+| **OAuth 2.0** | YouTube, Google Auth | Token-based with automatic refresh |
+| **DNS** | Cloudflare, GoDaddy | Proxied records, SSL termination |
+| **Git** | GitHub, Vercel | SSH keys + deploy hooks |
+| **Cron** | Vercel (metrics refresh) | CRON_SECRET auto-verified |
+
+**Security posture:** Zero API keys exposed client-side. All external calls routed through server-side API routes. SSRF protection on proxy endpoints. OAuth tokens never touch the browser. Admin routes protected by JWT verification.
+
+---
+
+## Why This Matters
+
+This architecture is not an academic exercise. It is a **capability demonstration**.
+
+<ChallengeCard number={1} title="Enterprise-Grade Infrastructure at Startup Cost">
+
+The same services that Fortune 500 companies pay thousands for — CDN, CI/CD, automated video production, AI-powered content, email infrastructure — running on ~$36/month. The difference is not the technology. It is the architectural decisions that keep each service within its free tier limits.
+
+</ChallengeCard>
+
+<ChallengeCard number={2} title="Zero-Ops Production System">
+
+No servers to patch. No containers to orchestrate. No databases to backup. Every service is managed, every deployment is automated, every failure is handled by the platform. The engineer focuses on product, not infrastructure maintenance.
+
+</ChallengeCard>
+
+<ChallengeCard number={3} title="Full Transparency as a Trust Signal">
+
+Publishing your complete architecture — including costs, connection types, and security decisions — is something most companies would never do. Doing it demonstrates confidence in the engineering and invites scrutiny that only strengthens trust.
+
+</ChallengeCard>
+
+---
+
+## The Architect Behind the Blueprint
+
+<Callout type="info">
+Every provider selection, every connection pattern, every cost optimization in this architecture was designed by **one senior engineer** using AI-augmented development practices. No infrastructure team. No DevOps department. One person with the right methodology.
+
+This is the same architectural discipline I bring to every client engagement — choosing the right tools, staying within budget constraints, and building systems that scale without scaling costs.
+</Callout>
+
+---
+
+## Your Infrastructure, Reimagined
+
+<CTABlock>
+
+### What would your architecture look like at $36/month?
+
+I design production systems that maximize capability while minimizing cost. The blueprint you just explored is not a template — it is a methodology.
+
+**What I deliver:**
+- Architecture design with provider selection and cost optimization
+- CI/CD pipeline from first commit to production deployment
+- AI integration for content, moderation, and automation
+- Zero-ops infrastructure that runs itself
+
+The blueprint is proven. The methodology is repeatable. Let's design yours.
+
+[**Request a Proposal**](/proposal)
+
+*Architecture reviews available within 48 hours.*
+
+</CTABlock>

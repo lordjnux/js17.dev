@@ -19,6 +19,7 @@ import {
 } from "@/components/blog/mdx-visual"
 import { ArchitectureScene } from "@/components/blog/ArchitectureScene"
 import { DashboardShowcase, PipelineFlow, ImpactGrid, ImpactMetric } from "@/components/blog/DashboardShowcase"
+import { InfrastructureBlueprint, ProviderGrid, ProviderDetail } from "@/components/blog/InfrastructureBlueprint"
 import { ArticleVideos } from "@/components/blog/ArticleVideos"
 
 export async function generateStaticParams() {
@@ -94,6 +95,9 @@ export default async function BlogPostPage({
       PipelineFlow,
       ImpactGrid,
       ImpactMetric,
+      InfrastructureBlueprint,
+      ProviderGrid,
+      ProviderDetail,
     },
   })
 
