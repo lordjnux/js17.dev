@@ -1,5 +1,5 @@
-import { ProposalForm } from "@/components/proposal/ProposalForm"
-import { Video, FileText, ExternalLink, Heart, ArrowDown } from "lucide-react"
+import { ProposalSection } from "@/components/proposal/ProposalSection"
+import { ExternalLink, Heart } from "lucide-react"
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
@@ -99,12 +99,18 @@ export default function ProposalPage() {
         </section>
 
         {/* ═══════════════════════════════════════
-            SECTION 2 — Start a Project
+            SECTION 2 — Start a Project (client)
         ═══════════════════════════════════════ */}
         <section>
           <div className="border-t pt-12 mb-8">
-            <div className="flex items-start gap-2.5 mb-3">
-              <FileText className="h-4 w-4 text-blue-400 mt-0.5 shrink-0" />
+            <div className="flex items-start gap-2.5">
+              <svg viewBox="0 0 24 24" className="h-4 w-4 text-blue-400 mt-0.5 shrink-0 fill-none stroke-current stroke-2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <polyline points="14 2 14 8 20 8" />
+                <line x1="16" y1="13" x2="8" y2="13" />
+                <line x1="16" y1="17" x2="8" y2="17" />
+                <polyline points="10 9 9 9 8 9" />
+              </svg>
               <div>
                 <h2 className="text-base font-bold leading-snug">Start a Project</h2>
                 <p className="text-sm text-muted-foreground mt-0.5">
@@ -115,65 +121,7 @@ export default function ProposalPage() {
             </div>
           </div>
 
-          {/* Contact options for project work */}
-          <div className="grid sm:grid-cols-2 gap-4 mb-10">
-
-            {/* Virtual Call — Coming Soon */}
-            <div className="relative flex flex-col rounded-xl border border-border/40 bg-muted/20 p-5 opacity-60 cursor-not-allowed select-none">
-              <div className="absolute top-3 right-3">
-                <span className="rounded-full border border-border/50 px-2 py-0.5 text-[10px] font-mono font-semibold text-muted-foreground/70 uppercase tracking-widest">
-                  Soon
-                </span>
-              </div>
-              <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-muted/50">
-                <Video className="h-5 w-5 text-muted-foreground/50" />
-              </div>
-              <p className="text-xs font-mono font-bold uppercase tracking-widest text-muted-foreground/50 mb-1">
-                Live
-              </p>
-              <h3 className="text-sm font-bold mb-2 leading-snug text-muted-foreground">
-                Virtual Call
-              </h3>
-              <p className="text-xs text-muted-foreground/60 leading-relaxed flex-1 mb-4">
-                Schedule a live session to scope your project in real time.
-              </p>
-              <span className="inline-flex items-center gap-1.5 rounded-lg border border-border/40 px-3 py-1.5 text-xs font-bold text-muted-foreground/50">
-                Coming soon
-              </span>
-            </div>
-
-            {/* Formal Proposal */}
-            <a
-              href="#proposal-form"
-              className="group flex flex-col rounded-xl border-2 border-blue-500/25 bg-blue-500/5 p-5 transition-all duration-200 hover:border-blue-500/50 hover:bg-blue-500/8 hover:shadow-md hover:shadow-blue-500/10"
-            >
-              <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-blue-500/15">
-                <FileText className="h-5 w-5 text-blue-400" />
-              </div>
-              <p className="text-xs font-mono font-bold uppercase tracking-widest text-blue-400/70 mb-1">
-                Detailed
-              </p>
-              <h3 className="text-sm font-bold mb-2 leading-snug">Send a Proposal</h3>
-              <p className="text-xs text-muted-foreground leading-relaxed flex-1 mb-4">
-                Full project scoping form. I&apos;ll reply with a tailored proposal within 24 hours.
-              </p>
-              <span className="inline-flex items-center gap-1.5 rounded-lg bg-blue-500/15 border border-blue-500/25 px-3 py-1.5 text-xs font-bold text-blue-400 transition-all group-hover:bg-blue-500/25">
-                Fill the form
-                <ArrowDown className="h-3 w-3" />
-              </span>
-            </a>
-
-          </div>
-
-          <div id="proposal-form" className="scroll-mt-24">
-            <div className="mb-8 border-t pt-10">
-              <h3 className="text-base font-bold mb-1">Formal Proposal</h3>
-              <p className="text-sm text-muted-foreground">
-                Takes about 5 minutes. I&apos;ll review your details and respond within 24 hours on business days.
-              </p>
-            </div>
-            <ProposalForm />
-          </div>
+          <ProposalSection />
         </section>
 
       </div>
@@ -181,21 +129,11 @@ export default function ProposalPage() {
   )
 }
 
-/** Inline PayPal double-P mark — white on dark blue container */
 function PayPalMark() {
   return (
     <svg viewBox="0 0 24 24" className="h-6 w-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
-      {/* Back P (lighter opacity) */}
-      <path
-        d="M8 2.5h5.5c2.2 0 3.5 1.3 3.5 3.2 0 2.6-1.8 4.3-4.5 4.3H10L8.8 16.5H6L8 2.5z"
-        fill="white"
-        opacity="0.55"
-      />
-      {/* Front P */}
-      <path
-        d="M5.5 5.5H11c2.2 0 3.5 1.3 3.5 3.2 0 2.6-1.8 4.3-4.5 4.3H7.5L6.3 19.5H3.5L5.5 5.5z"
-        fill="white"
-      />
+      <path d="M8 2.5h5.5c2.2 0 3.5 1.3 3.5 3.2 0 2.6-1.8 4.3-4.5 4.3H10L8.8 16.5H6L8 2.5z" fill="white" opacity="0.55" />
+      <path d="M5.5 5.5H11c2.2 0 3.5 1.3 3.5 3.2 0 2.6-1.8 4.3-4.5 4.3H7.5L6.3 19.5H3.5L5.5 5.5z" fill="white" />
     </svg>
   )
 }
