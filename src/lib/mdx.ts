@@ -6,6 +6,17 @@ import { readingTime } from "./utils"
 
 const CONTENT_DIR = path.join(process.cwd(), "src/content/blog")
 
+/** Parse "YYYY-MM-DD" or "YYYY-MM-DDTHH:mm" as local time — no ambiguity. */
+function parseDateMs(dateStr: string): number {
+  const [datePart, timePart] = dateStr.split("T")
+  const [y, m, d] = datePart.split("-").map(Number)
+  if (timePart) {
+    const [h, min] = timePart.split(":").map(Number)
+    return new Date(y, m - 1, d, h, min).getTime()
+  }
+  return new Date(y, m - 1, d).getTime()
+}
+
 export function getAllPosts(): Post[] {
   if (!fs.existsSync(CONTENT_DIR)) return []
 
@@ -13,7 +24,8 @@ export function getAllPosts(): Post[] {
 
   const posts = files.map((file) => {
     const slug = file.replace(/\.mdx$/, "")
-    const raw = fs.readFileSync(path.join(CONTENT_DIR, file), "utf-8")
+    const filePath = path.join(CONTENT_DIR, file)
+    const raw = fs.readFileSync(filePath, "utf-8")
     const { data, content } = matter(raw)
     const frontmatter = data as PostFrontmatter
 
@@ -27,11 +39,7 @@ export function getAllPosts(): Post[] {
 
   return posts
     .filter((p) => p.frontmatter.published)
-    .sort(
-      (a, b) =>
-        new Date(b.frontmatter.date).getTime() -
-        new Date(a.frontmatter.date).getTime()
-    )
+    .sort((a, b) => parseDateMs(b.frontmatter.date) - parseDateMs(a.frontmatter.date))
     .map((p) => ({
       ...p,
       frontmatter: {
@@ -66,7 +74,7 @@ export function generateLinkedInText(post: Post): string {
   const formattedDate = new Intl.DateTimeFormat("en-US", {
     year: "numeric",
     month: "long",
-  }).format(new Date(date))
+  }).format(new Date(parseDateMs(date)))
 
   const hashtags = tags
     .slice(0, 5)

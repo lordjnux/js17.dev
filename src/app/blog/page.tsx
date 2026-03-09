@@ -1,8 +1,9 @@
 import { getAllPosts } from "@/lib/mdx"
-import { PostCard } from "@/components/blog/PostCard"
 import { SectionHeader } from "@/components/shared/SectionHeader"
 import { NewsletterSignup } from "@/components/blog/NewsletterSignup"
 import { PushSubscribe } from "@/components/blog/PushSubscribe"
+import { BlogFeed } from "@/components/blog/BlogFeed"
+import { BlogTimeline } from "@/components/blog/BlogTimeline"
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
@@ -32,10 +33,12 @@ export default function BlogPage() {
       {posts.length === 0 ? (
         <p className="text-muted-foreground">No posts published yet. Check back soon.</p>
       ) : (
-        <div className="grid gap-6 md:grid-cols-2">
-          {posts.map((post) => (
-            <PostCard key={post.slug} post={post} />
-          ))}
+        <div className="lg:grid lg:grid-cols-[1fr_200px] lg:gap-10">
+          {/* Main feed — chronological desc, latest on top */}
+          <BlogFeed posts={posts} />
+
+          {/* Right sidebar — vertical timeline */}
+          <BlogTimeline posts={posts} />
         </div>
       )}
     </div>
