@@ -6,11 +6,34 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function formatDate(date: string | Date): string {
-  return new Intl.DateTimeFormat("en-US", {
+  let dateObj: Date
+  const hasTime = typeof date === "string" && date.includes("T")
+
+  if (typeof date === "string") {
+    if (hasTime) {
+      const [datePart, timePart] = date.split("T")
+      const [y, m, d] = datePart.split("-").map(Number)
+      const [h, min] = timePart.split(":").map(Number)
+      dateObj = new Date(y, m - 1, d, h, min)
+    } else {
+      const [y, m, d] = date.split("-").map(Number)
+      dateObj = new Date(y, m - 1, d)
+    }
+  } else {
+    dateObj = date
+  }
+
+  const formattedDate = new Intl.DateTimeFormat("en-US", {
     year: "numeric",
     month: "long",
     day: "numeric",
-  }).format(new Date(date))
+  }).format(dateObj)
+
+  if (!hasTime) return formattedDate
+
+  const h = dateObj.getHours()
+  const min = dateObj.getMinutes()
+  return `${formattedDate} · ${String(h).padStart(2, "0")}:${String(min).padStart(2, "0")}`
 }
 
 export function formatNumber(num: number): string {

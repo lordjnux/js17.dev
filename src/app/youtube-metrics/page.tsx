@@ -44,6 +44,7 @@ export default function YouTubeMetricsPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [lastUpdated, setLastUpdated] = useState<string | null>(null)
+  const [playlistId, setPlaylistId] = useState<string | null>(null)
 
   useEffect(() => {
     fetch("/api/youtube/metrics")
@@ -56,6 +57,11 @@ export default function YouTubeMetricsPage() {
       })
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false))
+
+    fetch("/api/youtube/playlist")
+      .then((r) => r.json())
+      .then((d) => setPlaylistId(d.playlistId ?? null))
+      .catch(() => {})
   }, [])
 
   const shortVideos = videos.filter((v) => v.format === "short")
@@ -78,17 +84,31 @@ export default function YouTubeMetricsPage() {
               </p>
             </div>
           </div>
-          {lastUpdated && (
-            <p className="text-xs text-muted-foreground hidden sm:block pt-1 text-right">
-              Last updated<br />
-              {new Date(lastUpdated).toLocaleString("en-US", {
-                month: "short",
-                day: "numeric",
-                hour: "2-digit",
-                minute: "2-digit",
-              })}
-            </p>
-          )}
+          <div className="flex flex-col items-end gap-2">
+            {playlistId && (
+              <a
+                href={`https://www.youtube.com/playlist?list=${playlistId}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground hover:border-red-500/30 transition-colors"
+              >
+                <Youtube className="h-3 w-3 text-red-500" />
+                View Playlist
+                <ExternalLink className="h-3 w-3" />
+              </a>
+            )}
+            {lastUpdated && (
+              <p className="text-xs text-muted-foreground hidden sm:block text-right">
+                Last updated{" "}
+                {new Date(lastUpdated).toLocaleString("en-US", {
+                  month: "short",
+                  day: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+              </p>
+            )}
+          </div>
         </div>
       </div>
 

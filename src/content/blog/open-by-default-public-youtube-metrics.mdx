@@ -1,0 +1,115 @@
+---
+title: "Open by Default: YouTube Metrics Are Now Public"
+description: "The admin-only YouTube analytics dashboard is gone. Every view, like, and comment on this channel is now live at /youtube-metrics — no login, no gate, no credentials required."
+date: "2026-03-09T14:30"
+tags: ["Engineering", "YouTube", "Analytics", "Transparency", "Building in Public"]
+readingTime: 5
+published: true
+---
+
+Until today, the YouTube performance metrics for this channel were behind an admin login. A private dashboard. Not secret — just gated by habit.
+
+Then I asked the obvious question: *why?*
+
+There is no confidential information in view counts. No competitive advantage in hiding like counts. No reason to gate metrics that could serve as proof of work.
+
+So I deleted the gate and shipped the dashboard publicly.
+
+---
+
+## What Was Changed
+
+The original `/admin/youtube/metrics` page was a client component that checked your NextAuth session on load. If you were not signed in as admin, you got redirected to the login page.
+
+<Callout type="info">
+The data was not sensitive. The restriction was architectural inertia — the page was built for admin use, so it stayed admin-only. That changes today.
+</Callout>
+
+Three changes. One clean result.
+
+<Timeline>
+  <TimelineStep time="Route" label="New public page at /youtube-metrics — same dashboard UI, zero auth check" />
+  <TimelineStep time="API" label="New /api/youtube/metrics endpoint reads from Vercel Blob cache — no OAuth, no credentials" />
+  <TimelineStep time="Nav" label="YouTube link inserted in the main navigation between Blog and Changelog" />
+  <TimelineStep time="Cleanup" label="Old /admin/youtube/metrics deleted — no dead routes, no dual maintenance burden" />
+</Timeline>
+
+---
+
+## The Cache Architecture
+
+The most important design decision: the public endpoint **does not call the YouTube API**.
+
+The admin dashboard fetches live stats via OAuth every time the admin refreshes. Those results are written to a Vercel Blob JSON file at `youtube/metrics-cache.json`. A daily cron at 06:00 UTC also updates this cache without requiring admin interaction.
+
+The public page reads exclusively from that cache.
+
+<StatRow>
+  <StatCard value="0" label="Credentials exposed" icon="🔒" color="green" />
+  <StatCard value="0" label="OAuth scopes needed" icon="🔑" color="green" />
+  <StatCard value="24h" label="Max data age" icon="⏱" color="blue" />
+  <StatCard value="1" label="Click from anywhere" icon="🎯" color="purple" />
+</StatRow>
+
+This is the correct tradeoff. Visitors do not need real-time stats. They need trustworthy, recent data. A 24-hour-old view count is accurate enough to be meaningful — and it costs zero additional API quota.
+
+---
+
+## Why This Matters Beyond One Feature
+
+This is a pattern, not a one-time decision.
+
+<ChallengeCard number={1} title="Default to Open">
+
+Every piece of data on this site should be public unless there is a specific, concrete reason to hide it. Operational necessity is a reason. "It was built admin-only" is not. Rebuilding the dashboard as a public page took less than two hours. The architectural overhead of keeping it private would have accumulated forever.
+
+</ChallengeCard>
+
+<ChallengeCard number={2} title="Transparency as a Trust Signal">
+
+Publishing raw performance metrics — including videos with low counts — communicates something no polished case study can: I build things, I ship them, and I do not hide the results. That is a stronger signal than any curated portfolio entry.
+
+</ChallengeCard>
+
+<ChallengeCard number={3} title="Cache-First Public APIs Are Underused">
+
+The pattern of "admin fetches live, public reads cache" is broadly applicable. Internal dashboards, CMS previews, analytics widgets — most can be made public safely by decoupling the write path (which needs auth) from the read path (which does not). The separation is clean, secure, and requires no additional infrastructure.
+
+</ChallengeCard>
+
+---
+
+## The Navigation Change
+
+The YouTube metrics page is now a first-class navigation destination alongside Blog, Changelog, and Proposal. The menu link sits between Blog and Changelog — the logical position for a content-performance surface that bridges writing and publishing.
+
+<Callout type="info">
+Every navigation item on js17.dev represents a complete, self-contained experience. The YouTube metrics page is not a marketing page or a vanity dashboard — it is a live, data-driven proof of output.
+</Callout>
+
+---
+
+## See It Live
+
+The dashboard is at [/youtube-metrics](/youtube-metrics). It shows total videos, shorts vs. long format breakdown, per-video stats, and a direct link to the js17.dev YouTube playlist.
+
+The data refreshes daily. The page is public. The code is clean.
+
+---
+
+<CTABlock>
+
+### Engineering decisions this clear belong in your codebase
+
+The pattern that made this feature trivial — cache-first public reads, admin-only writes — applies to most analytics, reporting, and monitoring features in production systems.
+
+**What I deliver for client projects:**
+- Architecture that separates read and write concerns from day one
+- Public-facing dashboards that never expose credentials
+- Data pipelines designed to stay within free tier limits
+
+[**Discuss your project**](/proposal)
+
+*Response within 48 hours.*
+
+</CTABlock>
