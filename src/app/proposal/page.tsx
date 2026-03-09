@@ -37,10 +37,9 @@ export default function ProposalPage() {
             className="group relative flex flex-col rounded-xl border-2 border-[#FFDD00]/40 bg-[#FFDD00]/5 p-5 transition-all duration-200 hover:border-[#FFDD00]/80 hover:bg-[#FFDD00]/10 hover:shadow-md hover:shadow-[#FFDD00]/10"
           >
             <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-[#FFDD00]">
-              {/* Buy Me a Coffee cup logo */}
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src="https://cdn.buymeacoffee.com/buttons/bmc-new-btn-logo.svg"
+                src="/brand/buymeacoffee-logo.svg"
                 alt="Buy Me a Coffee"
                 width={24}
                 height={24}
