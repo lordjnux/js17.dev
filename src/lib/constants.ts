@@ -77,6 +77,7 @@ export const TECH_STACK = {
 
 export const NAV_ITEMS = [
   { label: "Blog", href: "/blog" },
+  { label: "YouTube", href: "/youtube-metrics" },
   { label: "Changelog", href: "/changelog" },
   { label: "Proposal", href: "/proposal" },
 ] as const
