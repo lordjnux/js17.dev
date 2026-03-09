@@ -1,5 +1,5 @@
 import { ProposalForm } from "@/components/proposal/ProposalForm"
-import { Video, FileText, ExternalLink, Heart } from "lucide-react"
+import { Video, FileText, ExternalLink, Heart, ArrowDown } from "lucide-react"
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
@@ -40,7 +40,7 @@ export default function ProposalPage() {
             </div>
           </div>
 
-          <div className="grid sm:grid-cols-3 gap-4">
+          <div className="grid sm:grid-cols-2 gap-4">
 
             {/* BMaC */}
             <a
@@ -95,6 +95,29 @@ export default function ProposalPage() {
               </span>
             </a>
 
+          </div>
+        </section>
+
+        {/* ═══════════════════════════════════════
+            SECTION 2 — Start a Project
+        ═══════════════════════════════════════ */}
+        <section>
+          <div className="border-t pt-12 mb-8">
+            <div className="flex items-start gap-2.5 mb-3">
+              <FileText className="h-4 w-4 text-blue-400 mt-0.5 shrink-0" />
+              <div>
+                <h2 className="text-base font-bold leading-snug">Start a Project</h2>
+                <p className="text-sm text-muted-foreground mt-0.5">
+                  Have an idea, a system to build, or a team that needs a senior engineer?
+                  Pick how you want to connect.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Contact options for project work */}
+          <div className="grid sm:grid-cols-2 gap-4 mb-10">
+
             {/* Virtual Call — Coming Soon */}
             <div className="relative flex flex-col rounded-xl border border-border/40 bg-muted/20 p-5 opacity-60 cursor-not-allowed select-none">
               <div className="absolute top-3 right-3">
@@ -112,34 +135,43 @@ export default function ProposalPage() {
                 Virtual Call
               </h3>
               <p className="text-xs text-muted-foreground/60 leading-relaxed flex-1 mb-4">
-                Schedule a live session to discuss your project in real time.
+                Schedule a live session to scope your project in real time.
               </p>
               <span className="inline-flex items-center gap-1.5 rounded-lg border border-border/40 px-3 py-1.5 text-xs font-bold text-muted-foreground/50">
                 Coming soon
               </span>
             </div>
 
-          </div>
-        </section>
-
-        {/* ═══════════════════════════════════════
-            SECTION 2 — Start a Project
-        ═══════════════════════════════════════ */}
-        <section>
-          <div className="border-t pt-12 mb-8">
-            <div className="flex items-start gap-2.5 mb-3">
-              <FileText className="h-4 w-4 text-blue-400 mt-0.5 shrink-0" />
-              <div>
-                <h2 className="text-base font-bold leading-snug">Start a Project</h2>
-                <p className="text-sm text-muted-foreground mt-0.5">
-                  Have an idea, a system to build, or a team that needs a senior engineer?
-                  Fill the form — I&apos;ll reply with a tailored proposal within 24 hours on business days.
-                </p>
+            {/* Formal Proposal */}
+            <a
+              href="#proposal-form"
+              className="group flex flex-col rounded-xl border-2 border-blue-500/25 bg-blue-500/5 p-5 transition-all duration-200 hover:border-blue-500/50 hover:bg-blue-500/8 hover:shadow-md hover:shadow-blue-500/10"
+            >
+              <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-blue-500/15">
+                <FileText className="h-5 w-5 text-blue-400" />
               </div>
-            </div>
+              <p className="text-xs font-mono font-bold uppercase tracking-widest text-blue-400/70 mb-1">
+                Detailed
+              </p>
+              <h3 className="text-sm font-bold mb-2 leading-snug">Send a Proposal</h3>
+              <p className="text-xs text-muted-foreground leading-relaxed flex-1 mb-4">
+                Full project scoping form. I&apos;ll reply with a tailored proposal within 24 hours.
+              </p>
+              <span className="inline-flex items-center gap-1.5 rounded-lg bg-blue-500/15 border border-blue-500/25 px-3 py-1.5 text-xs font-bold text-blue-400 transition-all group-hover:bg-blue-500/25">
+                Fill the form
+                <ArrowDown className="h-3 w-3" />
+              </span>
+            </a>
+
           </div>
 
           <div id="proposal-form" className="scroll-mt-24">
+            <div className="mb-8 border-t pt-10">
+              <h3 className="text-base font-bold mb-1">Formal Proposal</h3>
+              <p className="text-sm text-muted-foreground">
+                Takes about 5 minutes. I&apos;ll review your details and respond within 24 hours on business days.
+              </p>
+            </div>
             <ProposalForm />
           </div>
         </section>
