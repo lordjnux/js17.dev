@@ -3,6 +3,8 @@ import { verifyAdmin } from "@/lib/auth"
 import { getPostBySlug } from "@/lib/mdx"
 import OpenAI from "openai"
 
+export const maxDuration = 60
+
 function extractCodeBlocks(content: string): string[] {
   const blocks: string[] = []
   const regex = /```(?:\w+)?\n([\s\S]*?)```/g

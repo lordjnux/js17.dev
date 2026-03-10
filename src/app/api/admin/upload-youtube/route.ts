@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server"
 import { verifyAdmin } from "@/lib/auth"
 import { put, list } from "@vercel/blob"
 
+export const maxDuration = 60
+
 export async function DELETE(req: NextRequest) {
   const token = await verifyAdmin(req)
   if (!token) {

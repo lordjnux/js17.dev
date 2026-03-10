@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server"
 import { verifyAdmin } from "@/lib/auth"
 
+export const maxDuration = 30
+
 interface VisualItem { icon: string; label: string }
 
 interface SlideInput {
@@ -349,7 +351,7 @@ export async function POST(req: NextRequest) {
     ? { format: "mp4", size: { width: 1080, height: 1920 }, fps: 30, quality: "high" }
     : { format: "mp4", resolution: "hd", fps: 25, quality: "high" }
 
-  const shotstackEnv = process.env.SHOTSTACK_ENV || "stage"
+  const shotstackEnv = process.env.SHOTSTACK_ENV || "v1"
   const res = await fetch(`https://api.shotstack.io/${shotstackEnv}/render`, {
     method: "POST",
     headers: {

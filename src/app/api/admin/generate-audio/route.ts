@@ -3,6 +3,8 @@ import { verifyAdmin } from "@/lib/auth"
 import { put } from "@vercel/blob"
 import OpenAI from "openai"
 
+export const maxDuration = 60
+
 const ELEVENLABS_VOICES = {
   short: "21m00Tcm4TlvDq8ikWAM", // Rachel — warm, engaging
   long: "pNInz6obpgDQGcFmaJgB",   // Adam — deep, authoritative
@@ -104,36 +106,35 @@ export async function POST(req: NextRequest) {
   const voiceId = isShort ? ELEVENLABS_VOICES.short : ELEVENLABS_VOICES.long
   const batchId = Date.now().toString()
 
-  const audioSlides: Array<{ slideIndex: number; url: string; durationSeconds: number }> = []
-  let totalDuration = 0
+  const results = await Promise.all(
+    slides.map(async (slide) => {
+      let buffer: Buffer
+      let provider: "elevenlabs" | "openai" = "openai"
 
-  for (const slide of slides) {
-    let buffer: Buffer
-    let provider: "elevenlabs" | "openai" = "openai"
-
-    if (useElevenLabs) {
-      try {
-        buffer = await generateWithElevenLabs(slide.narration, voiceId, isShort)
-        provider = "elevenlabs"
-      } catch (err) {
-        console.warn(`ElevenLabs fallback for slide ${slide.slideIndex}:`, err instanceof Error ? err.message : err)
+      if (useElevenLabs) {
+        try {
+          buffer = await generateWithElevenLabs(slide.narration, voiceId, isShort)
+          provider = "elevenlabs"
+        } catch (err) {
+          console.warn(`ElevenLabs fallback for slide ${slide.slideIndex}:`, err instanceof Error ? err.message : err)
+          buffer = await generateWithOpenAI(slide.narration, isShort)
+        }
+      } else {
         buffer = await generateWithOpenAI(slide.narration, isShort)
       }
-    } else {
-      buffer = await generateWithOpenAI(slide.narration, isShort)
-    }
 
-    const durationSeconds = estimateMp3Duration(buffer, provider)
+      const durationSeconds = estimateMp3Duration(buffer, provider)
+      const blob = await put(
+        `audio/slide-${batchId}-${slide.slideIndex}-${Date.now()}.mp3`,
+        buffer,
+        { access: "public", contentType: "audio/mpeg", allowOverwrite: true }
+      )
+      return { slideIndex: slide.slideIndex, url: blob.url, durationSeconds }
+    })
+  )
 
-    const blob = await put(
-      `audio/slide-${batchId}-${slide.slideIndex}-${Date.now()}.mp3`,
-      buffer,
-      { access: "public", contentType: "audio/mpeg", allowOverwrite: true }
-    )
-
-    audioSlides.push({ slideIndex: slide.slideIndex, url: blob.url, durationSeconds })
-    totalDuration += durationSeconds
-  }
+  const audioSlides = results.sort((a, b) => a.slideIndex - b.slideIndex)
+  const totalDuration = audioSlides.reduce((sum, s) => sum + s.durationSeconds, 0)
 
   return NextResponse.json({ audioSlides, totalDuration })
 }
