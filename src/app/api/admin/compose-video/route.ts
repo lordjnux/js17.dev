@@ -216,15 +216,7 @@ function buildSlideHtml(slide: SlideInput, n: number, total: number, isShort: bo
   }
 }
 
-/* ─── Effects & Transitions ─────────────────────────────────────────────── */
-
-function getEffect(type: string | undefined, index: number): string {
-  if (type === "hook" || type === "intro" || type === "context") return "zoomIn"
-  if (type === "cta") return "zoomIn"
-  if (type === "stats") return "zoomInSlow"
-  if (type === "chapter_divider") return "zoomIn"
-  return index % 2 === 0 ? "slideRight" : "slideLeft"
-}
+/* ─── Transitions ────────────────────────────────────────────────────────── */
 
 function getTransition(
   type: string | undefined,
@@ -312,10 +304,9 @@ export async function POST(req: NextRequest) {
 
     const html = buildSlideHtml(slide, i + 1, processedSlides.length, isShort)
     slideClips.push({
-      asset: { type: "html", html, width, height, background: "transparent" },
+      asset: { type: "html", html, width, height },
       start: currentTime,
       length: slideDuration,
-      effect: getEffect(slide.type, i),
       transition: getTransition(slide.type, i, processedSlides.length, isShort),
     })
 
@@ -363,7 +354,14 @@ export async function POST(req: NextRequest) {
 
   const respData = await res.json()
   if (!res.ok) {
-    const detail = respData?.response?.message || respData?.errors?.[0]?.detail || respData.message || JSON.stringify(respData)
+    const validationDetails = (respData?.response?.data as Array<{ message?: string; instancePath?: string }> | undefined)
+      ?.map(e => `${e.instancePath ?? ""} ${e.message ?? ""}`.trim())
+      .join(" | ")
+    const detail = validationDetails
+      || respData?.response?.message
+      || respData?.message
+      || JSON.stringify(respData)
+    console.error("Shotstack error:", JSON.stringify(respData))
     return NextResponse.json({ error: `Shotstack ${shotstackEnv}: ${detail}` }, { status: 500 })
   }
 
