@@ -33,14 +33,20 @@ type Step =
   | "done"
   | "error"
 
+interface VisualItem { icon: string; label: string }
+
 interface Slide {
   type?: string
   icon?: string
   title: string
-  visual?: { icon: string; label: string }[]
+  visual?: VisualItem[]
   bullets?: string[]
   narration: string
   estimatedDuration: number
+  chapterNumber?: number
+  columnA?: { heading: string; items: VisualItem[] }
+  columnB?: { heading: string; items: VisualItem[] }
+  codeLines?: string[]
 }
 
 interface Script {
@@ -48,6 +54,7 @@ interface Script {
   youtubeDescription: string
   youtubeTags: string[]
   estimatedDuration: number
+  chapterTitles?: Array<{ slideIndex: number; label: string }>
   slides: Slide[]
 }
 
@@ -124,31 +131,57 @@ export function PublishVideoButton({ slug }: { slug: string }) {
     }
   }
 
+  async function fetchStockImages(slug: string, format: Format): Promise<string[]> {
+    try {
+      const res = await fetch("/api/admin/fetch-stock-images", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ slug, videoFormat: format }),
+      })
+      if (!res.ok) return []
+      const { images } = await res.json()
+      return images || []
+    } catch {
+      return []
+    }
+  }
+
   async function generateVideo(format: Format, script: Script) {
     const set = setter(format)
     try {
-      // 1. Audio
-      set((j) => ({ ...j, step: "generating-audio", progress: "Generating narration audio…" }))
-      const narration = script.slides.map((s) => s.narration).join("\n...\n")
+      // 1. Fetch background images (non-blocking, best-effort)
+      const backgroundImages = await fetchStockImages(slug, format).catch(() => [])
+
+      // 2. Per-slide audio (ElevenLabs with OpenAI fallback)
+      set((j) => ({ ...j, step: "generating-audio", progress: "Generating per-slide audio (ElevenLabs)… may take 30-60s" }))
       const audioRes = await fetch("/api/admin/generate-audio", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ narration, videoFormat: format }),
+        body: JSON.stringify({
+          slides: script.slides.map((s, i) => ({ narration: s.narration, slideIndex: i })),
+          videoFormat: format,
+        }),
       })
       if (!audioRes.ok) throw new Error((await audioRes.json()).error)
-      const { url: audioUrl } = await audioRes.json()
+      const { audioSlides, totalDuration } = await audioRes.json()
 
-      // 2. Compose (Shotstack render job)
+      // 3. Compose (Shotstack render job)
       set((j) => ({ ...j, step: "composing", progress: "Assembling slides + audio with Shotstack…" }))
       const composeRes = await fetch("/api/admin/compose-video", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ slides: script.slides, audioUrl, totalDuration: script.estimatedDuration, videoFormat: format }),
+        body: JSON.stringify({
+          slides: script.slides,
+          audioSlides,
+          totalDuration,
+          videoFormat: format,
+          backgroundImages,
+        }),
       })
       if (!composeRes.ok) throw new Error((await composeRes.json()).error)
       const { jobId } = await composeRes.json()
 
-      // 3. Poll
+      // 4. Poll
       set((j) => ({ ...j, step: "rendering", progress: "Rendering video (1–3 min)…" }))
       let renderedUrl: string | null = null
       for (let i = 0; i < 72; i++) {
@@ -161,7 +194,7 @@ export function PublishVideoButton({ slug }: { slug: string }) {
       }
       if (!renderedUrl) throw new Error("Render timed out after 6 minutes")
 
-      // 4. Generate description
+      // 5. Generate description (with chapter timestamps)
       const descRes = await fetch("/api/admin/youtube/generate-description", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -171,6 +204,7 @@ export function PublishVideoButton({ slug }: { slug: string }) {
           slides: script.slides.map((s) => ({ title: s.title, estimatedDuration: s.estimatedDuration })),
           youtubeTitle: script.youtubeTitle,
           youtubeTags: script.youtubeTags,
+          chapterTitles: script.chapterTitles,
         }),
       })
       const description = descRes.ok ? ((await descRes.json()).description ?? null) : null
@@ -312,7 +346,7 @@ function FormatCard({
 
   const progressLabel: Record<string, string> = {
     "generating-script": "GPT-4o writing script…",
-    "generating-audio": job.progress || "Generating audio…",
+    "generating-audio": job.progress || "Generating per-slide audio (ElevenLabs)… may take 30-60s",
     "composing": job.progress || "Assembling video…",
     "rendering": job.progress || "Rendering (1–3 min)…",
     "uploading": "Uploading to YouTube…",

@@ -3,6 +3,10 @@
     {
       "path": "/api/cron/refresh-metrics",
       "schedule": "0 6 * * *"
+    },
+    {
+      "path": "/api/cron/sync-blog-metadata",
+      "schedule": "0 7 * * *"
     }
   ],
   "headers": [

@@ -39,6 +39,30 @@ function buildChapters(slides: SlideForChapters[]): string {
   return lines.join("\n")
 }
 
+function buildChaptersFromMarkers(
+  slides: SlideForChapters[],
+  chapterTitles: Array<{ slideIndex: number; label: string }>
+): string {
+  // Build cumulative timestamp map
+  const cumulativeTimes: number[] = [0]
+  for (let i = 0; i < slides.length; i++) {
+    cumulativeTimes.push(cumulativeTimes[i] + (slides[i]?.estimatedDuration ?? 0))
+  }
+
+  const lines: string[] = ["📌 CHAPTERS", "0:00 Introduction"]
+
+  for (const marker of chapterTitles) {
+    const elapsed = cumulativeTimes[marker.slideIndex] ?? 0
+    if (elapsed === 0) continue // Already covered by Introduction
+    const mins = Math.floor(elapsed / 60)
+    const secs = Math.floor(elapsed % 60)
+    const ts = `${mins}:${secs.toString().padStart(2, "0")}`
+    lines.push(`${ts} ${marker.label}`)
+  }
+
+  return lines.join("\n")
+}
+
 function buildHashtags(tags: string[]): string {
   const base = ["#JavaScript", "#AIEngineering", "#Fullstack", "#WebDevelopment", "#SoftwareEngineering"]
   const fromTags = tags.slice(0, 6).map((t) => `#${t.replace(/\s+/g, "")}`)
@@ -97,12 +121,14 @@ export async function POST(req: NextRequest) {
     slides = [],
     youtubeTitle = "",
     youtubeTags = [],
+    chapterTitles,
   } = body as {
     videoType?: "article" | "logo-short" | "logo-long"
     slug?: string
     slides?: SlideForChapters[]
     youtubeTitle?: string
     youtubeTags?: string[]
+    chapterTitles?: Array<{ slideIndex: number; label: string }>
   }
 
   let synopsis = ""
@@ -122,7 +148,11 @@ export async function POST(req: NextRequest) {
   // Chapters (only for article videos with multiple slides)
   if (videoType === "article" && slides.length > 1) {
     parts.push("")
-    parts.push(buildChapters(slides))
+    parts.push(
+      chapterTitles && chapterTitles.length > 0
+        ? buildChaptersFromMarkers(slides, chapterTitles)
+        : buildChapters(slides)
+    )
   }
 
   // Article link
