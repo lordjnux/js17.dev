@@ -13,8 +13,17 @@ export const ADMIN_EMAIL = (process.env.ADMIN_EMAIL || "jeroham.sanchez@gmail.co
 export async function verifyAdmin(req: NextRequest) {
   const secret = (process.env.NEXTAUTH_SECRET || "").trim()
   if (!secret) return null
-  const token = await getToken({ req, secret })
+  let token = await getToken({ req, secret })
   if (!token || token.email !== ADMIN_EMAIL) return null
+
+  // getToken reads the JWT directly and never fires the jwt callback refresh logic.
+  // Refresh proactively if the access token is expired or within 5 min of expiry.
+  const expiresAt = token.accessTokenExpires as number | undefined
+  if (token.refreshToken && (!expiresAt || Date.now() > expiresAt - 5 * 60 * 1000)) {
+    const refreshed = await refreshAccessToken(token.refreshToken as string)
+    if (refreshed) token = { ...token, ...refreshed }
+  }
+
   return token
 }
 

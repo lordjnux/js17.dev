@@ -228,20 +228,20 @@ function getTransition(
   const isLast = index === total - 1
 
   if (isFirst) {
-    return isShort ? { out: "wipeLeft" } : { out: "dissolve" }
+    return isShort ? { out: "wipeLeft" } : { out: "fade" }
   }
   if (isLast) {
-    return isShort ? { in: "dissolve" } : { in: "dissolve" }
+    return isShort ? { in: "fade" } : { in: "fade" }
   }
 
   if (!isShort) {
     switch (type) {
       case "chapter_divider": return { in: "wipeLeft", out: "wipeLeft" }
-      case "stats": return { in: "wipeTop", out: "wipeBottom" }
+      case "stats": return { in: "slideUp", out: "slideDown" }
       case "comparison": return { in: "carouselLeft", out: "carouselRight" }
-      case "code_example": return { in: "zoom", out: "dissolve" }
-      case "hook": case "context": return { out: "dissolve" }
-      case "cta": return { in: "dissolve" }
+      case "code_example": return { in: "zoom", out: "fade" }
+      case "hook": case "context": return { out: "fade" }
+      case "cta": return { in: "fade" }
     }
     return index % 2 === 0 ? { in: "carouselLeft" } : { in: "carouselRight" }
   } else {
@@ -312,7 +312,7 @@ export async function POST(req: NextRequest) {
 
     if (audioSlide) {
       audioClips.push({
-        asset: { type: "audio", src: audioSlide.url, volume: 1.3 },
+        asset: { type: "audio", src: audioSlide.url, volume: 1.0 },
         start: currentTime,
         length: slideDuration,
       })
