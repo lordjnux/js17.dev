@@ -26,10 +26,13 @@ interface CredlyResponse {
 
 const CACHE_PATHNAME = "credly/badges-cache.json"
 
-async function fetchFromCredly(username: string): Promise<CredlyBadge[]> {
+async function fetchFromCredly(username: string, isr = false): Promise<CredlyBadge[]> {
   const res = await fetch(
     `https://www.credly.com/users/${username}/badges.json?page=1&page_size=50&sort=-state_updated_at`,
-    { headers: { Accept: "application/json" }, cache: "no-store" }
+    {
+      headers: { Accept: "application/json" },
+      ...(isr ? { next: { revalidate: 21600 } } : { cache: "no-store" }),
+    }
   )
   if (!res.ok) return []
   const json: CredlyResponse = await res.json()
@@ -53,9 +56,9 @@ export async function getCredlyBadges(username: string): Promise<CredlyBadge[]> 
     // fall through to direct fetch
   }
 
-  // Fallback: fetch directly from Credly
+  // Fallback: fetch directly from Credly (6h ISR via Next.js data cache)
   try {
-    return await fetchFromCredly(username)
+    return await fetchFromCredly(username, true)
   } catch {
     return []
   }
