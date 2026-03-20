@@ -1,0 +1,200 @@
+---
+title: "Automated Trust: How js17.dev Keeps Certifications Always Fresh"
+description: "Certifications that go stale are worse than none at all. Here's how I built a two-layer caching system that ensures the credentials on this site are always accurate — without a single manual update."
+date: "2026-03-20T10:00"
+tags: ["Engineering", "DevOps", "Architecture", "Building in Public", "Certifications", "Vercel"]
+readingTime: 7
+published: true
+---
+
+Imagine landing on a consultant's portfolio and seeing certifications from 2021 — no indication of whether they're still current, still relevant, still valid. You don't know if they've kept growing or stopped trying.
+
+That's a trust problem. And it's one I decided to eliminate from this site permanently.
+
+---
+
+## The Problem with Static Credential Lists
+
+When the `CertificationsSection` launched on js17.dev, it was pulling badge data from the Credly API at build time with a 24-hour ISR revalidation window.
+
+That's fine for a starting point. But it has a structural weakness: **the data freshness depends entirely on when the Next.js data cache happens to revalidate**. In practice, the page could show certification data that's a full day stale. Worse, if the Next.js cache warmed early in the morning and no visitor triggered a revalidation, the data could sit unchanged until the next build.
+
+For a static resume PDF, stale credentials are a known limitation. For a platform that claims to be live and engineered with precision — stale data is a contradiction.
+
+<Callout type="info">
+The Credly API is public and free. My certifications are earned and verifiable. The only reason they'd ever be stale on this site is an architecture problem — so I fixed the architecture.
+</Callout>
+
+---
+
+## The Constraint: Vercel Hobby Plan
+
+The obvious solution is a cron job that hits the Credly API and refreshes the cache every few hours.
+
+The constraint: Vercel's Hobby plan only supports **once-daily cron frequency**. Any expression that runs more than once per day (like `0 */6 * * *` — every 6 hours) is rejected:
+
+```
+Hobby accounts are limited to daily cron jobs.
+This cron expression (0 */6 * * *) would run more than once per day.
+```
+
+This is a real infrastructure constraint. A lesser implementation would accept it, set the cron to daily, and move on. But the goal was 6-hour effective freshness, not 24-hour. So the solution needed to be smarter.
+
+---
+
+## The Two-Layer Cache Architecture
+
+The final system achieves 6-hour data freshness on a Hobby plan by combining two independent freshness mechanisms:
+
+<StackGrid>
+  <StackItem icon="⏱" layer="Layer 1" tech="Daily Cron (Vercel Blob)" reason="Runs at 08:00 UTC daily. Fetches fresh badges directly from Credly API and writes them to a persistent JSON file in Vercel Blob. Also calls revalidatePath('/') to invalidate Next.js page cache immediately." />
+  <StackItem icon="🔄" layer="Layer 2" tech="6h ISR Fallback" reason="When the Blob cache is empty or unavailable, getCredlyBadges() falls back to fetching directly from Credly with Next.js ISR revalidate: 21600 (6 hours). This runs throughout the day between cron executions." />
+</StackGrid>
+
+Together, these two mechanisms guarantee that:
+- **At 08:00 UTC**: the cron fires, writes fresh data to Blob, and invalidates the page cache
+- **Between cron runs**: any cache miss falls back to a direct Credly fetch that Next.js keeps fresh every 6 hours
+- **In failure scenarios**: if the Blob is unavailable or the cron fails, the ISR fallback continues working independently
+
+Neither layer is a single point of failure. Each can operate independently.
+
+---
+
+## How It Works in Code
+
+The implementation is three focused components.
+
+<Timeline>
+  <TimelineStep time="lib" label="credly.ts — two exported functions: getCredlyBadges() reads Blob-first with ISR fallback; refreshCredlyCache() writes to Blob for use by the cron" />
+  <TimelineStep time="route" label="/api/cron/refresh-credly — GET handler protected by CRON_SECRET Bearer token, calls refreshCredlyCache() then revalidatePath('/')" />
+  <TimelineStep time="config" label="vercel.json — cron entry at 0 8 * * * (daily 08:00 UTC), Vercel auto-injects CRON_SECRET and sends it as Authorization header" />
+</Timeline>
+
+The `getCredlyBadges()` function implements the priority chain:
+
+```typescript
+export async function getCredlyBadges(username: string): Promise<CredlyBadge[]> {
+  if (!username) return []
+
+  // 1. Try Blob cache first (warmed by daily cron)
+  try {
+    const { blobs } = await list({ prefix: "credly/badges-cache.json" })
+    if (blobs.length > 0) {
+      const res = await fetch(blobs[0].url, { cache: "no-store" })
+      if (res.ok) {
+        const cached = await res.json()
+        if (Array.isArray(cached) && cached.length > 0) return cached
+      }
+    }
+  } catch { /* fall through */ }
+
+  // 2. Fallback: direct Credly API with 6h ISR
+  return fetchFromCredly(username, true)
+}
+```
+
+The key decisions:
+- Blob fetch uses `cache: "no-store"` — always reads the latest file, never a stale CDN copy
+- ISR fallback uses `next: { revalidate: 21600 }` — 6 hours exactly
+- The cron handler calls `revalidatePath('/')` after writing to Blob — ensures the home page picks up the new data immediately, not at the next ISR window
+
+---
+
+## The Security Model
+
+The cron endpoint is not just an open HTTP route. It's protected by a Bearer token that Vercel auto-generates and injects into cron requests:
+
+```typescript
+const authHeader = req.headers.get("authorization")
+if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+  return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+}
+```
+
+`CRON_SECRET` is automatically set by Vercel for projects with cron jobs. The same pattern protects all three cron routes on this site: `refresh-metrics`, `sync-blog-metadata`, and now `refresh-credly`.
+
+<Callout type="tip">
+This pattern — cron jobs secured by platform-injected secrets — is a clean, zero-maintenance security model. You don't manage rotation, you don't store it yourself, and you don't have to think about it. Vercel handles the lifecycle. You just verify it.
+</Callout>
+
+---
+
+## The Full Cron Stack
+
+This was the third cron job added to js17.dev's `vercel.json`. The platform now runs three automated background jobs daily:
+
+<StatRow>
+  <StatCard value="06:00" label="YouTube metrics refresh" icon="📊" color="blue" />
+  <StatCard value="07:00" label="Blog metadata → MongoDB sync" icon="🗄️" color="purple" />
+  <StatCard value="08:00" label="Credly badges cache refresh" icon="🏅" color="orange" />
+</StatRow>
+
+Each cron follows the same pattern:
+1. Fetch fresh data from an external source
+2. Write it to Vercel Blob for fast, public reads
+3. Invalidate the relevant Next.js route cache
+4. Return a structured JSON response with a timestamp
+
+The pattern is so consistent that adding a new cron job to this platform is now a 20-minute operation. The infrastructure scaffolding is done.
+
+---
+
+## Why This Matters for Clients
+
+This feature is a proxy for something bigger: **the difference between a site that was built and a site that is maintained**.
+
+Static sites decay. Certifications go stale. Metrics stop reflecting reality. Content drifts out of sync with the person behind it. That decay is invisible — it happens slowly, then suddenly someone is looking at information that's six months old.
+
+Automated, scheduled data refresh is how you prevent that without manual intervention. It runs in the background, every day, regardless of whether you're thinking about it.
+
+<ChallengeCard number={1} title="For Startups & Founders">
+
+You need engineers who treat production like production — not like a demo that went live. Background jobs, cache invalidation, graceful fallbacks, monitoring — these are the details that separate a working product from a fragile prototype. When I build your platform, this is the baseline, not the bonus.
+
+</ChallengeCard>
+
+<ChallengeCard number={2} title="For Enterprise Teams">
+
+The two-layer cache pattern (cron-warmed Blob + ISR fallback) is a standard architecture for any data that's expensive to fetch live but needs to stay fresh. It applies to pricing feeds, inventory counts, analytics dashboards, third-party integrations. If your team is hitting external APIs on every page load, there's an infrastructure cost and a reliability risk that this pattern eliminates.
+
+</ChallengeCard>
+
+<ChallengeCard number={3} title="For All Clients">
+
+I publish what I build, document why I built it this way, and maintain a public changelog. When you engage me, you're not guessing at the quality of my work — you're reading it. This site is the proof of work.
+
+</ChallengeCard>
+
+---
+
+## The Changelog Is the Proof
+
+js17.dev is now at **v1.5.0**, with a public changelog at [/changelog](/changelog) that documents every deliberate improvement since launch.
+
+The arc of changes tells a story: security hardening, legal compliance, CI/CD automation, YouTube publishing, public metrics, MongoDB sync, and now automated certification freshness. Each sprint adds capability without regression. The build passes clean on every deploy.
+
+<Callout type="info">
+Every feature on this site was built using the same methodology I bring to client projects: define the constraint precisely → design the solution before writing code → implement with clean abstractions → verify it builds → ship. The AI accelerates the implementation. The engineering judgment is irreducibly human.
+</Callout>
+
+This is what building in public looks like when you care about the details.
+
+---
+
+<CTABlock>
+
+### Your platform deserves the same level of automation
+
+Stale data, manual deploys, no background jobs, no cache invalidation — these are the technical debt most teams accumulate silently. They compound over time into reliability incidents and engineer-hours lost to maintenance.
+
+**What I design for client systems:**
+- Background job pipelines with graceful fallbacks and failure isolation
+- Cache-first architectures that minimize external API dependency
+- Automated data refresh without manual intervention
+- Zero-downtime deployments with rollback capability
+
+[**Start a conversation →**](/proposal)
+
+*Most clients receive a scoped technical proposal within 24 hours.*
+
+</CTABlock>
