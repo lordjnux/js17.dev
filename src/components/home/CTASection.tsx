@@ -1,6 +1,8 @@
+import { Suspense } from "react"
 import Link from "next/link"
 import { AnimatedSection } from "@/components/shared/AnimatedSection"
 import { Button } from "@/components/ui/button"
+import { SubscriberBadge } from "@/components/blog/SubscriberBadge"
 import { ArrowRight, MessageSquare } from "lucide-react"
 
 export function CTASection() {
@@ -21,6 +23,9 @@ export function CTASection() {
                 I&apos;m currently available for freelance engagements. Tell me about your project
                 and I&apos;ll get back to you within 24 hours.
               </p>
+              <Suspense fallback={null}>
+                <SubscriberBadge className="mt-3 justify-center" />
+              </Suspense>
               <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
                 <Button size="xl" asChild className="group">
                   <Link href="/proposal">

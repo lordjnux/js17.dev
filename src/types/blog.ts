@@ -7,6 +7,7 @@ export interface PostFrontmatter {
   author?: string
   coverImage?: string
   readingTime?: number
+  category?: string
 }
 
 export interface Post {

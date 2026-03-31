@@ -12,6 +12,11 @@
     "release:patch": "standard-version --release-as patch",
     "release:minor": "standard-version --release-as minor",
     "release:major": "standard-version --release-as major",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "test:e2e:sandbox": "E2E_BASE_URL=https://sandbox.js17.dev playwright test",
+    "test:e2e:prod": "E2E_BASE_URL=https://js17.dev playwright test",
     "test:proposal": "node scripts/test-proposal.mjs",
     "test:proposal:sandbox": "node scripts/test-proposal.mjs https://sandbox.js17.dev",
     "test:proposal:prod": "node scripts/test-proposal.mjs https://js17.dev"
@@ -72,15 +77,22 @@
   "devDependencies": {
     "@commitlint/cli": "^20.4.3",
     "@commitlint/config-conventional": "^20.4.3",
+    "@playwright/test": "^1.58.2",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "@vitejs/plugin-react": "^6.0.1",
     "eslint": "^8",
     "eslint-config-next": "14.2.35",
     "husky": "^9.1.7",
+    "jsdom": "^29.0.1",
     "postcss": "^8",
     "standard-version": "^9.5.0",
     "tailwindcss": "^3.4.1",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.1.2"
   }
 }

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { revalidatePath } from "next/cache"
 import { refreshCredlyCache } from "@/lib/credly"
+import { refreshStravaCache } from "@/lib/strava"
 
 export async function GET(req: NextRequest) {
   const authHeader = req.headers.get("authorization")
@@ -13,15 +14,31 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "CREDLY_USERNAME not configured" }, { status: 500 })
   }
 
+  const results: Record<string, unknown> = {}
+
+  // Credly
   try {
     const badges = await refreshCredlyCache(username)
     revalidatePath("/")
-    return NextResponse.json({
-      message: "Credly badges refreshed",
-      count: badges.length,
-      refreshedAt: new Date().toISOString(),
-    })
-  } catch {
-    return NextResponse.json({ error: "Failed to refresh Credly badges" }, { status: 500 })
+    results.credly = { count: badges.length }
+  } catch (err) {
+    results.credly = { error: String(err) }
   }
+
+  // Strava (only if configured)
+  if (process.env.STRAVA_CLIENT_ID) {
+    try {
+      const strava = await refreshStravaCache()
+      revalidatePath("/hobbies")
+      results.strava = { cachedAt: strava.cachedAt }
+    } catch (err) {
+      results.strava = { error: String(err) }
+    }
+  }
+
+  return NextResponse.json({
+    message: "Caches refreshed",
+    refreshedAt: new Date().toISOString(),
+    ...results,
+  })
 }
