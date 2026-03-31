@@ -171,8 +171,8 @@ export function FitWellnessSection({ stats, chess }: FitWellnessSectionProps) {
               />
               <StravaStatCard
                 label="Current Streak"
-                value={`${stats.streaks.current} days`}
-                subValue={`Longest: ${stats.streaks.longest} days`}
+                value={`${(stats.streaks.current / 7).toFixed(1).replace(/\.0$/, "")} wks`}
+                subValue={`Longest: ${(stats.streaks.longest / 7).toFixed(1).replace(/\.0$/, "")} wks`}
                 icon="🔥"
                 delay={0.3}
               />

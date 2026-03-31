@@ -2,13 +2,12 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { ThemePicker } from "./ThemePicker"
 import { CVDownloadButton } from "@/components/shared/CVDownloadButton"
 import { LogoMark } from "@/components/shared/Logo"
-import { NAV_ITEMS } from "@/lib/constants"
+import { NAV_ITEMS, SITE_CONFIG } from "@/lib/constants"
 import { cn } from "@/lib/utils"
 import { useState, useEffect } from "react"
-import { Menu, X } from "lucide-react"
+import { Menu, X, Github, Linkedin } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 export function Header() {
@@ -62,7 +61,24 @@ export function Header() {
 
         {/* Actions */}
         <div className="flex items-center gap-2">
-          <ThemePicker />
+          <Link
+            href={SITE_CONFIG.github}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hidden md:inline-flex text-muted-foreground hover:text-foreground transition-colors p-1.5"
+            aria-label="GitHub"
+          >
+            <Github className="h-4 w-4" />
+          </Link>
+          <Link
+            href={SITE_CONFIG.linkedin}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hidden md:inline-flex text-muted-foreground hover:text-foreground transition-colors p-1.5"
+            aria-label="LinkedIn"
+          >
+            <Linkedin className="h-4 w-4" />
+          </Link>
           <CVDownloadButton size="sm" className="hidden md:inline-flex" />
           <Button
             variant="ghost"
