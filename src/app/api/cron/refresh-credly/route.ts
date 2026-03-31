@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { revalidatePath } from "next/cache"
 import { refreshCredlyCache } from "@/lib/credly"
 import { refreshStravaCache } from "@/lib/strava"
+import { refreshChessCache } from "@/lib/chess"
 
 export async function GET(req: NextRequest) {
   const authHeader = req.headers.get("authorization")
@@ -34,6 +35,15 @@ export async function GET(req: NextRequest) {
     } catch (err) {
       results.strava = { error: String(err) }
     }
+  }
+
+  // Chess (always — public API, no auth needed)
+  try {
+    const chess = await refreshChessCache()
+    revalidatePath("/hobbies")
+    results.chess = { cachedAt: chess.cachedAt }
+  } catch (err) {
+    results.chess = { error: String(err) }
   }
 
   return NextResponse.json({

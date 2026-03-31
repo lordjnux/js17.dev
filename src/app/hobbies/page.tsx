@@ -1,5 +1,6 @@
 import { Suspense } from "react"
 import { getStravaStats } from "@/lib/strava"
+import { getChessStats } from "@/lib/chess"
 import { FitWellnessSection } from "@/components/hobbies/FitWellnessSection"
 import type { Metadata } from "next"
 
@@ -8,7 +9,7 @@ export const revalidate = 21600 // 6h ISR
 export const metadata: Metadata = {
   title: "Hobbies & Life Stats",
   description:
-    "Beyond the code — personal stats, running data, and the systems thinking I apply outside the terminal. Fitness, music, travel: all integrated.",
+    "Beyond the code — running stats, chess ratings, and the systems thinking I apply outside the terminal. Fitness, chess, music: all integrated.",
 }
 
 function HobbiesSkeleton() {
@@ -27,12 +28,12 @@ function HobbiesSkeleton() {
 }
 
 export default async function HobbiesPage() {
-  const stats = await getStravaStats()
+  const [stats, chess] = await Promise.all([getStravaStats(), getChessStats()])
 
   return (
     <main>
       <Suspense fallback={<HobbiesSkeleton />}>
-        <FitWellnessSection stats={stats} />
+        <FitWellnessSection stats={stats} chess={chess} />
       </Suspense>
     </main>
   )

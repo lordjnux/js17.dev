@@ -1,14 +1,18 @@
 "use client"
 
+import { useState } from "react"
 import { motion } from "framer-motion"
 import { StravaStatCard } from "./StravaStatCard"
 import { RecentActivitiesFeed } from "./RecentActivitiesFeed"
+import { ChessSection } from "./ChessSection"
 import type { StravaStats } from "@/types/strava"
+import type { ChessStats } from "@/types/chess"
 import { metersToKm, secsToDuration } from "@/lib/strava"
 import Link from "next/link"
 
 interface FitWellnessSectionProps {
   stats: StravaStats | null
+  chess: ChessStats | null
 }
 
 const container = {
@@ -26,8 +30,8 @@ const item = {
 
 const categories = [
   { id: "fitness", label: "Fit & Wellness", icon: "🏃", active: true },
+  { id: "chess", label: "Chess", icon: "♟️", active: true },
   { id: "music", label: "Music", icon: "🎵", active: false, soon: true },
-  { id: "travel", label: "Travel", icon: "✈️", active: false, soon: true },
 ]
 
 function StatsSkeleton() {
@@ -43,7 +47,9 @@ function StatsSkeleton() {
   )
 }
 
-export function FitWellnessSection({ stats }: FitWellnessSectionProps) {
+export function FitWellnessSection({ stats, chess }: FitWellnessSectionProps) {
+  const [activeTab, setActiveTab] = useState<"fitness" | "chess">("fitness")
+
   return (
     <div className="container-custom py-12 md:py-16 space-y-12">
       {/* ── Hero ─────────────────────────────────────────────────────── */}
@@ -71,7 +77,7 @@ export function FitWellnessSection({ stats }: FitWellnessSectionProps) {
           apply to distributed architecture — applied to my own performance data.
         </motion.p>
 
-        {stats && (
+        {activeTab === "fitness" && stats && (
           <motion.div
             variants={item}
             className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground"
@@ -103,122 +109,144 @@ export function FitWellnessSection({ stats }: FitWellnessSectionProps) {
 
       {/* ── Category tabs ─────────────────────────────────────────────── */}
       <div className="flex flex-wrap gap-3">
-        {categories.map((cat) => (
-          <button
-            key={cat.id}
-            disabled={!cat.active}
-            className={`flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-all ${
-              cat.active
-                ? "border-orange-500/40 bg-orange-500/10 text-orange-400"
-                : "border-border/50 text-muted-foreground opacity-50 cursor-not-allowed"
-            }`}
-          >
-            <span>{cat.icon}</span>
-            <span>{cat.label}</span>
-            {cat.soon && (
-              <span className="rounded-full bg-muted px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide">
-                Soon
-              </span>
-            )}
-          </button>
-        ))}
+        {categories.map((cat) => {
+          const isActive = cat.active && cat.id === activeTab
+          return (
+            <button
+              key={cat.id}
+              disabled={!cat.active}
+              onClick={() => cat.active && setActiveTab(cat.id as "fitness" | "chess")}
+              className={`flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-all ${
+                cat.soon
+                  ? "border-border/50 text-muted-foreground opacity-50 cursor-not-allowed"
+                  : isActive
+                  ? cat.id === "chess"
+                    ? "border-violet-500/40 bg-violet-500/10 text-violet-400"
+                    : "border-orange-500/40 bg-orange-500/10 text-orange-400"
+                  : "border-border/50 text-muted-foreground hover:border-border hover:text-foreground"
+              }`}
+            >
+              <span>{cat.icon}</span>
+              <span>{cat.label}</span>
+              {cat.soon && (
+                <span className="rounded-full bg-muted px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide">
+                  Soon
+                </span>
+              )}
+            </button>
+          )
+        })}
       </div>
 
-      {/* ── Stat cards ───────────────────────────────────────────────── */}
-      {!stats ? (
-        <StatsSkeleton />
+      {/* ── Tab content ──────────────────────────────────────────────── */}
+      {activeTab === "chess" ? (
+        <ChessSection stats={chess} />
       ) : (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <StravaStatCard
-            label="Total Distance"
-            value={metersToKm(stats.stats.all_run_totals.distance)}
-            subValue={`YTD: ${metersToKm(stats.stats.ytd_run_totals.distance)}`}
-            icon="🗺️"
-            delay={0}
-          />
-          <StravaStatCard
-            label="Total Runs"
-            value={`${stats.stats.all_run_totals.count} runs`}
-            subValue={`YTD: ${stats.stats.ytd_run_totals.count} runs`}
-            icon="👟"
-            delay={0.1}
-          />
-          <StravaStatCard
-            label="Elevation"
-            value={`${Math.round(stats.stats.all_run_totals.elevation_gain).toLocaleString()} m`}
-            subValue={`YTD: ${Math.round(stats.stats.ytd_run_totals.elevation_gain).toLocaleString()} m`}
-            icon="⛰️"
-            delay={0.2}
-          />
-          <StravaStatCard
-            label="Current Streak"
-            value={`${stats.streaks.current} days`}
-            subValue={`Longest: ${stats.streaks.longest} days`}
-            icon="🔥"
-            delay={0.3}
-          />
-        </div>
-      )}
-
-      {/* ── YTD vs All-Time ──────────────────────────────────────────── */}
-      {stats && (
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4, duration: 0.5 }}
-          className="rounded-xl border border-border/50 bg-card p-6"
-        >
-          <h2 className="text-sm font-semibold uppercase tracking-widest text-muted-foreground mb-5">
-            YTD vs All-Time Running
-          </h2>
-          <div className="grid grid-cols-2 gap-6">
-            <div className="space-y-3">
-              <div className="text-xs font-semibold text-orange-400 uppercase tracking-widest mb-3">
-                This Year
-              </div>
-              <Stat label="Runs" value={`${stats.stats.ytd_run_totals.count}`} />
-              <Stat label="Distance" value={metersToKm(stats.stats.ytd_run_totals.distance)} />
-              <Stat
-                label="Time"
-                value={secsToDuration(stats.stats.ytd_run_totals.moving_time)}
+        <>
+          {/* Stat cards */}
+          {!stats ? (
+            <StatsSkeleton />
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <StravaStatCard
+                label="Total Distance"
+                value={metersToKm(stats.stats.all_run_totals.distance)}
+                subValue={`YTD: ${metersToKm(stats.stats.ytd_run_totals.distance)}`}
+                icon="🗺️"
+                delay={0}
               />
-              <Stat
-                label="Elevation"
-                value={`${Math.round(stats.stats.ytd_run_totals.elevation_gain).toLocaleString()} m`}
+              <StravaStatCard
+                label="Total Runs"
+                value={`${stats.stats.all_run_totals.count} runs`}
+                subValue={`YTD: ${stats.stats.ytd_run_totals.count} runs`}
+                icon="👟"
+                delay={0.1}
               />
-            </div>
-            <div className="space-y-3">
-              <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-3">
-                All Time
-              </div>
-              <Stat label="Runs" value={`${stats.stats.all_run_totals.count}`} />
-              <Stat label="Distance" value={metersToKm(stats.stats.all_run_totals.distance)} />
-              <Stat
-                label="Time"
-                value={secsToDuration(stats.stats.all_run_totals.moving_time)}
-              />
-              <Stat
+              <StravaStatCard
                 label="Elevation"
                 value={`${Math.round(stats.stats.all_run_totals.elevation_gain).toLocaleString()} m`}
+                subValue={`YTD: ${Math.round(stats.stats.ytd_run_totals.elevation_gain).toLocaleString()} m`}
+                icon="⛰️"
+                delay={0.2}
+              />
+              <StravaStatCard
+                label="Current Streak"
+                value={`${stats.streaks.current} days`}
+                subValue={`Longest: ${stats.streaks.longest} days`}
+                icon="🔥"
+                delay={0.3}
               />
             </div>
-          </div>
-        </motion.div>
-      )}
+          )}
 
-      {/* ── Recent activities ─────────────────────────────────────────── */}
-      {stats && stats.recentActivities.length > 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5, duration: 0.5 }}
-          className="space-y-4"
-        >
-          <h2 className="text-sm font-semibold uppercase tracking-widest text-muted-foreground">
-            Recent Runs
-          </h2>
-          <RecentActivitiesFeed activities={stats.recentActivities} />
-        </motion.div>
+          {/* YTD vs All-Time */}
+          {stats && (
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4, duration: 0.5 }}
+              className="rounded-xl border border-border/50 bg-card p-6"
+            >
+              <h2 className="text-sm font-semibold uppercase tracking-widest text-muted-foreground mb-5">
+                YTD vs All-Time Running
+              </h2>
+              <div className="grid grid-cols-2 gap-6">
+                <div className="space-y-3">
+                  <div className="text-xs font-semibold text-orange-400 uppercase tracking-widest mb-3">
+                    This Year
+                  </div>
+                  <Stat label="Runs" value={`${stats.stats.ytd_run_totals.count}`} />
+                  <Stat label="Distance" value={metersToKm(stats.stats.ytd_run_totals.distance)} />
+                  <Stat
+                    label="Time"
+                    value={secsToDuration(stats.stats.ytd_run_totals.moving_time)}
+                  />
+                  <Stat
+                    label="Elevation"
+                    value={`${Math.round(stats.stats.ytd_run_totals.elevation_gain).toLocaleString()} m`}
+                  />
+                </div>
+                <div className="space-y-3">
+                  <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-3">
+                    All Time
+                  </div>
+                  <Stat label="Runs" value={`${stats.stats.all_run_totals.count}`} />
+                  <Stat label="Distance" value={metersToKm(stats.stats.all_run_totals.distance)} />
+                  <Stat
+                    label="Time"
+                    value={secsToDuration(stats.stats.all_run_totals.moving_time)}
+                  />
+                  <Stat
+                    label="Elevation"
+                    value={`${Math.round(stats.stats.all_run_totals.elevation_gain).toLocaleString()} m`}
+                  />
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Recent activities */}
+          {stats && stats.recentActivities.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5, duration: 0.5 }}
+              className="space-y-4"
+            >
+              <h2 className="text-sm font-semibold uppercase tracking-widest text-muted-foreground">
+                Recent Runs
+              </h2>
+              <RecentActivitiesFeed activities={stats.recentActivities} />
+            </motion.div>
+          )}
+
+          {/* Strava cache timestamp */}
+          {stats && (
+            <p className="text-center text-xs text-muted-foreground/50">
+              Stats cached · {new Date(stats.cachedAt).toLocaleString()}
+            </p>
+          )}
+        </>
       )}
 
       {/* ── CTA ──────────────────────────────────────────────────────── */}
@@ -240,13 +268,6 @@ export function FitWellnessSection({ stats }: FitWellnessSectionProps) {
           Ask me how →
         </Link>
       </motion.div>
-
-      {/* ── Last cached timestamp ─────────────────────────────────────── */}
-      {stats && (
-        <p className="text-center text-xs text-muted-foreground/50">
-          Stats cached · {new Date(stats.cachedAt).toLocaleString()}
-        </p>
-      )}
     </div>
   )
 }
