@@ -1,0 +1,240 @@
+---
+title: "Life as Data: Strava, Chess, and the UI Sprint That Completed js17.dev"
+description: "A portfolio that only shows what you build professionally is missing half the engineer. Here's how I built a live hobbies dashboard — Strava stats, Chess.com ratings, and a dark theme that finally knows what it is."
+date: "2026-03-31T10:00"
+tags: ["Engineering", "Building in Public", "Strava", "Chess.com", "Architecture", "Hobbies", "UX"]
+readingTime: 9
+published: true
+---
+
+A resume lists your skills. A portfolio shows your work. But neither of those tells you how someone *thinks* — what they care about, how they operate outside the office, whether their discipline extends beyond business hours.
+
+I believe the best engineers are systems thinkers in every context. Not just at work. And I wanted js17.dev to reflect that.
+
+So I built [/hobbies](/hobbies).
+
+---
+
+## The Premise: Track Everything, Hide Nothing
+
+The existing live data surfaces on this site — Credly certifications, YouTube metrics, GitHub stats — all follow the same principle: don't claim it if you can't prove it. Live data over static claims.
+
+The same principle should apply to the rest of who I am.
+
+<Callout type="info">
+If I can build automated certification freshness and public video metrics, I can apply the same architecture to my running cadence and chess rating. Data is data. The integration patterns are identical.
+</Callout>
+
+The result: a `/hobbies` page that pulls live stats from two external APIs, caches them in Vercel Blob, and refreshes on a daily cron — using the exact same infrastructure pattern that powers every other live section on the site.
+
+---
+
+## The Architecture: Two Sources, One Pattern
+
+The `/hobbies` page serves stats from two independent live data sources:
+
+<StackGrid>
+  <StackItem icon="🏃" layer="Strava" tech="OAuth2 + Blob Cache" reason="Running stats: total distance, run count, elevation gain, activity streaks. Token auto-refresh stored in Blob. Activities feed with real dates, paces, and distances." />
+  <StackItem icon="♟️" layer="Chess.com" tech="Public API + Blob Cache" reason="Chess ratings across Bullet, Blitz, and Rapid formats. Win/Loss/Draw breakdown per format. No OAuth required — Chess.com's public API is completely open." />
+</StackGrid>
+
+Both follow the same two-layer cache architecture introduced by the Credly integration:
+
+1. **Blob-first**: read from `strava/stats-cache.json` or `chess/stats-cache.json` on every page load — fast, cheap, zero external latency
+2. **ISR fallback**: if the Blob is empty, fetch directly from the API with `next: { revalidate: 21600 }` — 6-hour freshness guaranteed
+3. **Daily cron**: one consolidated background job refreshes all three external caches — Credly, Strava, and Chess — every morning at 08:00 UTC
+
+The page uses `export const revalidate = 21600` and `Promise.all()` to fetch both data sources in parallel:
+
+```typescript
+const [stats, chess] = await Promise.all([getStravaStats(), getChessStats()])
+```
+
+---
+
+## Strava: OAuth2 Token Management at the Edge
+
+Strava's API uses OAuth2 with short-lived access tokens (6-hour expiry). Every integration I've seen handles this poorly: hardcode the token, let it expire, debug in production.
+
+The approach here is different: **the token lives in Blob**.
+
+<Timeline>
+  <TimelineStep time="1" label="On first request: read STRAVA_REFRESH_TOKEN from env, call POST /oauth/token to get a fresh access_token + expires_at" />
+  <TimelineStep time="2" label="Persist { access_token, refresh_token, expires_at } to strava/token-cache.json in Vercel Blob" />
+  <TimelineStep time="3" label="On subsequent requests: read Blob cache first. If expires_at > now + 5 minutes, return the cached token directly." />
+  <TimelineStep time="4" label="If expired: use the cached refresh_token to get a new pair. Always persist the full response — Strava may rotate the refresh_token on each exchange." />
+</Timeline>
+
+The token refresh is fully automatic. No manual rotation. No cron required. The blob becomes a self-updating credential store that keeps itself valid indefinitely:
+
+```typescript
+async function getValidAccessToken(): Promise<string> {
+  try {
+    const { blobs } = await list({ prefix: "strava/token-cache.json" })
+    if (blobs.length > 0) {
+      const res = await fetch(blobs[0].url, { cache: "no-store" })
+      const cached: StravaTokenCache = await res.json()
+      // Valid if more than 5 minutes remain
+      if (cached.expires_at > Math.floor(Date.now() / 1000) + 300) {
+        return cached.access_token
+      }
+      return await refreshAccessToken(cached.refresh_token)
+    }
+  } catch { /* fall through */ }
+
+  // No cache — bootstrap from env
+  return await refreshAccessToken(process.env.STRAVA_REFRESH_TOKEN!)
+}
+```
+
+---
+
+## Streak Calculation: Days to Weeks
+
+Running streaks are typically displayed in days. But days become noisy at scale — "14-day streak" communicates less than "2-week streak." The displayed metric is in weeks, with one decimal for precision when the streak doesn't land on a whole week.
+
+The underlying algorithm runs on days:
+
+1. Extract unique run dates from the activities list (deduplicated by `start_date_local` prefix)
+2. Sort descending
+3. Starting from today (or yesterday, if no run today yet), count consecutive days backward
+4. Track longest streak via sliding window scan
+
+Display conversion: `(days / 7).toFixed(1).replace(/\.0$/, "") + " wks"` — renders `"2 wks"` for whole weeks, `"1.4 wks"` for partial.
+
+<Callout type="tip">
+The StravaStatCard animates numeric values via requestAnimationFrame over 1.2 seconds with ease-out cubic easing. It parses the leading numeric portion from the value string — so "1.4 wks" correctly animates 0.0 → 1.4 before appending " wks". No special handling needed for the weeks format.
+</Callout>
+
+---
+
+## Chess.com: No Auth, No Problem
+
+Chess.com's public API requires zero authentication to read player stats. A single endpoint returns current ratings and W/L/D totals for every active format.
+
+The visualization uses Recharts `BarChart` with `layout="vertical"` and three stacked series — Win, Loss, Draw — color-coded for immediate comprehension:
+
+<StatRow>
+  <StatCard value="Win" label="Green — consistent results" icon="✅" color="green" />
+  <StatCard value="Loss" label="Red — learning surface" icon="❌" color="blue" />
+  <StatCard value="Draw" label="Slate — contested games" icon="🤝" color="purple" />
+</StatRow>
+
+Each format bar (Bullet / Blitz / Rapid) displays the current rating as a label. The W/L/D ratio tells a more complete story than a rating alone — it shows consistency, aggression style, and how often games reach decisive outcomes.
+
+---
+
+## Locking the Identity: Circuit Dark, Forever
+
+Two UI changes shipped in the same sprint, and they form a coherent statement.
+
+**The theme picker is gone.**
+
+js17.dev now runs exclusively in Circuit Dark — the deep navy + electric blue palette that's been the default since launch. The `ThemeProvider` now has `forcedTheme="dark"`, which overrides any `setTheme()` call from client code, localStorage, or system preferences:
+
+```tsx
+<ThemeProvider
+  attribute="class"
+  defaultTheme="dark"
+  forcedTheme="dark"
+  themes={["light", "dark", "titanium", "aurora"]}
+  disableTransitionOnChange
+>
+```
+
+One prop change. The `ThemeInitializer` — previously a 30-line effect hook managing localStorage flags and random palette assignment — reduced to a no-op:
+
+```tsx
+// Theme is locked to dark via forcedTheme in ThemeProvider — no initialization needed.
+export function ThemeInitializer() {
+  return null
+}
+```
+
+This isn't laziness. It's a deliberate identity decision. Circuit Dark is the visual language of this site — every component, every gradient, every orange-on-navy accent was designed for it. Supporting four themes was generosity to no one.
+
+**GitHub and LinkedIn icons moved to the header.**
+
+Previously in the footer — visible only after scrolling the entire page. Now they live beside the CV download button in the top navigation, visible on every page, every route, above the fold. The footer reduced to logo + copyright. No information lost. Signal increased.
+
+---
+
+## The Blog Readability Fix
+
+A quiet but important correction: blog post prose now renders correctly in dark mode.
+
+The root cause: Tailwind Typography's `prose-slate` applies light-mode styles by default — dark text, light blockquote borders, light code backgrounds. Without `dark:prose-invert`, those styles don't flip when the site is dark.
+
+The fix:
+
+```tsx
+// Before — dark text on dark background
+<div className="prose prose-slate max-w-none ...">
+
+// After — correct inversion for dark mode
+<div className="prose prose-slate dark:prose-invert max-w-none ...">
+```
+
+`dark:prose-invert` applies a full color inversion across all Typography tokens when `.dark` is on `<html>`: light text, inverted blockquotes, accessible link colors, visible code backgrounds. With `forcedTheme="dark"`, this class is always active. The prose is always readable.
+
+---
+
+## The Automated Stack: Three Sources, One Cron
+
+Adding Strava and Chess didn't require new cron entries. Both `refreshStravaCache()` and `refreshChessCache()` are called inside the existing `refresh-credly` handler at 08:00 UTC. One authorization check. One execution window. Three caches refreshed.
+
+<StatRow>
+  <StatCard value="06:00" label="YouTube metrics cache refresh" icon="📊" color="blue" />
+  <StatCard value="07:00" label="Blog metadata → MongoDB sync" icon="🗄️" color="purple" />
+  <StatCard value="08:00" label="Credly + Strava + Chess refresh" icon="🏅" color="orange" />
+</StatRow>
+
+<Callout type="info">
+Constraint-driven architecture: Vercel Hobby allows only daily cron frequency — one execution per day per route. Rather than attempt multiple cron entries (which are rejected), all external cache refreshes consolidate into the 08:00 job. The result is cleaner: one auth check, one log, one atomic refresh sweep.
+</Callout>
+
+---
+
+## Why This Matters
+
+There's a version of a professional portfolio that is purely credential-forward: certifications, GitHub stats, years of experience. Legible. Forgettable.
+
+js17.dev is trying to be something different: a living document of the person who built it. The running stats aren't there to impress. They're there because they're true, they're current, and they reflect the same discipline I bring to production systems. I don't skip leg day. I don't let caches go stale. I don't ship with broken styles.
+
+<ChallengeCard number={1} title="For Startup Founders">
+
+You're hiring for judgment, not just output. An engineer who instruments their own performance data — and builds the infrastructure to surface it — is showing you how they think about observability. That carries directly into how they'll instrument your product, maintain your systems, and respond to incidents under pressure.
+
+</ChallengeCard>
+
+<ChallengeCard number={2} title="For Engineering Teams">
+
+The Blob + ISR + cron pattern shown here applies to any frequently-changing external data: pricing feeds, inventory, analytics dashboards, third-party API responses. The architecture is identical whether you're caching chess ratings or your SaaS product's conversion metrics. Learn it once, apply it everywhere.
+
+</ChallengeCard>
+
+<ChallengeCard number={3} title="For Everyone">
+
+A portfolio is a product. Products should be engineered, not assembled. The difference shows in the details: no stale data, no broken styles in dark mode, no credentials buried in footers nobody reads. This sprint — hobbies dashboard, identity lock, readability fix — shipped as a single coherent release. Build passes clean. Nothing regresses.
+
+</ChallengeCard>
+
+---
+
+<CTABlock>
+
+### The same engineering discipline — applied to your systems
+
+Live data integrations, automated cache pipelines, clean UI with zero stale state — these aren't portfolio features. They're the baseline for any production system that users trust.
+
+**What I build for clients:**
+- Multi-source data integrations with graceful Blob-first fallback chains
+- Background job pipelines that consolidate under infrastructure constraints
+- Clean, opinionated UI with no ambiguity about state or identity
+- Systems that remain current and accurate without manual intervention
+
+[**Start a conversation →**](/proposal)
+
+*Most clients receive a scoped technical proposal within 24 hours.*
+
+</CTABlock>
