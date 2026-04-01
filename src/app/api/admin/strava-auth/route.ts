@@ -13,7 +13,11 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "STRAVA_CLIENT_ID not configured" }, { status: 500 })
   }
 
-  const baseUrl = process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_SITE_URL || "https://js17.dev"
+  const baseUrl = (
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    process.env.NEXTAUTH_URL ||
+    "https://js17.dev"
+  ).trim()
   const redirectUri = `${baseUrl}/api/admin/strava-callback`
 
   const authUrl = new URL("https://www.strava.com/oauth/authorize")

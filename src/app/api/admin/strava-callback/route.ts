@@ -76,6 +76,10 @@ export async function GET(req: NextRequest) {
     // Non-fatal — token is saved; cron will populate cache
   }
 
-  const baseUrl = process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_SITE_URL || "https://js17.dev"
+  const baseUrl = (
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    process.env.NEXTAUTH_URL ||
+    "https://js17.dev"
+  ).trim()
   return NextResponse.redirect(`${baseUrl}/hobbies?strava=connected`)
 }
