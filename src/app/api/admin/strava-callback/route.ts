@@ -1,23 +1,26 @@
 import { NextRequest, NextResponse } from "next/server"
 import { put } from "@vercel/blob"
 import { revalidatePath } from "next/cache"
+import { refreshStravaCache } from "@/lib/strava"
 import type { StravaTokenCache } from "@/types/strava"
 
 const TOKEN_CACHE = "strava/token-cache.json"
 
 // GET /api/admin/strava-callback — handles Strava OAuth callback
-// Strava redirects here after admin authorization; no session check possible
-// because Strava redirects directly (not via the admin browser session).
-// We verify the client_secret is present as proof of server ownership.
+// No session check here — Strava redirects the browser directly.
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url)
   const code = searchParams.get("code")
   const error = searchParams.get("error")
 
+  const baseUrl = (
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    process.env.NEXTAUTH_URL ||
+    "https://js17.dev"
+  ).trim()
+
   if (error) {
-    return NextResponse.redirect(
-      `/admin/youtube?strava=error&reason=${encodeURIComponent(error)}`
-    )
+    return NextResponse.redirect(`${baseUrl}/hobbies?strava=error&reason=${encodeURIComponent(error)}`)
   }
 
   if (!code) {
@@ -26,8 +29,12 @@ export async function GET(req: NextRequest) {
 
   const clientId = process.env.STRAVA_CLIENT_ID
   const clientSecret = process.env.STRAVA_CLIENT_SECRET
+  const blobToken = process.env.BLOB_READ_WRITE_TOKEN
   if (!clientId || !clientSecret) {
-    return NextResponse.json({ error: "Strava not configured" }, { status: 500 })
+    return NextResponse.json({ error: "STRAVA_CLIENT_ID or STRAVA_CLIENT_SECRET not configured" }, { status: 500 })
+  }
+  if (!blobToken) {
+    return NextResponse.json({ error: "BLOB_READ_WRITE_TOKEN not configured" }, { status: 500 })
   }
 
   // Exchange code for tokens
@@ -59,27 +66,22 @@ export async function GET(req: NextRequest) {
     expires_at: data.expires_at,
   }
 
-  // Persist token to blob so all future requests reuse it
+  // Persist token — pass blobToken explicitly to avoid env auto-detection failure
   await put(TOKEN_CACHE, JSON.stringify(tokenCache), {
     access: "public",
     contentType: "application/json",
     addRandomSuffix: false,
     allowOverwrite: true,
+    token: blobToken,
   })
 
-  // Trigger stats cache refresh
+  // Refresh stats cache — non-fatal
   try {
-    const { refreshStravaCache } = await import("@/lib/strava")
     await refreshStravaCache()
     revalidatePath("/hobbies")
   } catch {
-    // Non-fatal — token is saved; cron will populate cache
+    // Non-fatal — token is saved; cron will populate cache on next run
   }
 
-  const baseUrl = (
-    process.env.NEXT_PUBLIC_SITE_URL ||
-    process.env.NEXTAUTH_URL ||
-    "https://js17.dev"
-  ).trim()
   return NextResponse.redirect(`${baseUrl}/hobbies?strava=connected`)
 }
