@@ -147,7 +147,7 @@ export function FitWellnessSection({ stats, chess }: FitWellnessSectionProps) {
           {!stats ? (
             <StatsSkeleton />
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               <StravaStatCard
                 label="Total Distance"
                 value={metersToKm(stats.stats.all_run_totals.distance)}
@@ -168,13 +168,6 @@ export function FitWellnessSection({ stats, chess }: FitWellnessSectionProps) {
                 subValue={`YTD: ${Math.round(stats.stats.ytd_run_totals.elevation_gain).toLocaleString()} m`}
                 icon="⛰️"
                 delay={0.2}
-              />
-              <StravaStatCard
-                label="Current Streak"
-                value={`${(stats.streaks.current / 7).toFixed(1).replace(/\.0$/, "")} wks`}
-                subValue={`Longest: ${(stats.streaks.longest / 7).toFixed(1).replace(/\.0$/, "")} wks`}
-                icon="🔥"
-                delay={0.3}
               />
             </div>
           )}
