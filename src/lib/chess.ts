@@ -46,11 +46,15 @@ export async function getChessStats(): Promise<ChessStats | null> {
 
 export async function refreshChessCache(): Promise<ChessStats> {
   const data = await fetchFromChessCom(false)
-  await put(STATS_CACHE, JSON.stringify(data), {
-    access: "public",
-    contentType: "application/json",
-    addRandomSuffix: false,
-    allowOverwrite: true,
-  })
+  try {
+    await put(STATS_CACHE, JSON.stringify(data), {
+      access: "public",
+      contentType: "application/json",
+      addRandomSuffix: false,
+      allowOverwrite: true,
+    })
+  } catch {
+    // Blob unavailable — stats were fetched successfully, cache skipped
+  }
   return data
 }

@@ -67,13 +67,17 @@ async function refreshAccessToken(refreshToken: string): Promise<string> {
     expires_at: data.expires_at,
   }
 
-  // Always persist — Strava may rotate refresh_token
-  await put(TOKEN_CACHE, JSON.stringify(tokenCache), {
-    access: "public",
-    contentType: "application/json",
-    addRandomSuffix: false,
-    allowOverwrite: true,
-  })
+  // Always persist — Strava may rotate refresh_token (best-effort; don't fail if blob is unavailable)
+  try {
+    await put(TOKEN_CACHE, JSON.stringify(tokenCache), {
+      access: "public",
+      contentType: "application/json",
+      addRandomSuffix: false,
+      allowOverwrite: true,
+    })
+  } catch {
+    // Blob unavailable (e.g. store suspended) — token still valid for this request
+  }
 
   return data.access_token
 }
@@ -208,12 +212,16 @@ export async function getStravaStats(): Promise<StravaStats | null> {
 
 export async function refreshStravaCache(): Promise<StravaStats> {
   const data = await fetchFromStrava(100, false)
-  await put(STATS_CACHE, JSON.stringify(data), {
-    access: "public",
-    contentType: "application/json",
-    addRandomSuffix: false,
-    allowOverwrite: true,
-  })
+  try {
+    await put(STATS_CACHE, JSON.stringify(data), {
+      access: "public",
+      contentType: "application/json",
+      addRandomSuffix: false,
+      allowOverwrite: true,
+    })
+  } catch {
+    // Blob unavailable — stats were fetched successfully, cache skipped
+  }
   return data
 }
 
