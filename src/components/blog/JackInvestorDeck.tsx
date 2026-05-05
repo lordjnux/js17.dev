@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useCallback } from "react"
-import { cn } from "@/lib/utils"
 
 /* ─── Brand tokens ───────────────────────────────────────────────────────── */
 
@@ -142,7 +141,7 @@ const SLIDES = [
           ))}
         </div>
         <p className="text-sm leading-relaxed" style={{ color: J.text }}>
-          The problem isn't that drivers are careless. It's that <strong style={{ color: J.green }}>the tools demand attention they can't give</strong>. The road is looking at them. They're looking at a screen.
+          The problem is not that drivers are careless. The tools demand attention they cannot give. The road is right there &mdash; and the screen keeps asking for more.
         </p>
       </div>
     ),
@@ -156,7 +155,7 @@ const SLIDES = [
           className="rounded-xl p-4 text-center"
           style={{ background: `linear-gradient(135deg, ${J.green}15, ${J.blue}15)`, border: `1px solid ${J.green}33` }}
         >
-          <p className="text-lg font-bold font-mono" style={{ color: J.green }}>"Hey Jack, police ahead."</p>
+          <p className="text-lg font-bold font-mono" style={{ color: J.green }}>&ldquo;Hey Jack, police ahead.&rdquo;</p>
           <p className="text-xs mt-1" style={{ color: J.muted }}>Event reported, categorized, and visible to all nearby drivers in under 2 seconds.</p>
         </div>
         <div className="grid sm:grid-cols-2 gap-3">
@@ -322,7 +321,7 @@ const SLIDES = [
           style={{ background: `linear-gradient(135deg, ${J.green}12, ${J.blue}12)`, border: `1px solid ${J.green}30` }}
         >
           <p className="text-base sm:text-lg leading-relaxed" style={{ color: J.text }}>
-            "No single app owns driver safety data at scale. Waze owns the map layer. Google owns the routing layer. <strong style={{ color: J.green }}>Nobody owns the voice layer.</strong>"
+            &ldquo;No single app owns driver safety data at scale. Waze owns the map layer. Google owns the routing layer. <strong style={{ color: J.green }}>Nobody owns the voice layer.</strong>&rdquo;
           </p>
         </div>
         <div className="grid grid-cols-3 gap-4">
