@@ -134,6 +134,14 @@ export async function POST(req: NextRequest) {
     )
   }
 
+  const intention = (body as Record<string, unknown>)?.intention
+  if (intention !== "tester" && intention !== "investor" && intention !== "both") {
+    return NextResponse.json(
+      { error: "Please select how you would like to be involved with Jack." },
+      { status: 422 }
+    )
+  }
+
   const email = rawEmail.toLowerCase().trim()
 
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
@@ -155,7 +163,7 @@ export async function POST(req: NextRequest) {
     const BLOB_PATH = "jack/waitlist.json"
     const { blobs } = await list({ prefix: BLOB_PATH })
 
-    type WaitlistEntry = { email: string; joinedAt: string; legalVersion: string }
+    type WaitlistEntry = { email: string; intention: string; joinedAt: string; legalVersion: string }
     let waitlist: WaitlistEntry[] = []
 
     if (blobs.length > 0) {
@@ -165,10 +173,10 @@ export async function POST(req: NextRequest) {
     }
 
     if (waitlist.some((e) => e.email === email)) {
-      return NextResponse.json({ message: "You are already on the list — we will notify you when Jack v1.0 ships." })
+      return NextResponse.json({ message: "You are already on the list — we will be in touch." })
     }
 
-    waitlist.push({ email, joinedAt: new Date().toISOString(), legalVersion: legalVersionString() })
+    waitlist.push({ email, intention: intention as string, joinedAt: new Date().toISOString(), legalVersion: legalVersionString() })
 
     await put(BLOB_PATH, JSON.stringify(waitlist), {
       access: "public",
@@ -177,20 +185,33 @@ export async function POST(req: NextRequest) {
       allowOverwrite: true,
     })
 
-    // Confirmation email (non-blocking)
     if (process.env.RESEND_API_KEY) {
       const resend = getResend()
       const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://js17.dev"
+      const from = "Jeroham @ js17.dev <news@js17.dev>"
+
+      // Confirmation to the registrant (non-blocking)
       resend.emails.send({
-        from: "Jeroham @ js17.dev <news@js17.dev>",
+        from,
         to: email,
         subject: "You are on the Jack waitlist",
         html: buildConfirmationEmail(siteUrl),
-        text: `You're on the Jack waitlist.\n\nJack v1.0 is on its way to the Google Play Store. You'll get one email when it ships — no spam.\n\n— Jeroham Sanchez\nhttps://js17.dev`,
+        text: `You're on the Jack waitlist.\n\nJack v1.0 is on its way to the Google Play Store. You'll hear from us — no spam.\n\n— Jeroham Sanchez\nhttps://js17.dev`,
       }).catch(() => {})
+
+      // Notify admin when an investor or both signs up (non-blocking)
+      if ((intention === "investor" || intention === "both") && process.env.RESEND_TO_EMAIL) {
+        const intentionLabel = intention === "both" ? "Investor + Tester" : "Investor"
+        resend.emails.send({
+          from,
+          to: process.env.RESEND_TO_EMAIL,
+          subject: `Jack waitlist — new ${intentionLabel}: ${email}`,
+          text: `New Jack waitlist signup.\n\nEmail: ${email}\nIntention: ${intentionLabel}\nTime: ${new Date().toISOString()}\n\nThis person expressed interest in investing in Jack. Follow up when appropriate.`,
+        }).catch(() => {})
+      }
     }
 
-    return NextResponse.json({ message: "You're on the list. We'll email you when Jack v1.0 is ready." })
+    return NextResponse.json({ message: "You're on the list." })
   } catch {
     return NextResponse.json({ error: "Something went wrong. Please try again." }, { status: 500 })
   }
