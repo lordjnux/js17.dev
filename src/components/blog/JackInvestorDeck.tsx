@@ -118,7 +118,7 @@ function RoadmapItem({ phase, label, items, color }: { phase: string; label: str
 const SLIDES = [
   {
     tag: "01 — THE PROBLEM",
-    title: "Every navigation app was designed for someone who isn't driving.",
+    title: "Reporting a hazard on Waze takes a tap — three seconds, eyes off the road.",
     render: () => (
       <div className="space-y-5">
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
