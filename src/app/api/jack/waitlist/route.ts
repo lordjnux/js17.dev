@@ -10,47 +10,47 @@ const resolveMx = promisify(dns.resolveMx)
 // ─── Email template ───────────────────────────────────────────────────────────
 
 function buildConfirmationEmail(siteUrl: string): string {
+  const features = [
+    'Say "Hey Jack" — no screen, no button, just your voice',
+    "See something on the road? Report it instantly — every driver nearby knows",
+    "Get warned before you reach a hazard, police checkpoint, or accident",
+    "Bluetooth auto-start — Jack turns on when your car does",
+    "Navigation turns read aloud — no glancing at the screen",
+  ].map((f) => `<p style="margin:0 0 8px;font-size:13px;color:#9ca3af;padding-left:12px;border-left:2px solid #16c784;">${f}</p>`).join("")
+
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="color-scheme" content="dark">
-  <title>You&apos;re on the Jack waitlist</title>
+  <title>You are on the Jack waitlist</title>
 </head>
-<body style="margin:0;padding:0;background-color:#0b0b1e;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;">
-  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color:#0b0b1e;">
+<body style="margin:0;padding:0;background-color:#0b0b1e;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Arial,sans-serif;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
     <tr>
       <td align="center" style="padding:32px 16px 40px;">
-        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width:520px;width:100%;">
-          <tr><td style="height:3px;border-radius:3px 3px 0 0;background:linear-gradient(90deg,#16c784,#4a9eff);font-size:0;line-height:0;">&nbsp;</td></tr>
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width:520px;">
+          <tr><td style="height:3px;background:linear-gradient(90deg,#16c784,#4a9eff);font-size:0;line-height:0;">&nbsp;</td></tr>
           <tr>
-            <td style="background:#10102a;border-radius:0 0 16px 16px;padding:36px 40px 32px;box-shadow:0 4px 40px rgba(0,0,0,0.4);border:1px solid #1e1e40;border-top:none;">
-              <p style="margin:0 0 6px;font-family:'Courier New',monospace;font-size:22px;font-weight:900;letter-spacing:6px;color:#e0e0e0;">JACK</p>
+            <td style="background:#10102a;padding:36px 36px 28px;border:1px solid #1e1e40;border-top:none;">
+              <p style="margin:0 0 4px;font-size:22px;font-weight:900;letter-spacing:6px;color:#e0e0e0;">JACK</p>
               <p style="margin:0 0 28px;font-size:11px;font-weight:600;letter-spacing:3px;color:#16c784;text-transform:uppercase;">Driver Assistant</p>
-              <h1 style="margin:0 0 16px;font-size:22px;font-weight:800;color:#e0e0e0;line-height:1.3;letter-spacing:-0.4px;">You&apos;re on the list.</h1>
-              <p style="margin:0 0 20px;font-size:15px;color:#9ca3af;line-height:1.75;">
-                Jack v1.0 is on its way to the Google Play Store. When it&apos;s ready, you&apos;ll be the first to know &mdash; one email, no noise.
+              <h1 style="margin:0 0 14px;font-size:20px;font-weight:800;color:#e0e0e0;line-height:1.3;">You are on the list.</h1>
+              <p style="margin:0 0 24px;font-size:14px;color:#9ca3af;line-height:1.7;">
+                Jack v1.0 is heading to the Google Play Store. The moment it is ready, you will be the first to know. One email. No noise.
               </p>
-              <div style="background:#0b0b1e;border-radius:12px;border:1px solid #1e1e40;padding:20px 24px;margin:0 0 28px;">
-                <p style="margin:0 0 12px;font-size:12px;font-weight:700;letter-spacing:2px;color:#4a9eff;text-transform:uppercase;">What&apos;s coming in v1.0</p>
-                ${[
-                  "Wake word: say \"Hey Jack\" — no screen, no tap",
-                  "Community road reports in real time via Firestore",
-                  "GPS proximity alerts at 500m, 300m, 200m",
-                  "Bluetooth auto-start when your car connects",
-                  "Navigation relay from Google Maps / Waze",
-                ].map(item => `<p style="margin:0 0 8px;font-size:13px;color:#6b7280;display:flex;gap:8px;"><span style="color:#16c784;flex-shrink:0;">&#8250;</span> ${item}</p>`).join("")}
-              </div>
-              <p style="margin:28px 0 4px;font-size:13px;font-weight:700;color:#e0e0e0;">Jeroham Sanchez</p>
+              <p style="margin:0 0 12px;font-size:11px;font-weight:700;letter-spacing:2px;color:#4a9eff;text-transform:uppercase;">What Jack does</p>
+              ${features}
+              <p style="margin:28px 0 2px;font-size:13px;font-weight:700;color:#e0e0e0;">Jeroham Sanchez</p>
               <p style="margin:0;font-size:12px;color:#6b7280;">Builder of Jack &mdash; <a href="${siteUrl}" style="color:#6b7280;text-decoration:none;">js17.dev</a></p>
             </td>
           </tr>
           <tr>
-            <td style="padding:16px 8px 4px;text-align:center;">
-              <p style="margin:0;font-size:11px;color:#4b5563;line-height:1.65;">
-                You joined the Jack waitlist at js17.dev/blog/jack-driver-assistant.<br>
-                Your data is handled under our <a href="${siteUrl}/legal/privacy" style="color:#4b5563;">Privacy Policy</a> and <a href="${siteUrl}/legal/habeas-data" style="color:#4b5563;">Habeas Data Policy</a>.
+            <td style="padding:14px 8px;text-align:center;">
+              <p style="margin:0;font-size:11px;color:#4b5563;line-height:1.6;">
+                You joined the Jack waitlist at js17.dev.<br>
+                <a href="${siteUrl}/legal/privacy" style="color:#4b5563;">Privacy Policy</a> &nbsp;&middot;&nbsp;
+                <a href="${siteUrl}/legal/habeas-data" style="color:#4b5563;">Habeas Data Policy</a>
               </p>
             </td>
           </tr>
@@ -73,7 +73,7 @@ const DISPOSABLE_DOMAINS = new Set([
   "throwaway.email", "spam4.me", "trashmail.me", "getairmail.com",
 ])
 
-// ─── Rate limiting: 3 attempts per hour per IP ────────────────────────────────
+// ─── Rate limit: 3 per hour per IP ───────────────────────────────────────────
 
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>()
 
@@ -96,15 +96,43 @@ async function hasMxRecord(domain: string): Promise<boolean> {
     const check = new Promise<boolean>((resolve) => {
       resolveMx(domain)
         .then((mx) => resolve(mx.length > 0))
-        .catch((err: NodeJS.ErrnoException) => {
-          resolve(err.code !== "ENOTFOUND")
-        })
+        .catch((err: NodeJS.ErrnoException) => resolve(err.code !== "ENOTFOUND"))
     })
     const timeout = new Promise<boolean>((resolve) => setTimeout(() => resolve(true), 4000))
     return await Promise.race([check, timeout])
   } catch {
     return true
   }
+}
+
+// ─── Blob helpers ─────────────────────────────────────────────────────────────
+
+const BLOB_PATH = "jack/waitlist.json"
+const BLOB_TOKEN = process.env.BLOB_READ_WRITE_TOKEN
+
+type WaitlistEntry = { email: string; intention: string; joinedAt: string; legalVersion: string }
+
+async function readWaitlist(): Promise<WaitlistEntry[]> {
+  try {
+    const { blobs } = await list({ prefix: BLOB_PATH, token: BLOB_TOKEN })
+    if (blobs.length === 0) return []
+    const res = await fetch(blobs[0].url, { cache: "no-store" })
+    if (!res.ok) return []
+    const raw: unknown = await res.json()
+    return Array.isArray(raw) ? (raw as WaitlistEntry[]) : []
+  } catch {
+    return []
+  }
+}
+
+async function writeWaitlist(entries: WaitlistEntry[]): Promise<void> {
+  await put(BLOB_PATH, JSON.stringify(entries), {
+    access: "public",
+    contentType: "application/json",
+    addRandomSuffix: false,
+    allowOverwrite: true,
+    token: BLOB_TOKEN,
+  })
 }
 
 // ─── Handler ──────────────────────────────────────────────────────────────────
@@ -116,25 +144,16 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Too many requests. Try again later." }, { status: 429 })
   }
 
-  let body: unknown
-  try { body = await req.json() } catch {
-    return NextResponse.json({ error: "Invalid request" }, { status: 400 })
+  // Parse body
+  let body: Record<string, unknown>
+  try {
+    body = await req.json() as Record<string, unknown>
+  } catch {
+    return NextResponse.json({ error: "Invalid request." }, { status: 400 })
   }
 
-  const rawEmail = (body as Record<string, unknown>)?.email
-  if (typeof rawEmail !== "string") {
-    return NextResponse.json({ error: "Email is required" }, { status: 400 })
-  }
-
-  const legalAccepted = (body as Record<string, unknown>)?.legalAccepted
-  if (legalAccepted !== true) {
-    return NextResponse.json(
-      { error: "You must accept the Privacy Policy and Habeas Data Policy to join." },
-      { status: 422 }
-    )
-  }
-
-  const intention = (body as Record<string, unknown>)?.intention
+  // Validate intention
+  const intention = body?.intention
   if (intention !== "tester" && intention !== "investor" && intention !== "both") {
     return NextResponse.json(
       { error: "Please select how you would like to be involved with Jack." },
@@ -142,10 +161,24 @@ export async function POST(req: NextRequest) {
     )
   }
 
+  // Validate legal
+  if (body?.legalAccepted !== true) {
+    return NextResponse.json(
+      { error: "You must accept the Privacy Policy and Habeas Data Policy to join." },
+      { status: 422 }
+    )
+  }
+
+  // Validate email format
+  const rawEmail = body?.email
+  if (typeof rawEmail !== "string" || !rawEmail.trim()) {
+    return NextResponse.json({ error: "Email is required." }, { status: 400 })
+  }
+
   const email = rawEmail.toLowerCase().trim()
 
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
-    return NextResponse.json({ error: "That doesn't look like a valid email address." }, { status: 422 })
+    return NextResponse.json({ error: "That does not look like a valid email address." }, { status: 422 })
   }
 
   const domain = email.split("@")[1]
@@ -159,60 +192,57 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "That email domain does not appear to be valid." }, { status: 422 })
   }
 
+  // Read current waitlist
+  const waitlist = await readWaitlist()
+
+  if (waitlist.some((e) => e.email === email)) {
+    return NextResponse.json({ message: "You are already on the list. We will be in touch." })
+  }
+
+  // Save new entry
+  waitlist.push({
+    email,
+    intention: intention as string,
+    joinedAt: new Date().toISOString(),
+    legalVersion: legalVersionString(),
+  })
+
   try {
-    const BLOB_PATH = "jack/waitlist.json"
-    const { blobs } = await list({ prefix: BLOB_PATH })
+    await writeWaitlist(waitlist)
+  } catch (err) {
+    console.error("[jack/waitlist] blob write failed:", err)
+    return NextResponse.json({ error: "Something went wrong. Please try again." }, { status: 500 })
+  }
 
-    type WaitlistEntry = { email: string; intention: string; joinedAt: string; legalVersion: string }
-    let waitlist: WaitlistEntry[] = []
+  // Send emails — fully non-blocking, never fail the request
+  if (process.env.RESEND_API_KEY) {
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://js17.dev"
+    const from = "Jeroham @ js17.dev <news@js17.dev>"
 
-    if (blobs.length > 0) {
-      const res = await fetch(blobs[0].url, { cache: "no-store" })
-      const raw = await res.json() as WaitlistEntry[]
-      waitlist = Array.isArray(raw) ? raw : []
-    }
-
-    if (waitlist.some((e) => e.email === email)) {
-      return NextResponse.json({ message: "You are already on the list — we will be in touch." })
-    }
-
-    waitlist.push({ email, intention: intention as string, joinedAt: new Date().toISOString(), legalVersion: legalVersionString() })
-
-    await put(BLOB_PATH, JSON.stringify(waitlist), {
-      access: "public",
-      contentType: "application/json",
-      addRandomSuffix: false,
-      allowOverwrite: true,
-    })
-
-    if (process.env.RESEND_API_KEY) {
+    try {
       const resend = getResend()
-      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://js17.dev"
-      const from = "Jeroham @ js17.dev <news@js17.dev>"
 
-      // Confirmation to the registrant (non-blocking)
       resend.emails.send({
         from,
         to: email,
         subject: "You are on the Jack waitlist",
         html: buildConfirmationEmail(siteUrl),
-        text: `You're on the Jack waitlist.\n\nJack v1.0 is on its way to the Google Play Store. You'll hear from us — no spam.\n\n— Jeroham Sanchez\nhttps://js17.dev`,
+        text: `You are on the Jack waitlist.\n\nJack v1.0 is on its way to the Google Play Store. You will hear from us — no spam.\n\n— Jeroham Sanchez\nhttps://js17.dev`,
       }).catch(() => {})
 
-      // Notify admin when an investor or both signs up (non-blocking)
       if ((intention === "investor" || intention === "both") && process.env.RESEND_TO_EMAIL) {
-        const intentionLabel = intention === "both" ? "Investor + Tester" : "Investor"
+        const label = intention === "both" ? "Investor + Tester" : "Investor"
         resend.emails.send({
           from,
           to: process.env.RESEND_TO_EMAIL,
-          subject: `Jack waitlist — new ${intentionLabel}: ${email}`,
-          text: `New Jack waitlist signup.\n\nEmail: ${email}\nIntention: ${intentionLabel}\nTime: ${new Date().toISOString()}\n\nThis person expressed interest in investing in Jack. Follow up when appropriate.`,
+          subject: `Jack waitlist — new ${label}: ${email}`,
+          text: `New Jack waitlist signup.\n\nEmail: ${email}\nRole: ${label}\nTime: ${new Date().toISOString()}\n\nFollow up when appropriate.`,
         }).catch(() => {})
       }
+    } catch {
+      // email failure never blocks the success response
     }
-
-    return NextResponse.json({ message: "You're on the list." })
-  } catch {
-    return NextResponse.json({ error: "Something went wrong. Please try again." }, { status: 500 })
   }
+
+  return NextResponse.json({ message: "You are on the list." })
 }
