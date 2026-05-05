@@ -119,11 +119,11 @@ export function JackWaitlist() {
         setStatus("success")
       } else {
         setStatus("error")
-        setMessage(data.error || "Something went wrong. Try again.")
+        setMessage(data.error || "Something went wrong. Please try again.")
       }
     } catch {
       setStatus("error")
-      setMessage("Network error. Please try again.")
+      setMessage("Something went wrong. Please try again.")
     }
   }
 
