@@ -1,0 +1,151 @@
+---
+title: "Jack: I Built the Co-Pilot I Wished I Had on the Road"
+description: "Jack is a voice-first Android driver assistant — no maps, no screens, just your voice and a community of drivers keeping each other safe in real time. Here's why I built it, how it works, and what the road ahead looks like."
+date: "2026-05-04T09:00"
+tags: ["Mobile", "React Native", "Android", "Voice AI", "Firebase", "Kotlin", "Startup"]
+readingTime: 9
+published: true
+---
+
+I almost missed a police checkpoint at 110 km/h because I glanced at Waze to tap "Report."
+
+That moment is why Jack exists.
+
+Not because I hate Waze. I actually love Waze. But Waze — like every navigation app ever built — assumes you have a free hand and a free eye. You don't. The road is right there. And the second your attention goes to a screen, you're gambling.
+
+I wanted an assistant that understood that constraint at the design level. Not a better map. Not a smarter route. A co-pilot that never asks you to look away.
+
+That's Jack. And I built the first working version in 72 hours.
+
+---
+
+## What Jack Does
+
+The premise is brutally simple: **every interaction is voice**. You speak to Jack. Jack speaks back. The screen is irrelevant.
+
+<ImpactGrid>
+  <ImpactMetric value={0} label="Screen Taps Required" comparison="Full trip management by voice from start to finish" color="green" />
+  <ImpactMetric value={2} label="Sprints to Working MVP" comparison="Phase 1 + Phase 2 shipped and running on device" color="blue" />
+  <ImpactMetric value={500} suffix="m" label="Proximity Alert Radius" comparison="Three-stage TTS warning before you reach any hazard" color="orange" />
+  <ImpactMetric value={120} label="Min Report Lifespan" comparison="Community alerts auto-expire — the map always stays fresh" color="purple" />
+</ImpactGrid>
+
+---
+
+## The MVP Feature Set
+
+Here's exactly what's live and what's shipping next:
+
+### Always-On Background Service
+
+The first thing I had to solve was survival. Android kills apps the moment they go to the background. A driver assistant that dies when you minimize it is useless.
+
+Jack runs as an **Android foreground service** — the same pattern Spotify, Google Maps, and Waze use to stay alive. A persistent notification tells the OS: *this one stays*. Jack earns its place in the system tray and it never lets go.
+
+### "Hey Jack" — Wake Word Activation
+
+You don't open the app. You don't tap a button. You say **"Hey Jack"** and the assistant wakes up, ready for your next command. Hands on the wheel. Eyes on the road.
+
+The voice state machine runs through five states in sequence:
+
+- **Listening** — always-on passive mode, waiting for the wake word
+- **Command** — wake word received, listening for instruction
+- **Processing** — categorizing the input
+- **Destination** — confirming where you want to go
+- **Idle** — session complete, back to passive listening
+
+### Community Road Reports
+
+When you say *"Hey Jack, police ahead"* — that event is categorized, timestamped, tagged with your GPS coordinates, and pushed to **Firebase Firestore** in under 2 seconds. Every Jack user on the same road sees it immediately.
+
+Four categories in v0.1.1, recognized by natural language keywords:
+
+| What you say | What Jack logs |
+|---|---|
+| police / cop / officer / radar | `POLICE_AHEAD` |
+| accident / crash / collision / wreck | `ACCIDENT` |
+| hazard / pothole / debris / obstacle | `ROAD_HAZARD` |
+| traffic / jam / slow / congestion | `TRAFFIC_JAM` |
+
+Every report auto-expires after **120 minutes**. No stale data. No manual cleanup. The community map is always current.
+
+### GPS Proximity Alerts
+
+Every 10 seconds — every 20 meters — Jack checks your position against active community reports. When you close in on one, Jack speaks:
+
+- **500 m** — first heads up
+- **300 m** — closing in warning
+- **200 m** — final alert before you're on it
+
+You knew before you got there. That's the point.
+
+### Navigation Relay
+
+Jack intercepts turn-by-turn notifications from **Google Maps** and **Waze** via Android's `NotificationListenerService` and reads them aloud through the speaker. You don't switch apps. You don't glance at a banner. Jack handles it.
+
+Your nav app of choice keeps working exactly as it always did. Jack just removes the screen from the equation.
+
+### Bluetooth Auto-Activation *(shipping next)*
+
+The friction of opening an app and tapping START goes to zero. When your phone pairs with your car's Bluetooth, Jack starts automatically — session open, listening active, ready to go. Arrive at the car, plug in, drive. Jack is already there.
+
+This is handled via an Android `BroadcastReceiver` listening for `BluetoothDevice.ACTION_ACL_CONNECTED` — registered in the manifest, fires on connection, triggers the foreground service. No user interaction required.
+
+### Onboarding — One Time, Two Steps
+
+First launch: Jack asks your name and your preferred navigation app (Google Maps or Waze). That's it. Stored in `SharedPreferences`. Never asked again. Every trip after that: open the app, tap START, put the phone down.
+
+---
+
+## The Investor Deck
+
+I'm not building a feature. I'm building a platform. Here's the full case:
+
+<JackInvestorDeck />
+
+---
+
+## The Stack
+
+Every technology decision was made against one constraint: **build fast, run permanently**.
+
+- **Expo SDK 53 + React Native 0.79** — fast cross-platform scaffolding with a direct Kotlin escape hatch for the parts that need to be native
+- **Kotlin** — the entire Android layer: `JackForegroundService`, `JackSpeechManager`, `JackNotificationListenerService`, `JackFirestoreManager`, `JackProximityChecker`
+- **Firebase Firestore** — real-time document sync for community reports; no server to operate, no infrastructure to maintain
+- **Android Foreground Service** — OS-guaranteed runtime; survives backgrounding, screen lock, and battery optimization
+- **TypeScript** — strict typing across the JS/native boundary keeps the bridge honest
+
+What's missing from this list is intentional. No custom backend. No database to run. No DevOps. The intelligence lives in the device and in Firestore. That's not a limitation — it's the architecture.
+
+---
+
+## The Roadmap
+
+Jack at v0.1.1 is a proof of concept that runs on real hardware and solves real problems. Here's where it goes from here:
+
+**Phase 3 — AI Brain**
+Replace keyword matching with **GPT-4o intent recognition**. Natural language commands. *"Hey Jack, I need to stop for gas in about 10 minutes"* becomes an actionable request, not a confused silence. Deep **Google Maps API** integration so Jack can set your destination by voice and reroute mid-trip without you ever opening Maps.
+
+**Phase 4 — Platform Expansion**
+Bluetooth auto-activation ships. iOS + Apple CarPlay support arrives (Swift equivalent of the Kotlin native layer). Offline event caching for connectivity dead zones. Google Play Store launch with package `dev.js17.jack` — already production-ready in the manifest.
+
+**Phase 5 — Monetization & Data**
+Premium subscription tier with AI features, custom wake words, and trip history. Fleet management SaaS for logistics companies. Anonymized road event data licensing to municipalities and insurers. Insurance partnership program for usage-based discount integration.
+
+---
+
+## Why This Matters
+
+I've been building software for years. I've shipped production systems, pipelines, APIs, platforms. Jack is different from all of them — because it's personal.
+
+This problem has a cost measured in lives, not in latency or uptime.
+
+The market Waze proved in 2013 — community-sourced road intelligence at scale — still has no voice-first equivalent. Nobody owns that layer. Every navigation company left it on the table because they were focused on the map.
+
+Jack owns the voice layer.
+
+That's the bet. And it started with 72 hours, two sprints, and a close call at 110 km/h.
+
+---
+
+*Jack is currently in active development. If you're interested in investing, partnering, or beta testing — reach out.*

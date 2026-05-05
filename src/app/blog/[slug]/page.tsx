@@ -21,6 +21,7 @@ import { ArchitectureScene } from "@/components/blog/ArchitectureScene"
 import { DashboardShowcase, PipelineFlow, ImpactGrid, ImpactMetric } from "@/components/blog/DashboardShowcase"
 import { InfrastructureBlueprint, ProviderGrid, ProviderDetail } from "@/components/blog/InfrastructureBlueprint"
 import { ArticleVideos } from "@/components/blog/ArticleVideos"
+import { JackInvestorDeck } from "@/components/blog/JackInvestorDeck"
 
 export async function generateStaticParams() {
   const posts = getAllPosts()
@@ -98,6 +99,7 @@ export default async function BlogPostPage({
       InfrastructureBlueprint,
       ProviderGrid,
       ProviderDetail,
+      JackInvestorDeck,
     },
   })
 
