@@ -60,12 +60,10 @@ When you say *"Hey Jack, police ahead"* — that event is categorized, timestamp
 
 Four categories in v0.1.1, recognized by natural language keywords:
 
-| | Say any of these | Jack broadcasts |
-|:---:|---|---|
-| 🚔 | police · cop · officer · radar | Police checkpoint — visible to all nearby drivers |
-| 💥 | accident · crash · collision · wreck | Accident on the road — tagged with your GPS |
-| ⚠️ | hazard · pothole · debris · obstacle | Road hazard ahead — exact location pinned |
-| 🚦 | traffic · jam · slow · congestion | Congestion zone — duration tracked until expiry |
+- 🚔 **Police checkpoint** — keywords: *police, cop, officer, radar* — broadcast to all nearby drivers instantly
+- 💥 **Accident on the road** — keywords: *accident, crash, collision, wreck* — tagged with your exact GPS coordinates
+- ⚠️ **Road hazard ahead** — keywords: *hazard, pothole, debris, obstacle* — exact location pinned on the community map
+- 🚦 **Congestion zone** — keywords: *traffic, jam, slow, congestion* — duration tracked until the report expires
 
 Every report auto-expires after **120 minutes**. No stale data. No manual cleanup. The community map is always current.
 
