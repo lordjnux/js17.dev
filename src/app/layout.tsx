@@ -7,6 +7,8 @@ import { SITE_CONFIG } from "@/lib/constants"
 import { PersonJsonLd } from "@/components/shared/JsonLd"
 import { SessionProvider } from "@/components/providers/SessionProvider"
 import { ThemeInitializer } from "@/components/providers/ThemeInitializer"
+import { getServerSession } from "next-auth"
+import { authOptions } from "@/lib/auth"
 import "./globals.css"
 
 export const metadata: Metadata = {
@@ -50,12 +52,14 @@ export const metadata: Metadata = {
   },
 }
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const session = await getServerSession(authOptions).catch(() => null)
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${inter.variable} ${jetbrainsMono.variable} font-sans`}>
         <PersonJsonLd />
-        <SessionProvider>
+        <SessionProvider session={session}>
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"

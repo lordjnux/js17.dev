@@ -7,13 +7,17 @@ import { LogoMark } from "@/components/shared/Logo"
 import { NAV_ITEMS, SITE_CONFIG } from "@/lib/constants"
 import { cn } from "@/lib/utils"
 import { useState, useEffect } from "react"
-import { Menu, X, Github, Linkedin } from "lucide-react"
+import { Menu, X, Github, Linkedin, ShieldCheck, Lock } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { useSession, signOut } from "next-auth/react"
+import { ADMIN_EMAIL } from "@/lib/auth"
 
 export function Header() {
   const pathname = usePathname()
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
+  const { data: session, status } = useSession()
+  const isAdmin = session?.user?.email === ADMIN_EMAIL
 
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 20)
@@ -80,6 +84,27 @@ export function Header() {
             <Linkedin className="h-4 w-4" />
           </Link>
           <CVDownloadButton size="sm" className="hidden md:inline-flex" />
+          {status !== "loading" && (
+            isAdmin ? (
+              <button
+                onClick={() => signOut({ callbackUrl: "/" })}
+                className="hidden md:inline-flex items-center gap-1.5 text-xs font-mono text-green-500 hover:text-green-400 transition-colors px-2 py-1 rounded-md border border-green-500/20 hover:border-green-500/40"
+                title="Signed in as admin — click to sign out"
+              >
+                <ShieldCheck className="h-3.5 w-3.5" />
+                Admin
+              </button>
+            ) : (
+              <Link
+                href="/auth/signin"
+                className="hidden md:inline-flex text-muted-foreground hover:text-foreground transition-colors p-1.5"
+                aria-label="Admin sign in"
+                title="Admin sign in"
+              >
+                <Lock className="h-3.5 w-3.5" />
+              </Link>
+            )
+          )}
           <Button
             variant="ghost"
             size="icon"
