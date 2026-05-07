@@ -1,0 +1,109 @@
+---
+title: "I Already Knew How to Do This. AI Lets Me Do All of It at Once."
+description: "A 15-year engineer on the absurdity of AI skepticism in hiring — and why asking a senior to prove they can write code by hand is the wrong question entirely."
+date: "2026-05-07T09:00"
+tags: ["AI", "Hiring", "Engineering", "Career", "Productivity", "Opinion"]
+readingTime: 7
+published: true
+author: "Jeroham Sanchez"
+---
+
+There is a conversation happening in hiring right now that I find genuinely puzzling.
+
+It goes like this: a senior engineer with 15 years of production experience applies for a role. The company sees that this engineer uses AI tools daily. The interview process then proceeds to verify — with a straight face — whether they can still write a binary search from memory, whiteboard a linked list reversal, or produce a REST endpoint in a shared doc with no autocomplete.
+
+I have been in that room. I have sat through that process. This post is about why it is the wrong question, and what the right one is.
+
+---
+
+## What I Was Doing Before AI Existed
+
+In 2010, I was designing system architectures by hand — reading RFC documents, drawing dependency graphs on whiteboards, writing infrastructure scripts in Bash because there was no other option.
+
+In 2014, I was debugging distributed systems by reading raw logs, correlating timestamps across five services, tracing network failures with `tcpdump` because the tooling we have now did not exist.
+
+In 2018, I was writing CI/CD pipelines from scratch. Designing database schemas with normalization in my head. Reviewing PRs for security vulnerabilities by pattern recognition built from years of reading CVEs and postmortems.
+
+In 2022, I was architecting multi-tenant SaaS platforms. Evaluating trade-offs between event-driven and request-response patterns. Estimating infrastructure costs before writing a single line of code.
+
+I already knew how to do every piece of this — separately, sequentially, with significant time between each step.
+
+---
+
+## What AI Changed
+
+AI did not teach me how to build systems. It gave me a force multiplier on the expertise I already had.
+
+The shift is not "AI writes the code so I don't have to think." The shift is **orchestration at a different altitude**.
+
+Before: I could design the architecture, *then* implement it, *then* write the tests, *then* document it — each step sequential, each requiring a context switch.
+
+Now: I hold the architecture in my head, use AI as a real-time execution layer for the parts that are mechanically complex but intellectually solved, and redirect my judgment toward the parts that are not — the trade-offs, the edge cases, the security decisions, the business constraints.
+
+The analogy that fits best: I went from playing every instrument in the band one at a time to conducting an orchestra. I did not forget how to play the violin. I just stopped needing to play it *while also* playing the piano *while also* keeping the tempo.
+
+---
+
+## The Broken Ritual of Senior Hiring
+
+Here is what a good senior engineer evaluation should actually measure:
+
+**System design judgment.** Can this person see a problem statement and immediately identify the three ways the naive solution breaks at scale? Can they make a build-vs-buy call with real numbers? Can they spot the hidden coupling in an architecture diagram that will cause a 3am incident six months from now?
+
+**Debugging instinct.** Given a production failure with five competing hypotheses, can they eliminate four of them in ten minutes using the right signals? Do they know which metrics to look at first, and why?
+
+**Tradeoff literacy.** Can they argue both sides of a technical decision — consistency vs. availability, complexity vs. flexibility, speed vs. correctness — and then make a call they can defend to a business stakeholder?
+
+**Communication.** Can they write a technical spec that a product manager can read and a junior engineer can implement? Can they explain a database deadlock to a non-technical founder in three sentences?
+
+None of these skills involve typing code from memory in a shared editor while someone watches.
+
+---
+
+## What I Am Actually Being Evaluated For (And Why It's Backwards)
+
+When a company asks a 15-year engineer to prove they can write code by hand without AI tools, they are evaluating for the *removal* of a capability.
+
+It is the equivalent of asking a senior surgeon to demonstrate they can operate without a laparoscope before you will trust them with the robot-assisted procedure. The relevant question is not "can you do it manually?" The relevant question is "can you do it *correctly*, and can you use the best available tools to do it *reliably*?"
+
+I can write a Redis cache layer from scratch. I wrote several before Redis had the documentation quality it has today. The fact that I now use AI to generate the boilerplate in 90 seconds — while I focus on the eviction policy, the key design, and the failure mode when the cache is cold — does not represent a decline in capability. It represents the application of accumulated expertise to the decisions that actually matter.
+
+What concerns me about this skepticism is not that it is unfair to me. It is that it reveals a misunderstanding of what senior engineering expertise *is*.
+
+A senior engineer is not a person who can write 10,000 lines of code per week. A senior engineer is a person who knows which 500 lines to write, which 2,000 lines to not write, and which 7,500 lines already exist in a library they will pull in instead.
+
+AI extends that leverage to a new axis. It does not replace the judgment. It amplifies the throughput of the judgment.
+
+---
+
+## The Fair Version of the Question
+
+If you are interviewing an AI-augmented senior engineer and you want to know if the AI is a crutch or a multiplier, ask this instead:
+
+*"Walk me through a production decision you made recently where AI gave you a suggestion you rejected, and explain why."*
+
+That question has never once been asked of me in an interview. But it is the one that would actually tell you what you need to know.
+
+The answer reveals whether the engineer understands the problem deeply enough to override the tool — or whether they are blindly accepting outputs they cannot evaluate.
+
+In my case: I reject AI suggestions regularly. On security decisions. On data model choices. On API contract design. On error handling in distributed systems. Every rejection is backed by a reason drawn from fifteen years of seeing those specific decisions fail in production environments.
+
+That is the judgment you are paying for when you hire a senior engineer. That is what you miss when you spend the interview asking me to FizzBuzz.
+
+---
+
+## What This Looks Like in Practice
+
+This site — js17.dev — was designed, built, and deployed by one person.
+
+It has a full content pipeline that turns an MDX article into a YouTube Short and a long-form video in under three minutes. It has an AI-powered newsletter system, an abuse-resistant proposal intake form, a live credential verification system, a 3D architecture visualization, and a four-theme design system — all running on Vercel's free tier for under $36 a month.
+
+Before AI: I could have built any single one of those systems. With AI: I built all of them in the same sprint, at the same quality level, without lowering the bar on any individual component.
+
+The orchestration is the skill. Knowing *which* systems to build, in which order, with which trade-offs, at which cost — that is fifteen years of engineering judgment applied at maximum velocity.
+
+If your hiring process cannot see the difference between that and someone who memorized sorting algorithms, the problem is not with the engineer.
+
+---
+
+*If you are building something ambitious and want an engineer who thinks at this level, [I consult on architecture and AI integration](/proposal).*
