@@ -16,7 +16,6 @@ import {
   Zap,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { ADMIN_EMAIL } from "@/lib/auth"
 
 type Format = "short" | "long"
 
@@ -85,7 +84,7 @@ export function PublishVideoButton({ slug }: { slug: string }) {
   const [shortJob, setShortJob] = useState<FormatJob>(freshJob())
   const [longJob, setLongJob] = useState<FormatJob>(freshJob())
 
-  if (!session || session.user?.email !== ADMIN_EMAIL) return null
+  if (!session?.user?.isAdmin) return null
 
   const setter = (format: Format) => format === "short" ? setShortJob : setLongJob
   const getter = (format: Format) => format === "short" ? shortJob : longJob

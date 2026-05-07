@@ -10,14 +10,13 @@ import { useState, useEffect } from "react"
 import { Menu, X, Github, Linkedin, ShieldCheck, Lock } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useSession, signOut } from "next-auth/react"
-import { ADMIN_EMAIL } from "@/lib/auth"
 
 export function Header() {
   const pathname = usePathname()
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const { data: session, status } = useSession()
-  const isAdmin = session?.user?.email === ADMIN_EMAIL
+  const isAdmin = session?.user?.isAdmin === true
 
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 20)

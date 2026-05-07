@@ -95,6 +95,10 @@ export const authOptions: NextAuthOptions = {
     },
     async session({ session, token }) {
       session.accessToken = token.accessToken as string
+      if (session.user) {
+        session.user.email = token.email ?? null
+        session.user.isAdmin = token.email === ADMIN_EMAIL
+      }
       return session
     },
   },

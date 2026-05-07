@@ -4,7 +4,6 @@ import { useState } from "react"
 import { useSession } from "next-auth/react"
 import { Button } from "@/components/ui/button"
 import { Bell, Loader2, CheckCircle, X, Users, Sparkles } from "lucide-react"
-import { ADMIN_EMAIL } from "@/lib/auth"
 
 type State = "idle" | "sending" | "done" | "error" | "already-sent"
 
@@ -22,7 +21,7 @@ export function NotifySubscribersButton({ slug }: { slug: string }) {
   const [result, setResult] = useState<Result | null>(null)
   const [error, setError] = useState<string | null>(null)
 
-  if (!session || session.user?.email !== ADMIN_EMAIL) return null
+  if (!session?.user?.isAdmin) return null
 
   async function handleSend() {
     setState("sending")
