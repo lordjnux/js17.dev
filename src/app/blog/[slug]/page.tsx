@@ -20,7 +20,6 @@ import {
 import { ArchitectureScene } from "@/components/blog/ArchitectureScene"
 import { DashboardShowcase, PipelineFlow, ImpactGrid, ImpactMetric } from "@/components/blog/DashboardShowcase"
 import { InfrastructureBlueprint, ProviderGrid, ProviderDetail } from "@/components/blog/InfrastructureBlueprint"
-import { ArticleVideos } from "@/components/blog/ArticleVideos"
 import { JackInvestorDeck } from "@/components/blog/JackInvestorDeck"
 import { JackWaitlist } from "@/components/blog/JackWaitlist"
 
@@ -111,8 +110,6 @@ export default async function BlogPostPage({
         {/* Main content */}
         <article className="min-w-0 flex-1 max-w-3xl">
           <PostHeader frontmatter={post.frontmatter} />
-
-          <ArticleVideos slug={params.slug} />
 
           <div className="flex justify-between items-center mb-8">
             <div className="flex items-center gap-2">
