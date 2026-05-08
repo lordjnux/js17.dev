@@ -5,7 +5,6 @@ import Link from "next/link"
 import { ArrowRight, Calendar, Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { CVDownloadButton } from "@/components/shared/CVDownloadButton"
-import { SITE_CONFIG } from "@/lib/constants"
 
 const container = {
   hidden: { opacity: 0 },
