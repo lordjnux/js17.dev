@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { useSession } from "next-auth/react"
 import {
   Youtube,
   BarChart3,
@@ -11,8 +12,10 @@ import {
   Film,
   ExternalLink,
   Loader2,
+  RefreshCw,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { Button } from "@/components/ui/button"
 
 interface VideoStats {
   viewCount: number
@@ -39,22 +42,30 @@ interface Totals {
 }
 
 export default function YouTubeMetricsPage() {
+  const { data: session } = useSession()
+  const isAdmin = session?.user?.isAdmin === true
+
   const [videos, setVideos] = useState<VideoMetric[]>([])
   const [totals, setTotals] = useState<Totals>({ videos: 0, shorts: 0, longs: 0, views: 0, likes: 0, comments: 0 })
   const [loading, setLoading] = useState(true)
+  const [refreshing, setRefreshing] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [lastUpdated, setLastUpdated] = useState<string | null>(null)
   const [playlistId, setPlaylistId] = useState<string | null>(null)
+
+  function applyData(data: { videos: VideoMetric[]; totals: Totals; lastUpdated: string | null }) {
+    setVideos(data.videos)
+    setTotals(data.totals)
+    setLastUpdated(data.lastUpdated)
+  }
 
   useEffect(() => {
     fetch("/api/youtube/metrics")
       .then(async (res) => {
         if (!res.ok) throw new Error("Failed to load metrics")
-        const data = await res.json()
-        setVideos(data.videos)
-        setTotals(data.totals)
-        setLastUpdated(data.lastUpdated)
+        return res.json()
       })
+      .then(applyData)
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false))
 
@@ -63,6 +74,21 @@ export default function YouTubeMetricsPage() {
       .then((d) => setPlaylistId(d.playlistId ?? null))
       .catch(() => {})
   }, [])
+
+  async function handleRefresh() {
+    setRefreshing(true)
+    setError(null)
+    try {
+      const res = await fetch("/api/admin/youtube/metrics")
+      if (!res.ok) throw new Error("Refresh failed — make sure you are signed in as admin")
+      const data = await res.json()
+      applyData(data)
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Refresh failed")
+    } finally {
+      setRefreshing(false)
+    }
+  }
 
   const shortVideos = videos.filter((v) => v.format === "short")
   const longVideos = videos.filter((v) => v.format === "long")
@@ -85,18 +111,36 @@ export default function YouTubeMetricsPage() {
             </div>
           </div>
           <div className="flex flex-col items-end gap-2">
-            {playlistId && (
-              <a
-                href={`https://www.youtube.com/playlist?list=${playlistId}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground hover:border-red-500/30 transition-colors"
-              >
-                <Youtube className="h-3 w-3 text-red-500" />
-                View Playlist
-                <ExternalLink className="h-3 w-3" />
-              </a>
-            )}
+            <div className="flex items-center gap-2">
+              {isAdmin && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleRefresh}
+                  disabled={refreshing}
+                  className="gap-1.5 text-xs"
+                >
+                  {refreshing ? (
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                  ) : (
+                    <RefreshCw className="h-3 w-3" />
+                  )}
+                  Refresh Stats
+                </Button>
+              )}
+              {playlistId && (
+                <a
+                  href={`https://www.youtube.com/playlist?list=${playlistId}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground hover:border-red-500/30 transition-colors"
+                >
+                  <Youtube className="h-3 w-3 text-red-500" />
+                  View Playlist
+                  <ExternalLink className="h-3 w-3" />
+                </a>
+              )}
+            </div>
             {lastUpdated && (
               <p className="text-xs text-muted-foreground hidden sm:block text-right">
                 Last updated{" "}

@@ -1,7 +1,6 @@
 import { HeroSection } from "@/components/home/HeroSection"
 import { AboutSection } from "@/components/home/AboutSection"
 import { TechStackSection } from "@/components/home/TechStackSection"
-import { GitHubStatsSection } from "@/components/home/GitHubStatsSection"
 import { CertificationsSection } from "@/components/home/CertificationsSection"
 import { CTASection } from "@/components/home/CTASection"
 
@@ -15,7 +14,6 @@ export default function Home() {
       <TechStackSection />
       <CertificationsSection />
       <CTASection />
-      <GitHubStatsSection />
     </>
   )
 }

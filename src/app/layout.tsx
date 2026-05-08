@@ -59,7 +59,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     <html lang="en" suppressHydrationWarning>
       <body className={`${inter.variable} ${jetbrainsMono.variable} font-sans`}>
         <PersonJsonLd />
-        <SessionProvider session={session}>
+        <SessionProvider session={session ?? undefined}>
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"

@@ -87,12 +87,12 @@ export function HeroSection() {
 
             <Button size="xl" variant="ghost" asChild>
               <a
-                href={`https://cal.com/${SITE_CONFIG.calcom.username}/${SITE_CONFIG.calcom.eventType}`}
+                href="https://calendar.app.google/L4g1EYk1EUQpDWGK9"
                 target="_blank"
                 rel="noopener noreferrer"
               >
                 <Calendar className="mr-2 h-5 w-5" />
-                Schedule a Call
+                Schedule a Free Call
               </a>
             </Button>
           </motion.div>
