@@ -5,21 +5,23 @@ import { cn } from "@/lib/utils"
 
 /* ─── Hooks ──────────────────────────────────────────────────── */
 
-function useAnimatedValue(target: number, active: boolean, duration = 2000) {
+function useAnimatedValue(target: number, active: boolean, duration = 2000, decimals = 0) {
   const [value, setValue] = useState(0)
   useEffect(() => {
     if (!active) return
     let cancelled = false
     const start = performance.now()
+    const factor = Math.pow(10, decimals)
     const step = (now: number) => {
       if (cancelled) return
       const progress = Math.min((now - start) / duration, 1)
-      setValue(Math.round((1 - Math.pow(1 - progress, 3)) * target))
+      const raw = (1 - Math.pow(1 - progress, 3)) * target
+      setValue(Math.round(raw * factor) / factor)
       if (progress < 1) requestAnimationFrame(step)
     }
     requestAnimationFrame(step)
     return () => { cancelled = true }
-  }, [active, target, duration])
+  }, [active, target, duration, decimals])
   return value
 }
 
@@ -325,7 +327,9 @@ export function ImpactMetric({
   color?: "blue" | "green" | "red" | "purple" | "orange"
 }) {
   const { visible, ref } = useScrollReveal(0.3)
-  const count = useAnimatedValue(Number(value) || 0, visible, 2500)
+  const decimals = (Number(value) || 0) % 1 !== 0 ? 1 : 0
+  const count = useAnimatedValue(Number(value) || 0, visible, 2500, decimals)
+  const display = decimals > 0 ? count.toFixed(1) : count
 
   const colorMap: Record<string, { border: string; text: string; glow: string }> = {
     blue: { border: "border-blue-500/40", text: "text-blue-400", glow: "shadow-blue-500/10" },
@@ -346,7 +350,7 @@ export function ImpactMetric({
       )}
     >
       <div className={cn("text-4xl sm:text-5xl md:text-6xl font-black font-mono tracking-tight", c.text)}>
-        {prefix}{count}{suffix}
+        {prefix}{display}{suffix}
       </div>
       <div className="text-sm font-semibold mt-2">{label}</div>
       <div className="text-xs text-muted-foreground mt-1">{comparison}</div>
