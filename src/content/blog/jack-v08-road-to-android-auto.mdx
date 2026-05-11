@@ -1,0 +1,208 @@
+---
+title: "8 Versions in 10 Days: Jack Driver Assistant's Road to Android Auto"
+description: "From a weekend prototype to a full AI co-pilot that watches your route, reads the weather, controls your music, and shows up on your car screen — built in 10 focused days."
+date: "2026-05-10T09:00"
+tags: ["Mobile", "Android", "Voice AI", "Road Safety", "Startup", "Android Auto", "Build in Public"]
+readingTime: 9
+published: true
+---
+
+Ten days ago Jack was a voice assistant that said *"Hey, where are we going?"* and not much else.
+
+Today it watches your route while you drive, tells you about the weather before you leave, skips your Spotify track when you ask, warns you only about hazards that are actually in your path, points out the landmarks you can see through the windshield as you pass them, and puts your current navigation step on your car's screen.
+
+Eight versions. Ten days. One mission: keep your eyes on the road.
+
+Here is what changed — and why it matters to the people who drive every day.
+
+---
+
+## The baseline: what Jack already did
+
+If you missed [the first article](/blog/jack-driver-assistant), the short version: Jack is a voice-first Android co-pilot. Wake word. Community hazard reports. Turn-by-turn navigation. Zero screen taps required from the moment you start driving.
+
+Jack lives in the background the way Spotify does — always on, never killed by the phone. A floating button you can drag anywhere. A wake word that works even with your screen locked.
+
+What it did not have was awareness. It answered when you spoke. It did not volunteer anything. It did not adapt to what was happening around you. It did not talk to your car.
+
+That is what the last 10 days changed.
+
+---
+
+## What is new
+
+<ImpactGrid>
+  <ImpactMetric value={8} label="Versions Shipped" comparison="From a simple wake word to a full road co-pilot in 10 days" color="blue" />
+  <ImpactMetric value={0} label="Screen Taps Required" comparison="Every feature — start to finish — is voice only" color="green" />
+  <ImpactMetric value={100} suffix="%" label="Hands on Wheel" comparison="Jack handles the information. You handle the road." color="orange" />
+  <ImpactMetric value={1} suffix="B+" label="Android Auto Vehicles" comparison="The market Jack's car screen integration now targets" color="purple" />
+</ImpactGrid>
+
+---
+
+## Natural conversation, not robot commands
+
+The first versions of Jack understood keywords. Say *"police"* — filed a report. Say *"cancel"* — stopped the trip. Anything outside that narrow list and Jack went quiet.
+
+That is not how people talk at 80 km/h.
+
+Jack now understands natural Spanish — the kind you actually speak while driving, not the kind you rehearse before pressing a button.
+
+> *"Oye Jack, cuánto me falta?"*
+> *"Jack, qué viene después de esta vuelta?"*
+> *"Jack, cuánto tarda con este tráfico?"*
+
+All of those get real, conversational answers in under a second. And when there is no signal — a tunnel, a dead zone, the middle of nowhere — Jack falls back to its own built-in understanding instantly. No spinning. No silence. No waiting.
+
+The intelligence handles the messy, human part of the conversation. The safety logic stays rock-solid underneath. That is the right split for something people use at highway speed.
+
+---
+
+## Jack starts when your car does
+
+The original Jack required you to open the app before every drive.
+
+That is a deal-breaker for a product whose whole point is that you never have to touch your phone.
+
+Now Jack starts on its own — the moment your phone connects to your car via Bluetooth. No opening the app. No pressing anything. You sit down, the engine starts, and Jack is already there.
+
+If your phone restarts or the battery dies and comes back, Jack restarts too. It survives everything without needing you to do anything.
+
+The setup — the one time you do it — takes under two minutes. After that, Jack is just part of getting in the car.
+
+---
+
+## Jack tells you what to expect before you leave
+
+Every navigation app tells you the route after you ask for it. None of them tell you what is waiting for you before you back out of the driveway.
+
+Now, the moment you confirm your destination, Jack gives you a full briefing:
+
+**The weather.** Sky condition, temperature, and a heads-up if there is anything worth knowing — fog, rain, or icy roads on the way. Spoken in full, natural words. Not symbols. Not abbreviations.
+
+**The traffic.** Whether the route ahead is clear, moving slowly, or congested — before you commit to it. With a realistic time estimate based on what traffic is actually doing right now, not what it does on an average Tuesday.
+
+One announcement. Route, conditions, first instruction, go. You know everything in fifteen seconds without looking at a screen.
+
+---
+
+## Your co-pilot stays aware — so you do not have to
+
+This is the version where Jack stopped waiting to be asked and started paying attention on your behalf.
+
+### Music, by voice
+
+You are navigating and a song comes on you cannot stand. Or you want to hear the next one. Or you want to pause everything for a moment.
+
+Before this update: nothing you could do without grabbing your phone.
+
+Now: just say it.
+
+> *"Hey Jack, siguiente canción"*
+> *"Hey Jack, pausa"*
+> *"Hey Jack, reproduce"*
+
+Works with Spotify, YouTube Music, or any player currently active on your phone. Works while navigating. Works when you are not navigating. Jack knows the difference between a music command and a navigation command — it will not skip a song when you mean *"go to the next turn."*
+
+### If you miss a turn, Jack catches it
+
+Miss a turn. Take a wrong exit. End up somewhere you did not plan.
+
+Before: Jack kept announcing the step you had already passed, forever.
+
+Now: Jack notices when you have gone off your route — quietly, without jumping to conclusions on a single GPS blip — and tells you: *"Te saliste de la ruta. Recalculando..."*
+
+A new route appears. A new first instruction plays. You are back on track before you have had time to panic.
+
+### Route changes announced, not discovered
+
+Traffic does not stay the same for the length of a trip. A road that was clear when you left may have an accident by the time you reach it. A jam that was bad may have cleared.
+
+Jack watches your route while you drive. If things get significantly worse ahead, you hear it: *"Atención: hay más tráfico en la ruta."* If they get better: *"Buenas noticias: el tráfico mejoró."*
+
+You are not the one checking the map every few minutes. Jack is doing it for you — and only interrupts when something actually changed worth telling you about.
+
+### Hazard alerts that are actually relevant
+
+Community reports used to reach you no matter where they were — behind you, on a parallel street, on a road you had already passed.
+
+Now Jack only tells you about hazards that are ahead of you on your actual route. A report two blocks over on a street you are not taking stays silent. A report directly in your path speaks up.
+
+Fewer interruptions. Every alert you hear means something.
+
+### Landmarks as your guide
+
+When Jack tells you to turn, it now adds what you can see:
+
+> *"En 300 metros, gira a la derecha. Cerca puedes ver Frisby y el Edificio Bancolombia."*
+
+A landmark you can spot through the windshield before the turn confirms you are in the right place. You do not need the map. The world outside your window is the map.
+
+---
+
+## Jack on your car screen
+
+<Timeline>
+  <TimelineStep time="Week 1" label="Wake word, community hazard reports, shared alerts, GPS tracking" />
+  <TimelineStep time="Week 1" label="Turn-by-turn navigation by voice, destination by voice, mid-trip changes" />
+  <TimelineStep time="Week 2" label="Natural AI conversation, Bluetooth auto-start, full permission setup" />
+  <TimelineStep time="Week 2" label="Weather briefing, real-time traffic estimate before every trip" />
+  <TimelineStep time="Week 2" label="Music control, off-route detection, route-aware alerts, landmarks" />
+  <TimelineStep time="Week 2" label="Android Auto: Jack shows up on your car's built-in screen" />
+</Timeline>
+
+The latest version puts Jack on the screen that is already built into your car.
+
+When your phone connects to an Android Auto head unit, Jack appears in the car's app launcher. Your current navigation step — what Jack just said — appears on the dashboard display. A directional arrow shows you which way to go. A single button to cancel the trip if you need it.
+
+The screen is not a map. It is not a dashboard full of information. It is one line of text — the most important thing Jack is telling you right now — rendered on the screen you already have in front of you.
+
+You glance. You confirm. You look back at the road. Two seconds.
+
+Jack's voice remains the primary channel. The car screen is the ambient confirmation that it is working.
+
+**One note:** testing against a real Android Auto head unit is pending — the development phone does not support Android Auto projection. The feature is complete and ready; it ships validated as soon as a compatible device is in hand.
+
+---
+
+## The principle behind every decision
+
+Every feature in every version passes the same test before it ships:
+
+**Does this require the driver to look at a screen?**
+
+If yes — it does not ship.
+
+That is not a constraint. That is the product.
+
+Jack is not building a better map. Jack is building the thing that makes every map safe to use at highway speed. The voice layer that navigation forgot.
+
+---
+
+## The opportunity
+
+<JackInvestorDeck />
+
+Every major navigation app built the screen and left the voice on the table. The result is a billion drivers every day reaching for their phones to tap a button, report a hazard, change a song, or check the ETA — while the car is moving.
+
+Jack is not competing with Google Maps or Waze. Jack is the layer that rides on top of them and handles everything that requires eyes you cannot afford to take off the road.
+
+Eight versions in ten days is not a side project pace. It is a team that has found the problem before most people have named it.
+
+<JackWaitlist />
+
+---
+
+## What comes next
+
+**Android Auto validation** — as soon as a compatible device is available for testing, the car screen feature ships fully confirmed.
+
+**Google Play Store** — the app is built and ready. The launch follows the Android Auto validation.
+
+**Smartwatch companion** — navigation steps relayed to your watch or glasses. The phone stays in your pocket entirely.
+
+**iOS / CarPlay** — Android-first by necessity. Apple's drivers deserve the same thing. That is the next chapter.
+
+The voice layer for the road does not exist yet at scale.
+
+Jack is building it — one version at a time, one drive at a time.
