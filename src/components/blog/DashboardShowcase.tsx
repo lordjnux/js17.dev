@@ -326,7 +326,7 @@ export function ImpactMetric({
   comparison: string
   color?: "blue" | "green" | "red" | "purple" | "orange"
 }) {
-  const { visible, ref } = useScrollReveal(0.3)
+  const { visible, ref } = useScrollReveal(0.05)
   const decimals = (Number(value) || 0) % 1 !== 0 ? 1 : 0
   const count = useAnimatedValue(Number(value) || 0, visible, 2500, decimals)
   const display = decimals > 0 ? count.toFixed(1) : count
