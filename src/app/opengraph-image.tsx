@@ -144,7 +144,7 @@ export default async function OG() {
               </div>
             ))}
           </div>
-          <span style={{ color: "#475569", fontSize: "15px" }}>8+ years experience</span>
+          <span style={{ color: "#475569", fontSize: "15px" }}>10+ years experience</span>
         </div>
       </div>
     ),

@@ -64,7 +64,7 @@ export function HeroSection() {
             variants={item}
             className="mt-6 max-w-2xl text-lg text-muted-foreground sm:text-xl leading-relaxed"
           >
-            8+ years building scalable production systems. I bridge the gap between
+            10+ years building scalable production systems. I bridge the gap between
             cutting-edge AI capabilities and robust engineering — shipping products
             that perform, scale, and last.
           </motion.p>
@@ -102,7 +102,7 @@ export function HeroSection() {
             className="mt-16 flex flex-wrap gap-8"
           >
             {[
-              { label: "Years Experience", value: "8+" },
+              { label: "Years Experience", value: "10+" },
               { label: "Projects Shipped", value: "50+" },
               { label: "Uptime SLA", value: "99.9%" },
               { label: "AI Systems Built", value: "15+" },

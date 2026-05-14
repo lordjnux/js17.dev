@@ -15,10 +15,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
-    "test:e2e:sandbox": "E2E_BASE_URL=https://sandbox.js17.dev playwright test",
     "test:e2e:prod": "E2E_BASE_URL=https://js17.dev playwright test",
     "test:proposal": "node scripts/test-proposal.mjs",
-    "test:proposal:sandbox": "node scripts/test-proposal.mjs https://sandbox.js17.dev",
     "test:proposal:prod": "node scripts/test-proposal.mjs https://js17.dev"
   },
   "dependencies": {

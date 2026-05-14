@@ -25,7 +25,7 @@ export function AboutSection() {
             />
             <div className="space-y-4 text-muted-foreground leading-relaxed">
               <p>
-                I&apos;m Jeroham Sanchez — a Senior Fullstack Systems Engineer with 8+ years
+                I&apos;m Jeroham Sanchez — a Senior Fullstack Systems Engineer with 10+ years
                 of experience building production-grade web applications, APIs, and AI-powered
                 systems for startups and enterprises.
               </p>

@@ -2,7 +2,7 @@ export const SITE_CONFIG = {
   name: "Jeroham Sanchez",
   title: "Jeroham Sanchez — Senior AI-Augmented Fullstack Systems Engineer",
   description:
-    "Senior Fullstack Systems Engineer specializing in AI-augmented development, scalable architectures, and cloud-native solutions. 8+ years building production systems.",
+    "Senior Fullstack Systems Engineer specializing in AI-augmented development, scalable architectures, and cloud-native solutions. 10+ years building production systems.",
   url: process.env.NEXT_PUBLIC_SITE_URL || "https://js17.dev",
   ogImage: "/og-default.png",
   cvUrl: "/CV-JEROHAM-SANCHEZ-SR-FULLSTACK-ENGINEER.pdf",
