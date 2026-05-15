@@ -199,8 +199,7 @@ function HUDPanel({
 }
 
 // ─── Main Hero ────────────────────────────────────────────────────────────────
-// Set to true after running `node scripts/generate-runway-hero.mjs`
-const USE_RUNWAY_VIDEO = false
+const USE_RUNWAY_VIDEO = true
 
 export function JackHeroRoad() {
   return (
