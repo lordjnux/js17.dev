@@ -3,6 +3,14 @@
 import { useEffect, useRef } from "react"
 import { motion, useInView } from "framer-motion"
 
+// Works with both "#RRGGBB" hex and "rgba(...)" strings
+function withAlpha(color: string, alpha: number): string {
+  if (color.startsWith("rgba")) {
+    return color.replace(/[\d.]+\)$/, `${alpha})`)
+  }
+  return `${color}${Math.round(alpha * 255).toString(16).padStart(2, "0")}`
+}
+
 // ─── Types ───────────────────────────────────────────────────────────────────
 interface Car {
   col: number
@@ -165,7 +173,7 @@ function GridCanvas() {
         // Trail
         const trailGrad = ctx.createLinearGradient(p.x1, p.y1, px, py)
         trailGrad.addColorStop(0, "transparent")
-        trailGrad.addColorStop(1, `${p.color}55`)
+        trailGrad.addColorStop(1, withAlpha(p.color, 0.33))
         ctx.beginPath()
         ctx.moveTo(p.x1, p.y1)
         ctx.lineTo(px, py)
@@ -217,7 +225,7 @@ function GridCanvas() {
 
         // Outer glow ring
         const glow = ctx.createRadialGradient(px, py, 0, px, py, glowR)
-        glow.addColorStop(0, `${node.color}44`)
+        glow.addColorStop(0, withAlpha(node.color, 0.27))
         glow.addColorStop(1, "transparent")
         ctx.beginPath()
         ctx.arc(px, py, glowR, 0, Math.PI * 2)
