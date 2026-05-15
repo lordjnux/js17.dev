@@ -38,3 +38,11 @@ next-env.d.ts
 
 .vercel
 .env*.local
+
+# local generated assets (videos, screenshots, temp scripts)
+jack-videos/
+test-results/
+generate-jack-videos.js
+yotube-dashboard-screenshot-results.png
+put
+.env.production

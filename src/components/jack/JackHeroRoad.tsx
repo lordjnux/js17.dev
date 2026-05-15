@@ -199,14 +199,29 @@ function HUDPanel({
 }
 
 // ─── Main Hero ────────────────────────────────────────────────────────────────
+// Set to true after running `node scripts/generate-runway-hero.mjs`
+const USE_RUNWAY_VIDEO = false
+
 export function JackHeroRoad() {
   return (
     <section
       className="relative flex min-h-screen flex-col overflow-hidden"
       style={{ background: "#020408" }}
     >
-      {/* Road canvas */}
-      <RoadCanvas />
+      {/* Runway cinematic video (swap in when credits available) */}
+      {USE_RUNWAY_VIDEO ? (
+        <video
+          className="absolute inset-0 h-full w-full object-cover opacity-60"
+          src="/jack/hero-road.mp4"
+          autoPlay
+          muted
+          loop
+          playsInline
+        />
+      ) : (
+        /* CSS canvas road — active until video is ready */
+        <RoadCanvas />
+      )}
 
       {/* Scanline overlay */}
       <div

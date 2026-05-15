@@ -34,10 +34,10 @@ async function createTask() {
     method: "POST",
     headers: HEADERS,
     body: JSON.stringify({
-      model: "gen4_turbo",
+      model: "gen4.5",
       promptText: PROMPT,
       duration: 10,
-      ratio: "1280:768",
+      ratio: "1280:720",
     }),
   })
 
