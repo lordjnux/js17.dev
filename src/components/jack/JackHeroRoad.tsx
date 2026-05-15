@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState, useCallback } from "react"
 import { motion } from "framer-motion"
 import Image from "next/image"
 import Link from "next/link"
@@ -33,14 +33,12 @@ function RoadCanvas() {
 
       ctx.clearRect(0, 0, W, H)
 
-      // Sky
       const sky = ctx.createLinearGradient(0, 0, 0, VPY)
       sky.addColorStop(0, "#020408")
       sky.addColorStop(1, "#060e18")
       ctx.fillStyle = sky
       ctx.fillRect(0, 0, W, VPY + 2)
 
-      // City glow on horizon
       const glow = ctx.createRadialGradient(VPX, VPY, 0, VPX, VPY, W * 0.55)
       glow.addColorStop(0, "rgba(0,212,255,0.14)")
       glow.addColorStop(0.35, "rgba(0,140,200,0.06)")
@@ -50,7 +48,6 @@ function RoadCanvas() {
       ctx.ellipse(VPX, VPY, W * 0.55, H * 0.35, 0, 0, Math.PI * 2)
       ctx.fill()
 
-      // Road surface
       const roadLeft = VPX - W * 0.45
       const roadRight = VPX + W * 0.45
       const road = ctx.createLinearGradient(0, VPY, 0, H)
@@ -65,7 +62,6 @@ function RoadCanvas() {
       ctx.fillStyle = road
       ctx.fill()
 
-      // Road edge lines
       const edgeLine = (bx: number) => {
         const g = ctx.createLinearGradient(VPX, VPY, bx, H)
         g.addColorStop(0, "rgba(255,255,255,0)")
@@ -81,7 +77,6 @@ function RoadCanvas() {
       edgeLine(roadLeft)
       edgeLine(roadRight)
 
-      // Inner lane lines (dashed feel via low opacity solid)
       const laneLine = (bx: number) => {
         const g = ctx.createLinearGradient(VPX, VPY, bx, H)
         g.addColorStop(0, "transparent")
@@ -97,24 +92,20 @@ function RoadCanvas() {
       laneLine(VPX - W * 0.15)
       laneLine(VPX + W * 0.15)
 
-      // Animated center dashes — perspective correct
       dashOffset = (dashOffset + 2.8) % 100
       const NUM = 18
       for (let i = 0; i < NUM; i++) {
         const rawT = ((i / NUM) + dashOffset / 100) % 1
-        const t = Math.pow(rawT, 1.7)   // perspective acceleration
+        const t = Math.pow(rawT, 1.7)
         if (t < 0.015) continue
-
         const y = VPY + (H - VPY) * t
         const dh = Math.max(4, (H - VPY) * 0.065 * t)
         const dw = 2.5 + t * 12
         const alpha = Math.min(t * 2.2, 0.85)
-
         ctx.fillStyle = `rgba(255,255,255,${alpha * 0.75})`
         ctx.fillRect(VPX - dw / 2, y, dw, dh)
       }
 
-      // Wet-road cyan reflection strip
       const refl = ctx.createLinearGradient(0, VPY + (H - VPY) * 0.25, 0, H)
       refl.addColorStop(0, "transparent")
       refl.addColorStop(1, "rgba(0,212,255,0.05)")
@@ -126,7 +117,6 @@ function RoadCanvas() {
       ctx.fillStyle = refl
       ctx.fill()
 
-      // Vignette
       const vig = ctx.createRadialGradient(W / 2, H / 2, H * 0.15, W / 2, H / 2, H * 0.9)
       vig.addColorStop(0, "transparent")
       vig.addColorStop(1, "rgba(0,0,0,0.72)")
@@ -143,16 +133,210 @@ function RoadCanvas() {
   return <canvas ref={ref} className="absolute inset-0 h-full w-full" />
 }
 
-// ─── Waveform Bars (animates like a voice indicator) ─────────────────────────
-function VoiceWave() {
-  const [heights, setHeights] = useState([40, 70, 90, 55, 75, 45, 60])
+// ─── Hazard & Police Overlay Canvas ──────────────────────────────────────────
+function OverlayCanvas({ onHazardAlert }: { onHazardAlert: (msg: string) => void }) {
+  const ref = useRef<HTMLCanvasElement>(null)
+  const alertRef = useRef(onHazardAlert)
+  alertRef.current = onHazardAlert
 
   useEffect(() => {
-    const id = setInterval(() => {
-      setHeights(h => h.map(() => 20 + Math.random() * 80))
-    }, 160)
-    return () => clearInterval(id)
+    const canvas = ref.current
+    if (!canvas) return
+    const ctx = canvas.getContext("2d")
+    if (!ctx) return
+
+    const resize = () => {
+      canvas.width = canvas.offsetWidth
+      canvas.height = canvas.offsetHeight
+    }
+    resize()
+    window.addEventListener("resize", resize)
+
+    let raf: number
+    const startTime = Date.now()
+    let nextPoliceMs = 8000 + Math.random() * 12000
+    let nextHazardMs = 14000 + Math.random() * 11000
+
+    let policeStart: number | null = null
+    let hazardStart: number | null = null
+
+    const draw = () => {
+      const W = canvas.width
+      const H = canvas.height
+      const now = Date.now()
+      const elapsed = now - startTime
+
+      ctx.clearRect(0, 0, W, H)
+
+      if (policeStart === null && elapsed >= nextPoliceMs) {
+        policeStart = now
+        nextPoliceMs = elapsed + 8000 + Math.random() * 12000
+      }
+      if (hazardStart === null && elapsed >= nextHazardMs) {
+        hazardStart = now
+        alertRef.current("HAZARD REPORTED · 0.8 km")
+        nextHazardMs = elapsed + 12000 + Math.random() * 13000
+      }
+
+      // Police strobe — alternating blue/red edge glow
+      if (policeStart !== null) {
+        const t = now - policeStart
+        if (t >= 1500) {
+          policeStart = null
+        } else {
+          const phase = Math.floor(t / 110) % 2
+          const fade = (1 - t / 1500) * 0.2
+          const c = phase === 0
+            ? `rgba(30,60,255,${fade.toFixed(3)})`
+            : `rgba(255,30,30,${(fade * 0.9).toFixed(3)})`
+          const glow = ctx.createRadialGradient(W * 0.06, H * 0.52, 0, W * 0.06, H * 0.52, W * 0.42)
+          glow.addColorStop(0, c)
+          glow.addColorStop(1, "transparent")
+          ctx.fillStyle = glow
+          ctx.fillRect(0, 0, W, H)
+        }
+      }
+
+      // Hazard ping — expanding amber ring at horizon
+      if (hazardStart !== null) {
+        const t = now - hazardStart
+        if (t >= 2200) {
+          hazardStart = null
+        } else {
+          const progress = t / 2200
+          const radius = progress * 90
+          const alpha = (1 - progress) * 0.75
+          const x = W * 0.5
+          const y = H * 0.41
+
+          ctx.beginPath()
+          ctx.arc(x, y, radius, 0, Math.PI * 2)
+          ctx.strokeStyle = `rgba(245,166,35,${alpha})`
+          ctx.lineWidth = 2
+          ctx.stroke()
+
+          // Second ring slightly behind
+          if (radius > 20) {
+            ctx.beginPath()
+            ctx.arc(x, y, radius * 0.6, 0, Math.PI * 2)
+            ctx.strokeStyle = `rgba(245,166,35,${alpha * 0.4})`
+            ctx.lineWidth = 1
+            ctx.stroke()
+          }
+
+          // Center dot fades as ring expands
+          if (progress < 0.4) {
+            ctx.beginPath()
+            ctx.arc(x, y, 5, 0, Math.PI * 2)
+            ctx.fillStyle = `rgba(245,166,35,${(0.4 - progress) / 0.4 * 0.9})`
+            ctx.fill()
+          }
+        }
+      }
+
+      raf = requestAnimationFrame(draw)
+    }
+
+    draw()
+    return () => { cancelAnimationFrame(raf); window.removeEventListener("resize", resize) }
+  }, []) // alertRef keeps callback current without re-running
+
+  return (
+    <canvas
+      ref={ref}
+      aria-hidden
+      className="pointer-events-none absolute inset-0 z-[2] h-full w-full"
+    />
+  )
+}
+
+// ─── Audio Engine ─────────────────────────────────────────────────────────────
+function useAudioEngine() {
+  const ctxRef = useRef<AudioContext | null>(null)
+  const analyserRef = useRef<AnalyserNode | null>(null)
+  const [enabled, setEnabled] = useState(false)
+
+  const toggle = useCallback(() => {
+    if (!ctxRef.current) {
+      const ctx = new AudioContext()
+      ctxRef.current = ctx
+
+      const analyser = ctx.createAnalyser()
+      analyser.fftSize = 64
+      analyserRef.current = analyser
+      analyser.connect(ctx.destination)
+
+      // Rain / wet-road texture — white noise → low-pass → gain
+      const sr = ctx.sampleRate
+      const noiseBuf = ctx.createBuffer(1, sr * 2, sr)
+      const ch = noiseBuf.getChannelData(0)
+      for (let i = 0; i < ch.length; i++) ch[i] = Math.random() * 2 - 1
+      const noise = ctx.createBufferSource()
+      noise.buffer = noiseBuf
+      noise.loop = true
+      const lp = ctx.createBiquadFilter()
+      lp.type = "lowpass"
+      lp.frequency.value = 300
+      lp.Q.value = 0.5
+      const rainGain = ctx.createGain()
+      rainGain.gain.value = 0.12
+      noise.connect(lp)
+      lp.connect(rainGain)
+      rainGain.connect(analyser)
+      noise.start()
+
+      // Engine hum — low sine oscillator
+      const osc = ctx.createOscillator()
+      osc.type = "sine"
+      osc.frequency.value = 80
+      const engGain = ctx.createGain()
+      engGain.gain.value = 0.06
+      osc.connect(engGain)
+      engGain.connect(analyser)
+      osc.start()
+
+      setEnabled(true)
+    } else if (ctxRef.current.state === "suspended") {
+      ctxRef.current.resume()
+      setEnabled(true)
+    } else {
+      ctxRef.current.suspend()
+      setEnabled(false)
+    }
   }, [])
+
+  useEffect(() => () => { ctxRef.current?.close() }, [])
+
+  return { enabled, toggle, analyser: enabled ? analyserRef.current : null }
+}
+
+// ─── Waveform Bars ────────────────────────────────────────────────────────────
+function VoiceWave({ analyser }: { analyser: AnalyserNode | null }) {
+  const [heights, setHeights] = useState([40, 70, 90, 55, 75, 45, 60])
+  const rafRef = useRef<number>()
+  const dataRef = useRef<Uint8Array<ArrayBuffer> | null>(null)
+
+  useEffect(() => {
+    if (analyser) {
+      dataRef.current = new Uint8Array(analyser.frequencyBinCount) as Uint8Array<ArrayBuffer>
+      const tick = () => {
+        analyser.getByteFrequencyData(dataRef.current!)
+        const d = dataRef.current!
+        const binSize = Math.max(1, Math.floor(d.length / 7))
+        setHeights(
+          Array.from({ length: 7 }, (_, i) =>
+            15 + (d[Math.min(i * binSize, d.length - 1)] / 255) * 85
+          )
+        )
+        rafRef.current = requestAnimationFrame(tick)
+      }
+      rafRef.current = requestAnimationFrame(tick)
+      return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current) }
+    } else {
+      const id = setInterval(() => setHeights(h => h.map(() => 20 + Math.random() * 80)), 160)
+      return () => clearInterval(id)
+    }
+  }, [analyser])
 
   return (
     <div className="flex items-center gap-[3px]" style={{ height: 28 }}>
@@ -164,7 +348,7 @@ function VoiceWave() {
             height: `${h}%`,
             background: "#00D4FF",
             borderRadius: 2,
-            transition: "height 0.15s ease",
+            transition: analyser ? "height 0.05s ease" : "height 0.15s ease",
             opacity: 0.85,
           }}
         />
@@ -178,10 +362,12 @@ function HUDPanel({
   children,
   className = "",
   accent = "#00D4FF",
+  style,
 }: {
   children: React.ReactNode
   className?: string
   accent?: string
+  style?: React.CSSProperties
 }) {
   return (
     <div
@@ -191,6 +377,7 @@ function HUDPanel({
         border: `1px solid ${accent}44`,
         backdropFilter: "blur(12px)",
         WebkitBackdropFilter: "blur(12px)",
+        ...style,
       }}
     >
       {children}
@@ -202,12 +389,22 @@ function HUDPanel({
 const USE_RUNWAY_VIDEO = true
 
 export function JackHeroRoad() {
+  const { enabled: audioEnabled, toggle: toggleAudio, analyser } = useAudioEngine()
+  const [hudAlert, setHudAlert] = useState("300m ahead · Police reported · 4 min ago")
+  const [hudFlash, setHudFlash] = useState(false)
+
+  const handleHazardAlert = useCallback((msg: string) => {
+    setHudAlert(msg)
+    setHudFlash(true)
+    const t = window.setTimeout(() => setHudFlash(false), 2000)
+    return () => window.clearTimeout(t)
+  }, [])
+
   return (
     <section
       className="relative flex min-h-screen flex-col overflow-hidden"
       style={{ background: "#020408" }}
     >
-      {/* Runway cinematic video (swap in when credits available) */}
       {USE_RUNWAY_VIDEO ? (
         <video
           className="absolute inset-0 h-full w-full object-cover opacity-60"
@@ -218,9 +415,11 @@ export function JackHeroRoad() {
           playsInline
         />
       ) : (
-        /* CSS canvas road — active until video is ready */
         <RoadCanvas />
       )}
+
+      {/* Police & hazard overlay — canvas on top of video */}
+      <OverlayCanvas onHazardAlert={handleHazardAlert} />
 
       {/* Scanline overlay */}
       <div
@@ -277,17 +476,47 @@ export function JackHeroRoad() {
           </span>
         </motion.div>
 
-        {/* Voice indicator */}
+        {/* Voice indicator + audio toggle */}
         <motion.div
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.7, delay: 1.6 }}
         >
           <HUDPanel>
-            <p className="mb-2 text-[10px] font-bold uppercase tracking-widest" style={{ color: "#00D4FF" }}>
-              Jack · Listening
-            </p>
-            <VoiceWave />
+            <div className="mb-2 flex items-center justify-between gap-3">
+              <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "#00D4FF" }}>
+                Jack · Listening
+              </p>
+              <button
+                onClick={toggleAudio}
+                aria-label={audioEnabled ? "Mute ambient audio" : "Hear Jack's world"}
+                title={audioEnabled ? "Mute" : "Hear Jack's world"}
+                style={{
+                  background: audioEnabled ? "rgba(0,212,255,0.12)" : "rgba(255,255,255,0.04)",
+                  border: `1px solid ${audioEnabled ? "rgba(0,212,255,0.3)" : "rgba(255,255,255,0.1)"}`,
+                  borderRadius: 6,
+                  padding: "3px 6px",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  transition: "all 0.2s ease",
+                }}
+              >
+                {audioEnabled ? (
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00D4FF" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+                    <path d="M19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07" />
+                  </svg>
+                ) : (
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#6b8fa8" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+                    <line x1="23" y1="9" x2="17" y2="15" />
+                    <line x1="17" y1="9" x2="23" y2="15" />
+                  </svg>
+                )}
+              </button>
+            </div>
+            <VoiceWave analyser={analyser} />
           </HUDPanel>
         </motion.div>
       </div>
@@ -295,22 +524,33 @@ export function JackHeroRoad() {
       {/* ── BOTTOM CONTENT ── */}
       <div className="relative z-10 mt-auto px-6 pb-20 text-center sm:px-10">
 
-        {/* Hazard alert — left aligned */}
+        {/* Hazard alert — flashes when overlay triggers */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 2.0 }}
           className="mb-10 flex justify-center"
         >
-          <HUDPanel accent="#f5a623" className="flex items-center gap-3">
-            <span
-              className="relative flex h-2.5 w-2.5 flex-shrink-0"
-            >
+          <HUDPanel
+            accent="#f5a623"
+            className="flex items-center gap-3 transition-all duration-300"
+            style={{
+              boxShadow: hudFlash ? "0 0 20px rgba(245,166,35,0.35)" : "none",
+            } as React.CSSProperties}
+          >
+            <span className="relative flex h-2.5 w-2.5 flex-shrink-0">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full opacity-75" style={{ background: "#f5a623" }} />
               <span className="relative inline-flex h-2.5 w-2.5 rounded-full" style={{ background: "#f5a623" }} />
             </span>
-            <span className="text-xs font-bold tracking-wide" style={{ color: "#f5a623" }}>HAZARD</span>
-            <span className="text-xs" style={{ color: "#6b8fa8" }}>300m ahead · Police reported · 4 min ago</span>
+            <span
+              className="text-xs font-bold tracking-wide transition-colors duration-300"
+              style={{ color: hudFlash ? "#ffd700" : "#f5a623" }}
+            >
+              HAZARD
+            </span>
+            <span className="text-xs transition-all duration-500" style={{ color: "#6b8fa8" }}>
+              {hudAlert}
+            </span>
           </HUDPanel>
         </motion.div>
 
