@@ -393,7 +393,7 @@ function useConversationEngine() {
   const hasPlayedRef = useRef(false)
   const cancelledRef = useRef(false)
   const pausedRef = useRef(false)
-  const pendingIndexRef = useRef(0)
+  const currentIndexRef = useRef(0)   // always tracks the turn currently playing/pending
   const jackVoiceRef = useRef<SpeechSynthesisVoice | null>(null)
   const driverVoiceRef = useRef<SpeechSynthesisVoice | null>(null)
 
@@ -415,10 +415,10 @@ function useConversationEngine() {
       setActiveSpeaker(null)
       return
     }
+    currentIndexRef.current = index
     const turn = CONVERSATION[index]
     const go = () => {
-      if (cancelledRef.current) return
-      if (pausedRef.current) { pendingIndexRef.current = index; return }
+      if (cancelledRef.current || pausedRef.current) return
       setActiveSpeaker(turn.speaker)
       const utt = new SpeechSynthesisUtterance(turn.text)
       if (turn.speaker === "jack") {
@@ -429,8 +429,7 @@ function useConversationEngine() {
         if (driverVoiceRef.current) utt.voice = driverVoiceRef.current
       }
       utt.onend = () => {
-        if (cancelledRef.current) return
-        if (pausedRef.current) { pendingIndexRef.current = index + 1; return }
+        if (cancelledRef.current || pausedRef.current) return
         setTimeout(() => playFrom(index + 1), 280)
       }
       window.speechSynthesis.speak(utt)
@@ -454,20 +453,14 @@ function useConversationEngine() {
   const pause = useCallback(() => {
     pausedRef.current = true
     setIsPaused(true)
-    if (typeof window !== "undefined" && window.speechSynthesis.speaking) {
-      window.speechSynthesis.pause()
-    }
+    // cancel() is reliable cross-browser; currentIndexRef holds where to resume from
+    if (typeof window !== "undefined") window.speechSynthesis.cancel()
   }, [])
 
   const resume = useCallback(() => {
     pausedRef.current = false
     setIsPaused(false)
-    if (typeof window === "undefined") return
-    if (window.speechSynthesis.paused) {
-      window.speechSynthesis.resume()
-    } else {
-      playFrom(pendingIndexRef.current)
-    }
+    playFrom(currentIndexRef.current)
   }, [playFrom])
 
   useEffect(() => () => { cancelledRef.current = true; window.speechSynthesis?.cancel() }, [])
