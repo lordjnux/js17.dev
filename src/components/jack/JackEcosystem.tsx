@@ -51,7 +51,7 @@ export function JackEcosystem() {
           >
             Built for the full mobility stack.
           </h2>
-          <p className="mb-12 text-base" style={{ color: "#6b8fa8" }}>
+          <p className="mb-12 text-base" style={{ color: "#b2cdd8" }}>
             From your pocket to your dashboard — and beyond.
           </p>
         </motion.div>
@@ -76,7 +76,7 @@ export function JackEcosystem() {
                   : {
                       background: "rgba(255,255,255,0.03)",
                       border: "1px solid rgba(255,255,255,0.08)",
-                      color: "rgba(107,143,168,0.5)",
+                      color: "#8aabb8",
                     }
               }
             >

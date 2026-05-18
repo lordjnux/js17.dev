@@ -44,7 +44,7 @@ export function JackWaitlistSection() {
           >
             Get in before the launch.
           </h2>
-          <p className="mt-3 text-base" style={{ color: "#6b8fa8" }}>
+          <p className="mt-3 text-base" style={{ color: "#b2cdd8" }}>
             Select your role and leave your email. We&apos;ll reach out when it matters.
           </p>
         </motion.div>

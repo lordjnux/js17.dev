@@ -116,7 +116,7 @@ export function JackCapabilities() {
               >
                 {card.label}
               </h3>
-              <p className="text-sm leading-relaxed" style={{ color: "#6b8fa8" }}>
+              <p className="text-sm leading-relaxed" style={{ color: "#b2cdd8" }}>
                 {card.desc}
               </p>
             </motion.div>

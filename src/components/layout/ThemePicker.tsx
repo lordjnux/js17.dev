@@ -99,7 +99,7 @@ export function ThemePicker() {
           {/* Header */}
           <div className="flex items-center gap-2 border-b px-3 py-2.5">
             <Palette className="h-3.5 w-3.5 text-muted-foreground" />
-            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+            <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
               Color Theme
             </span>
           </div>
@@ -136,7 +136,7 @@ export function ThemePicker() {
                   {/* Label */}
                   <span className="flex-1 min-w-0">
                     <span className="block text-sm font-medium leading-tight">{t.label}</span>
-                    <span className="block text-xs text-muted-foreground truncate">{t.description}</span>
+                    <span className="block text-[11px] text-muted-foreground truncate">{t.description}</span>
                   </span>
 
                   {/* Active check */}

@@ -48,7 +48,7 @@ export async function CertificationsSection() {
                 {badge.badge_template.name}
               </p>
 
-              <p className="text-xs text-muted-foreground mt-1 truncate w-full">
+              <p className="text-[11px] text-muted-foreground mt-1 truncate w-full">
                 {badge.badge_template.issuer?.name}
               </p>
 

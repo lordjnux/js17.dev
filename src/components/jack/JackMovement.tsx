@@ -50,7 +50,7 @@ export function JackMovement() {
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.7, delay: 0.25 }}
           className="mt-5 text-lg leading-relaxed"
-          style={{ color: "#6b8fa8" }}
+          style={{ color: "#b2cdd8" }}
         >
           Help shape the future of mobility intelligence.
           <br />

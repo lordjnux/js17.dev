@@ -549,7 +549,7 @@ export function JackHeroRoad() {
               </span>
             </div>
             <p className="text-xs font-semibold" style={{ color: "#e8f4f8" }}>Keep right in 200m</p>
-            <p className="text-[10px]" style={{ color: "#6b8fa8" }}>via Autopista Norte · 14 min</p>
+            <p className="text-[10px]" style={{ color: "#8aabb8" }}>via Autopista Norte · 14 min</p>
           </HUDPanel>
         </motion.div>
 
@@ -628,7 +628,7 @@ export function JackHeroRoad() {
                 />
                 <span
                   style={{
-                    fontSize: 9,
+                    fontSize: 11,
                     letterSpacing: "0.18em",
                     fontWeight: 700,
                     textTransform: "uppercase",
@@ -670,7 +670,7 @@ export function JackHeroRoad() {
             >
               HAZARD
             </span>
-            <span className="text-xs transition-all duration-500" style={{ color: "#6b8fa8" }}>
+            <span className="text-xs transition-all duration-500" style={{ color: "#8aabb8" }}>
               {hudAlert}
             </span>
           </HUDPanel>
@@ -703,7 +703,7 @@ export function JackHeroRoad() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.55 }}
           className="mx-auto mt-6 max-w-lg text-base sm:text-lg"
-          style={{ color: "#6b8fa8", lineHeight: 1.7 }}
+          style={{ color: "#b2cdd8", lineHeight: 1.7 }}
         >
           Voice-first. Context-aware. Always on.
           <br />

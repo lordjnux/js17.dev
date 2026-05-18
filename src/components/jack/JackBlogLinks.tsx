@@ -103,10 +103,10 @@ export function JackBlogLinks() {
 
                 <div className="mt-6 flex flex-col gap-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs" style={{ color: "#6b8fa8" }}>
+                    <span className="text-xs" style={{ color: "#8aabb8" }}>
                       {post.date}
                     </span>
-                    <span className="text-xs" style={{ color: "#6b8fa8" }}>
+                    <span className="text-xs" style={{ color: "#8aabb8" }}>
                       {post.readTime}
                     </span>
                   </div>
@@ -115,7 +115,7 @@ export function JackBlogLinks() {
                       <span
                         key={t}
                         className="text-xs"
-                        style={{ color: "#6b8fa8" }}
+                        style={{ color: "#8aabb8" }}
                       >
                         #{t}
                       </span>

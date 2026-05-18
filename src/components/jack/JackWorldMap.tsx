@@ -189,7 +189,7 @@ function WorldCanvas({ onCityClick }: { onCityClick: (city: CityDef) => void }) 
         ctx.fillStyle = "rgba(0,212,255,0.9)"
         ctx.fillText(city.name, cx, cy + 20)
         ctx.font = "7.5px monospace"
-        ctx.fillStyle = "rgba(107,143,168,0.65)"
+        ctx.fillStyle = "rgba(178,205,216,0.85)"
         ctx.fillText(city.country, cx, cy + 30)
       }
 
@@ -511,7 +511,7 @@ export function JackWorldMap() {
               >
                 JACK IS GLOBAL
               </p>
-              <p className="text-center text-[11px]" style={{ color: "rgba(107,143,168,0.7)" }}>
+              <p className="text-center text-[12px]" style={{ color: "#8aabb8" }}>
                 Drag to pan · Scroll to zoom · Click a city to explore
               </p>
             </motion.div>
@@ -539,7 +539,7 @@ export function JackWorldMap() {
                 <p className="text-[10px] font-bold uppercase tracking-[0.3em]" style={{ color: "#00D4FF" }}>
                   JACK · {activeCity.name.toUpperCase()} · LIVE
                 </p>
-                <p className="text-[9px]" style={{ color: "rgba(107,143,168,0.6)" }}>
+                <p className="text-[11px]" style={{ color: "#8aabb8" }}>
                   {activeCity.country} · Real-time mobility intelligence
                 </p>
               </div>
@@ -610,7 +610,7 @@ export function JackWorldMap() {
             ].map(s => (
               <div key={s.label} className="text-center">
                 <p className="text-base font-black" style={{ color: s.color }}>{s.value}</p>
-                <p className="text-[9px] font-bold uppercase tracking-wider" style={{ color: "rgba(107,143,168,0.6)" }}>{s.label}</p>
+                <p className="text-[11px] font-bold uppercase tracking-wider" style={{ color: "#8aabb8" }}>{s.label}</p>
               </div>
             ))}
           </motion.div>
@@ -635,7 +635,7 @@ export function JackWorldMap() {
             ].map(s => (
               <div key={s.label} className="text-center">
                 <p className="text-base font-black" style={{ color: s.color }}>{s.value}</p>
-                <p className="text-[9px] font-bold uppercase tracking-wider" style={{ color: "rgba(107,143,168,0.6)" }}>{s.label}</p>
+                <p className="text-[11px] font-bold uppercase tracking-wider" style={{ color: "#8aabb8" }}>{s.label}</p>
               </div>
             ))}
           </motion.div>
@@ -658,7 +658,7 @@ export function JackWorldMap() {
             style={
               p.active
                 ? { background: "rgba(0,212,255,0.08)", border: "1px solid rgba(0,212,255,0.22)", color: "#00D4FF" }
-                : { background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.07)", color: "#6b8fa8" }
+                : { background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.07)", color: "#8aabb8" }
             }
           >
             {p.label}

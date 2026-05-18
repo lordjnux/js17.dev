@@ -311,7 +311,7 @@ export function JackNeuralGrid() {
           animate={isInView ? { opacity: 1 } : {}}
           transition={{ duration: 0.6, delay: 0.3 }}
           className="mt-4 text-sm"
-          style={{ color: "#6b8fa8" }}
+          style={{ color: "#b2cdd8" }}
         >
           Every dot is a driver. Every pulse is a conversation. This is Jack&apos;s world.
         </motion.p>
@@ -340,7 +340,7 @@ export function JackNeuralGrid() {
             >
               {z.label}
             </span>
-            <span className="block text-[9px] mt-0.5" style={{ color: "rgba(107,143,168,0.6)" }}>
+            <span className="block text-[11px] mt-0.5" style={{ color: "#8aabb8" }}>
               {z.sub}
             </span>
           </div>
@@ -367,7 +367,7 @@ export function JackNeuralGrid() {
             className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-semibold"
             style={p.a
               ? { background: "rgba(0,212,255,0.08)", border: "1px solid rgba(0,212,255,0.3)", color: "#00D4FF" }
-              : { background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", color: "rgba(107,143,168,0.45)" }
+              : { background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.06)", color: "#8aabb8" }
             }
           >
             {p.l}

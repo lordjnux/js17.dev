@@ -159,7 +159,7 @@ export function JackFuture() {
             <br />
             <span style={{ color: "rgba(0,212,255,0.85)" }}>Every moment. Every road.</span>
           </h2>
-          <p className="mt-5 text-base" style={{ color: "#6b8fa8" }}>
+          <p className="mt-5 text-base" style={{ color: "#b2cdd8" }}>
             Jack doesn&apos;t stop at your phone. The intelligence expands across every surface you interact with while moving.
           </p>
         </motion.div>
@@ -182,7 +182,7 @@ export function JackFuture() {
               <div className="mb-6 flex items-center justify-between">
                 <span
                   className="text-lg font-black tracking-tight"
-                  style={{ color: ti === 2 ? "rgba(232,244,248,0.35)" : "#e8f4f8" }}
+                  style={{ color: ti === 2 ? "rgba(232,244,248,0.65)" : "#e8f4f8" }}
                 >
                   {tier.label}
                 </span>
@@ -213,7 +213,7 @@ export function JackFuture() {
                       style={{
                         background: `${tier.badgeColor}12`,
                         border: `1px solid ${tier.badgeColor}25`,
-                        color: ti === 2 ? "rgba(232,244,248,0.3)" : tier.badgeColor,
+                        color: ti === 2 ? "rgba(232,244,248,0.55)" : tier.badgeColor,
                       }}
                     >
                       {device.icon}
@@ -221,11 +221,11 @@ export function JackFuture() {
                     <div>
                       <p
                         className="text-sm font-bold leading-snug"
-                        style={{ color: ti === 2 ? "rgba(232,244,248,0.45)" : "#e8f4f8" }}
+                        style={{ color: ti === 2 ? "rgba(232,244,248,0.75)" : "#e8f4f8" }}
                       >
                         {device.name}
                       </p>
-                      <p className="mt-0.5 text-xs leading-relaxed" style={{ color: "#6b8fa8", opacity: ti === 2 ? 0.6 : 1 }}>
+                      <p className="mt-0.5 text-xs leading-relaxed" style={{ color: ti === 2 ? "#8aabb8" : "#b2cdd8" }}>
                         {device.desc}
                       </p>
                     </div>
@@ -252,7 +252,7 @@ export function JackFuture() {
           animate={isInView ? { opacity: 1 } : {}}
           transition={{ duration: 0.6, delay: 0.9 }}
           className="mt-10 text-center text-xs"
-          style={{ color: "rgba(107,143,168,0.5)" }}
+          style={{ color: "#8aabb8" }}
         >
           From Colombia to the world — one voice at a time.
         </motion.p>

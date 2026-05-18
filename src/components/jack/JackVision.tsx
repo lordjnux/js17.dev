@@ -71,7 +71,7 @@ export function JackVision() {
           animate={isInView ? { opacity: 1 } : {}}
           transition={{ duration: 0.8, delay: 1.0 }}
           className="mt-8 text-base leading-relaxed"
-          style={{ color: "#6b8fa8" }}
+          style={{ color: "#b2cdd8" }}
         >
           Every second you look at a screen while driving is a second your eyes aren&apos;t on the road.
         </motion.p>
