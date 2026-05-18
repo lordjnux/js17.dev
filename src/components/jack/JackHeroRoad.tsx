@@ -357,6 +357,95 @@ function VoiceWave({ analyser }: { analyser: AnalyserNode | null }) {
   )
 }
 
+// ─── Conversation Script ──────────────────────────────────────────────────────
+type DialogueTurn = { speaker: "driver" | "jack"; text: string; pauseBefore?: number }
+
+const CONVERSATION: DialogueTurn[] = [
+  { speaker: "driver", text: "Hey Jack.", pauseBefore: 600 },
+  { speaker: "jack",   text: "Hey. Traffic is building up on your usual route to Chapinero. ETA is now 34 minutes. Want me to take you through La Candelaria? Saves about 12 minutes.", pauseBefore: 300 },
+  { speaker: "driver", text: "Yeah, go for it.", pauseBefore: 400 },
+  { speaker: "jack",   text: "Rerouting. Turn left in 400 meters.", pauseBefore: 200 },
+  { speaker: "driver", text: "Hey, what time is my meeting again?", pauseBefore: 900 },
+  { speaker: "jack",   text: "Your next event is with Camilo at 10:30. Based on current traffic, you will arrive with 8 minutes to spare.", pauseBefore: 250 },
+  { speaker: "driver", text: "Perfect. Can you call him?", pauseBefore: 500 },
+  { speaker: "jack",   text: "Calling Camilo now.", pauseBefore: 250 },
+  { speaker: "jack",   text: "He is not answering. Want me to send a message instead?", pauseBefore: 2000 },
+  { speaker: "driver", text: "Yeah, tell him I am on my way.", pauseBefore: 400 },
+  { speaker: "jack",   text: "Done. Message sent.", pauseBefore: 250 },
+  { speaker: "driver", text: "Hey Jack, there is a pothole on the right side, pretty bad.", pauseBefore: 1400 },
+  { speaker: "jack",   text: "Got it. Hazard reported at your location. I have notified 23 drivers behind you. Want me to avoid this stretch tomorrow?", pauseBefore: 250 },
+  { speaker: "driver", text: "Yes please.", pauseBefore: 350 },
+  { speaker: "jack",   text: "Noted. Updating your morning route. By the way, you are below a quarter tank. There is a Terpel station 2 kilometers ahead, right on your route.", pauseBefore: 250 },
+  { speaker: "driver", text: "I will stop there.", pauseBefore: 500 },
+  { speaker: "jack",   text: "Alright. Holding the reroute until after your stop.", pauseBefore: 300 },
+  { speaker: "driver", text: "Put on something good.", pauseBefore: 1000 },
+  { speaker: "jack",   text: "Playing your Monday morning mix. Turn coming up in 300 meters, stay in the left lane.", pauseBefore: 250 },
+  { speaker: "jack",   text: "You are 8 minutes out. Camilo just replied, says he will be downstairs.", pauseBefore: 3500 },
+  { speaker: "driver", text: "Nice. Thanks Jack.", pauseBefore: 450 },
+  { speaker: "jack",   text: "Always watching your road.", pauseBefore: 250 },
+]
+
+// ─── Conversation Engine ──────────────────────────────────────────────────────
+function useConversationEngine() {
+  const [activeSpeaker, setActiveSpeaker] = useState<"driver" | "jack" | null>(null)
+  const hasPlayedRef = useRef(false)
+  const cancelledRef = useRef(false)
+  const jackVoiceRef = useRef<SpeechSynthesisVoice | null>(null)
+  const driverVoiceRef = useRef<SpeechSynthesisVoice | null>(null)
+
+  const resolveVoices = useCallback(() => {
+    if (typeof window === "undefined") return
+    const voices = window.speechSynthesis.getVoices()
+    jackVoiceRef.current =
+      voices.find(v => v.lang.startsWith("en") &&
+        (v.name.includes("David") || v.name.includes("Daniel") || v.name.includes("Mark") || v.name.includes("George"))) ??
+      voices.find(v => v.lang.startsWith("en")) ?? null
+    driverVoiceRef.current =
+      voices.find(v => v.lang.startsWith("en") &&
+        (v.name.includes("Zira") || v.name.includes("Samantha") || v.name.includes("Karen") || v.name.includes("Victoria"))) ??
+      voices.find(v => v.lang.startsWith("en") && v !== jackVoiceRef.current) ?? null
+  }, [])
+
+  const playFrom = useCallback((index: number) => {
+    if (cancelledRef.current || index >= CONVERSATION.length) {
+      setActiveSpeaker(null)
+      return
+    }
+    const turn = CONVERSATION[index]
+    const go = () => {
+      if (cancelledRef.current) return
+      setActiveSpeaker(turn.speaker)
+      const utt = new SpeechSynthesisUtterance(turn.text)
+      if (turn.speaker === "jack") {
+        utt.rate = 0.88; utt.pitch = 0.78; utt.volume = 0.92
+        if (jackVoiceRef.current) utt.voice = jackVoiceRef.current
+      } else {
+        utt.rate = 1.02; utt.pitch = 1.15; utt.volume = 0.88
+        if (driverVoiceRef.current) utt.voice = driverVoiceRef.current
+      }
+      utt.onend = () => { if (!cancelledRef.current) setTimeout(() => playFrom(index + 1), 280) }
+      window.speechSynthesis.speak(utt)
+    }
+    turn.pauseBefore ? setTimeout(go, turn.pauseBefore) : go()
+  }, [])
+
+  const start = useCallback(() => {
+    if (hasPlayedRef.current || typeof window === "undefined" || !("speechSynthesis" in window)) return
+    hasPlayedRef.current = true
+    cancelledRef.current = false
+    resolveVoices()
+    if (window.speechSynthesis.getVoices().length > 0) {
+      playFrom(0)
+    } else {
+      window.speechSynthesis.addEventListener("voiceschanged", () => { resolveVoices(); playFrom(0) }, { once: true })
+    }
+  }, [resolveVoices, playFrom])
+
+  useEffect(() => () => { cancelledRef.current = true; window.speechSynthesis?.cancel() }, [])
+
+  return { activeSpeaker, start }
+}
+
 // ─── Glass HUD panel ─────────────────────────────────────────────────────────
 function HUDPanel({
   children,
@@ -390,8 +479,14 @@ const USE_RUNWAY_VIDEO = true
 
 export function JackHeroRoad() {
   const { enabled: audioEnabled, toggle: toggleAudio, analyser } = useAudioEngine()
+  const { activeSpeaker, start: startConversation } = useConversationEngine()
   const [hudAlert, setHudAlert] = useState("300m ahead · Police reported · 4 min ago")
   const [hudFlash, setHudFlash] = useState(false)
+
+  // Start conversation exactly once on first audio enable
+  useEffect(() => {
+    if (audioEnabled) startConversation()
+  }, [audioEnabled, startConversation])
 
   const handleHazardAlert = useCallback((msg: string) => {
     setHudAlert(msg)
@@ -517,6 +612,33 @@ export function JackHeroRoad() {
               </button>
             </div>
             <VoiceWave analyser={analyser} />
+            {activeSpeaker && (
+              <div className="mt-1.5 flex items-center gap-1.5">
+                <motion.span
+                  animate={{ opacity: [1, 0.3, 1] }}
+                  transition={{ duration: 0.7, repeat: Infinity }}
+                  style={{
+                    width: 5,
+                    height: 5,
+                    borderRadius: "50%",
+                    background: activeSpeaker === "jack" ? "#00D4FF" : "#16c784",
+                    display: "inline-block",
+                    flexShrink: 0,
+                  }}
+                />
+                <span
+                  style={{
+                    fontSize: 9,
+                    letterSpacing: "0.18em",
+                    fontWeight: 700,
+                    textTransform: "uppercase",
+                    color: activeSpeaker === "jack" ? "#00D4FF" : "#16c784",
+                  }}
+                >
+                  {activeSpeaker === "jack" ? "Jack" : "You"}
+                </span>
+              </div>
+            )}
           </HUDPanel>
         </motion.div>
       </div>
