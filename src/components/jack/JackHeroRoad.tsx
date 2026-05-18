@@ -388,8 +388,12 @@ const CONVERSATION: DialogueTurn[] = [
 // ─── Conversation Engine ──────────────────────────────────────────────────────
 function useConversationEngine() {
   const [activeSpeaker, setActiveSpeaker] = useState<"driver" | "jack" | null>(null)
+  const [isPaused, setIsPaused] = useState(false)
+  const [started, setStarted] = useState(false)
   const hasPlayedRef = useRef(false)
   const cancelledRef = useRef(false)
+  const pausedRef = useRef(false)
+  const pendingIndexRef = useRef(0)
   const jackVoiceRef = useRef<SpeechSynthesisVoice | null>(null)
   const driverVoiceRef = useRef<SpeechSynthesisVoice | null>(null)
 
@@ -414,6 +418,7 @@ function useConversationEngine() {
     const turn = CONVERSATION[index]
     const go = () => {
       if (cancelledRef.current) return
+      if (pausedRef.current) { pendingIndexRef.current = index; return }
       setActiveSpeaker(turn.speaker)
       const utt = new SpeechSynthesisUtterance(turn.text)
       if (turn.speaker === "jack") {
@@ -423,7 +428,11 @@ function useConversationEngine() {
         utt.rate = 1.02; utt.pitch = 1.15; utt.volume = 0.88
         if (driverVoiceRef.current) utt.voice = driverVoiceRef.current
       }
-      utt.onend = () => { if (!cancelledRef.current) setTimeout(() => playFrom(index + 1), 280) }
+      utt.onend = () => {
+        if (cancelledRef.current) return
+        if (pausedRef.current) { pendingIndexRef.current = index + 1; return }
+        setTimeout(() => playFrom(index + 1), 280)
+      }
       window.speechSynthesis.speak(utt)
     }
     if (turn.pauseBefore) { setTimeout(go, turn.pauseBefore) } else { go() }
@@ -433,6 +442,7 @@ function useConversationEngine() {
     if (hasPlayedRef.current || typeof window === "undefined" || !("speechSynthesis" in window)) return
     hasPlayedRef.current = true
     cancelledRef.current = false
+    setStarted(true)
     resolveVoices()
     if (window.speechSynthesis.getVoices().length > 0) {
       playFrom(0)
@@ -441,9 +451,28 @@ function useConversationEngine() {
     }
   }, [resolveVoices, playFrom])
 
+  const pause = useCallback(() => {
+    pausedRef.current = true
+    setIsPaused(true)
+    if (typeof window !== "undefined" && window.speechSynthesis.speaking) {
+      window.speechSynthesis.pause()
+    }
+  }, [])
+
+  const resume = useCallback(() => {
+    pausedRef.current = false
+    setIsPaused(false)
+    if (typeof window === "undefined") return
+    if (window.speechSynthesis.paused) {
+      window.speechSynthesis.resume()
+    } else {
+      playFrom(pendingIndexRef.current)
+    }
+  }, [playFrom])
+
   useEffect(() => () => { cancelledRef.current = true; window.speechSynthesis?.cancel() }, [])
 
-  return { activeSpeaker, start }
+  return { activeSpeaker, isPaused, started, start, pause, resume }
 }
 
 // ─── Glass HUD panel ─────────────────────────────────────────────────────────
@@ -479,7 +508,7 @@ const USE_RUNWAY_VIDEO = true
 
 export function JackHeroRoad() {
   const { enabled: audioEnabled, toggle: toggleAudio, analyser } = useAudioEngine()
-  const { activeSpeaker, start: startConversation } = useConversationEngine()
+  const { activeSpeaker, isPaused, started: convStarted, start: startConversation, pause: pauseConversation, resume: resumeConversation } = useConversationEngine()
   const [hudAlert, setHudAlert] = useState("300m ahead · Police reported · 4 min ago")
   const [hudFlash, setHudFlash] = useState(false)
 
@@ -612,31 +641,51 @@ export function JackHeroRoad() {
               </button>
             </div>
             <VoiceWave analyser={analyser} />
-            {activeSpeaker && (
-              <div className="mt-1.5 flex items-center gap-1.5">
-                <motion.span
-                  animate={{ opacity: [1, 0.3, 1] }}
-                  transition={{ duration: 0.7, repeat: Infinity }}
+            {(activeSpeaker || isPaused) && convStarted && (
+              <div className="mt-1.5 flex items-center justify-between gap-1.5">
+                <div className="flex items-center gap-1.5">
+                  <motion.span
+                    animate={{ opacity: isPaused ? 1 : [1, 0.3, 1] }}
+                    transition={{ duration: 0.7, repeat: isPaused ? 0 : Infinity }}
+                    style={{
+                      width: 5,
+                      height: 5,
+                      borderRadius: "50%",
+                      background: isPaused ? "#f5a623" : activeSpeaker === "jack" ? "#00D4FF" : "#16c784",
+                      display: "inline-block",
+                      flexShrink: 0,
+                    }}
+                  />
+                  <span
+                    style={{
+                      fontSize: 11,
+                      letterSpacing: "0.18em",
+                      fontWeight: 700,
+                      textTransform: "uppercase",
+                      color: isPaused ? "#f5a623" : activeSpeaker === "jack" ? "#00D4FF" : "#16c784",
+                    }}
+                  >
+                    {isPaused ? "Paused" : activeSpeaker === "jack" ? "Jack" : "You"}
+                  </span>
+                </div>
+                <button
+                  onClick={isPaused ? resumeConversation : pauseConversation}
+                  aria-label={isPaused ? "Resume conversation" : "Pause conversation"}
                   style={{
-                    width: 5,
-                    height: 5,
-                    borderRadius: "50%",
-                    background: activeSpeaker === "jack" ? "#00D4FF" : "#16c784",
-                    display: "inline-block",
-                    flexShrink: 0,
-                  }}
-                />
-                <span
-                  style={{
-                    fontSize: 11,
-                    letterSpacing: "0.18em",
+                    background: isPaused ? "rgba(0,212,255,0.12)" : "rgba(255,255,255,0.05)",
+                    border: `1px solid ${isPaused ? "rgba(0,212,255,0.3)" : "rgba(255,255,255,0.1)"}`,
+                    borderRadius: 5,
+                    padding: "2px 6px",
+                    cursor: "pointer",
+                    fontSize: 9,
                     fontWeight: 700,
-                    textTransform: "uppercase",
-                    color: activeSpeaker === "jack" ? "#00D4FF" : "#16c784",
+                    color: isPaused ? "#00D4FF" : "#8aabb8",
+                    letterSpacing: "0.05em",
+                    lineHeight: 1,
                   }}
                 >
-                  {activeSpeaker === "jack" ? "Jack" : "You"}
-                </span>
+                  {isPaused ? "▶" : "‖"}
+                </button>
               </div>
             )}
           </HUDPanel>
