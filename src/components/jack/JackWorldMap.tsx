@@ -125,7 +125,7 @@ function WorldCanvas({ onCityClick }: { onCityClick: (city: CityDef) => void }) 
         ctx.beginPath()
         cont.forEach(([lng, lat], i) => {
           const [x, y] = project(lng, lat, W, H, sc, ox, oy)
-          i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y)
+          if (i === 0) { ctx.moveTo(x, y) } else { ctx.lineTo(x, y) }
         })
         ctx.closePath()
         ctx.fillStyle = "rgba(0,212,255,0.055)"
@@ -200,7 +200,6 @@ function WorldCanvas({ onCityClick }: { onCityClick: (city: CityDef) => void }) 
     // ── Interaction ──
     const onWheel = (e: WheelEvent) => {
       e.preventDefault()
-      const W = canvas.width; const H = canvas.height
       const oldSc = scaleRef.current
       const newSc = Math.max(0.65, Math.min(3.5, oldSc * (e.deltaY > 0 ? 0.9 : 1.1)))
       const ox = offsetRef.current.x; const oy = offsetRef.current.y

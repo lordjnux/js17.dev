@@ -426,7 +426,7 @@ function useConversationEngine() {
       utt.onend = () => { if (!cancelledRef.current) setTimeout(() => playFrom(index + 1), 280) }
       window.speechSynthesis.speak(utt)
     }
-    turn.pauseBefore ? setTimeout(go, turn.pauseBefore) : go()
+    if (turn.pauseBefore) { setTimeout(go, turn.pauseBefore) } else { go() }
   }, [])
 
   const start = useCallback(() => {
