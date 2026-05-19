@@ -52,7 +52,7 @@ const TIERS = [
           </svg>
         ),
         name: "Android Automotive OS",
-        desc: "Deep system-level integration with the car's native OS — no phone required at all.",
+        desc: "Native to the cars already on the road: Volvo, Polestar, Rivian, Renault, Hyundai, GM, and more. Jack boots with the ignition — no phone, no setup, no friction.",
       },
       {
         icon: (
@@ -62,7 +62,7 @@ const TIERS = [
           </svg>
         ),
         name: "WearOS Wearables",
-        desc: "Haptic hazard alerts and quick commands from your wrist while you drive.",
+        desc: "Your wrist pulses 400 meters before the hazard arrives. A 0.3-second glance — no tap, no voice. Eyes stay on the road. Information that doesn't cost attention.",
       },
       {
         icon: (
@@ -73,7 +73,7 @@ const TIERS = [
           </svg>
         ),
         name: "Fleet Management",
-        desc: "Jack coordinating entire vehicle fleets — logistics, safety, and voice for every driver.",
+        desc: "Jack coordinating entire vehicle fleets — every driver heard, every route optimized, every hazard shared across the network in real time.",
       },
     ],
   },
@@ -93,7 +93,7 @@ const TIERS = [
           </svg>
         ),
         name: "AR Glasses",
-        desc: "Spatial HUD projected onto your field of view — navigation arrows on the real road.",
+        desc: "Turn arrows appear on the actual road in front of you. Hazard markers materialize before you can see the danger. Driving that feels like the car can see the future — because it can.",
       },
       {
         icon: (
@@ -103,7 +103,7 @@ const TIERS = [
           </svg>
         ),
         name: "iPhone",
-        desc: "Jack for iOS — bringing the voice-first experience to Apple users everywhere.",
+        desc: "The same voice intelligence now available to 1.2 billion iPhone users. CarPlay integration, background alerts, and the full Jack experience — regardless of what's in your pocket.",
       },
       {
         icon: (
@@ -114,7 +114,7 @@ const TIERS = [
           </svg>
         ),
         name: "Smart Infrastructure",
-        desc: "Jack communicating with traffic systems, smart roads, and connected city infrastructure.",
+        desc: "Jack negotiating with traffic lights, receiving data from smart roads, syncing with city infrastructure. The car of the future — talking to the city of the future.",
       },
     ],
   },
@@ -220,12 +220,12 @@ export function JackFuture() {
                     </div>
                     <div>
                       <p
-                        className="text-sm font-bold leading-snug"
-                        style={{ color: ti === 2 ? "rgba(232,244,248,0.75)" : "#e8f4f8" }}
+                        className="text-[15px] font-bold leading-snug"
+                        style={{ color: ti === 2 ? "rgba(232,244,248,0.80)" : "#e8f4f8" }}
                       >
                         {device.name}
                       </p>
-                      <p className="mt-0.5 text-xs leading-relaxed" style={{ color: ti === 2 ? "#8aabb8" : "#b2cdd8" }}>
+                      <p className="mt-1 text-sm leading-relaxed" style={{ color: ti === 2 ? "rgba(138,171,184,0.85)" : "rgba(232,244,248,0.78)" }}>
                         {device.desc}
                       </p>
                     </div>

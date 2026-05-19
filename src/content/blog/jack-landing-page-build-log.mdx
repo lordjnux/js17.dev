@@ -1,0 +1,96 @@
+---
+title: "Building the Jack Landing Page: What I Cut, What I Kept, and Why"
+description: "An honest reflection on the decisions behind js17.dev/jack — the animations that stayed, the features I removed, and where the project really stands today."
+date: "2026-05-19T10:00"
+tags: ["Jack", "Build Log", "Product", "Frontend"]
+readingTime: 5
+published: true
+---
+
+There's a particular kind of pressure that comes with building a landing page for your own product.
+
+Not the technical pressure — that part I know how to handle. The other kind. The one where you're staring at a blank file at 11pm thinking: *what does this page need to say, and to whom, and in what order?*
+
+Jack is a voice-first AI copilot for drivers. Android phone today, Android Auto already live, Android Automotive OS in development. The product exists. Real users are waiting. The landing page just needed to catch up.
+
+Here's how it went.
+
+---
+
+## The Void
+
+The first decision was the opening experience.
+
+Most product landing pages do the same thing: logo, tagline, gradient button, scroll. I've built those. They work fine. But Jack isn't a generic SaaS tool — it's something you *feel* the first time you use it. It speaks to you before you even tap anything.
+
+The landing page needed to match that. So instead of a hero with a headline, I built what I'm calling the Void: a dark, minimal screen with a microphone icon and the words "Tap to meet Jack." You tap it, and Jack introduces himself. Literally. The browser's speech synthesis kicks in, and Jack says: *"Hey. I've been waiting for you."*
+
+From there, the rest of the page reveals itself — section by section, as if Jack is letting you in.
+
+Is it unconventional? Yes. Does it take longer than a static hero? Also yes. But it sets the tone immediately: this product is voice-first, it's ambient, and it doesn't make you read a wall of text to understand it.
+
+---
+
+## The Conversation
+
+Below the void, there's a hero section built around a simulated conversation between a driver and Jack. It plays automatically when you enable audio — a full back-and-forth: rerouting around traffic, checking calendar events, reporting a pothole, asking for music.
+
+The technical side was interesting. Web Speech API for text-to-speech, two different voices for driver and Jack, a custom playback engine with pause/resume that doesn't use `speechSynthesis.pause()` — because that API is broken in Chrome. The pause button cancels the current utterance, saves the index, and resumes from exactly that turn when you press play again.
+
+I kept the conversation because it does something a feature list cannot: it shows the product *in motion*. You don't have to imagine what it's like to drive with Jack. You hear it.
+
+---
+
+## What I Cut
+
+The original version included a world map section — "JACK IS GLOBAL," with interactive cities you could click on. Technically interesting, visually heavy.
+
+I removed it.
+
+Not because it was broken, but because it didn't belong. The Void narrative is intimate and minimal. A drag-pan world map breaks that completely. It's the kind of feature that makes sense when you're excited about a capability but doesn't serve the person actually reading the page.
+
+The rule I kept coming back to: *if it adds complexity without adding clarity, it goes.*
+
+I also removed a "Download APK" button that I had in the hero CTA row. It was pointing to the waitlist anyway — just with extra words. One clear CTA is better than three.
+
+---
+
+## The Legibility Problem
+
+A week after the initial launch, I went back and read the page as if I were encountering it for the first time.
+
+The copy was too small. The text on the capability cards, the roadmap descriptions, the movement section — all technically readable, but *uncomfortable*. The kind of thing where you lean slightly forward and squint without realizing you're doing it.
+
+I bumped sizes, increased line-height, raised color contrast on body copy. It sounds small. It isn't. Legibility is the first conversion problem on any landing page — if people are straining to read, they've already stopped caring.
+
+---
+
+## Where Jack Actually Stands Today
+
+v0.10 is live. It runs on Android phones and shows up on Android Auto screens. The features that work: voice navigation prompts, hazard reporting, calendar awareness, music controls, and the always-on background service that keeps everything running without draining the battery.
+
+The next milestone is v1.0 on the Google Play Store. That's the public launch. After that: Android Automotive OS — native integration into the vehicles (Volvo, Polestar, Rivian, Renault, Hyundai, GM, and others) that already run Android under the hood.
+
+The launch market is Colombia. Bogotá specifically. Dense city, active road hazard culture, and a driver community that's been vocal about wanting exactly what Jack does. From there, the network effect does the rest — the product gets better as more drivers are on the road contributing data.
+
+---
+
+## What the Landing Page Is Really Doing
+
+It's not trying to explain everything about Jack. It can't. A 5-minute conversation in the car explains Jack better than any landing page ever will.
+
+What it's doing is creating the conditions for that conversation to happen. It establishes trust. It shows seriousness. It gives investors a coherent picture of where this is going. It gives early adopters a reason to leave their email and come back.
+
+The WhatsApp community is new — if you want to follow the build in real time, that's the place. No algorithms, no noise, just updates as they happen.
+
+---
+
+## An Invitation
+
+If you haven't seen the landing page yet, [go look at it](/jack).
+
+Not to evaluate it — just to experience it. Enable audio, let the conversation play, scroll through the roadmap. It'll take four minutes.
+
+And if it resonates: the waitlist is open. Early testers get lifetime Pro access. Investors can connect directly through the form. And the WhatsApp community is live right now.
+
+The road ahead is already mapped.

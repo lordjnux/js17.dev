@@ -14,7 +14,7 @@ const CARDS = [
       </svg>
     ),
     label: "Voice First",
-    desc: "Say \"Hey Jack\" from a locked screen. No taps, no swipes — just your voice.",
+    desc: "Say \"Hey Jack\" from a locked screen, hands on the wheel. No taps, no swipes, no interruption — your copilot is already listening.",
     accent: "#00D4FF",
   },
   {
@@ -26,7 +26,7 @@ const CARDS = [
       </svg>
     ),
     label: "Community Net",
-    desc: "Real-time hazard alerts powered by every driver on the network. Warnings at 500m, 300m, and 200m.",
+    desc: "Every driver on the road becomes a sensor. Hazard alerts at 500m, 300m, and 200m — crowdsourced in real time, before you can see the danger.",
     accent: "#16c784",
   },
   {
@@ -36,7 +36,7 @@ const CARDS = [
       </svg>
     ),
     label: "Always On",
-    desc: "Runs as a background service — never killed by the OS. Like Spotify, but for your safety.",
+    desc: "Jack never sleeps. Runs as a background service the OS cannot kill — like Spotify, but protecting your life instead of filling your playlist.",
     accent: "#f5a623",
   },
   {
@@ -48,7 +48,7 @@ const CARDS = [
       </svg>
     ),
     label: "Android Auto",
-    desc: "Navigation steps and maneuver icons on your car's display. Your dashboard, elevated.",
+    desc: "Navigation steps, turn icons, and Jack's voice directly on your car's built-in screen. Your dashboard, elevated to what it was always supposed to be.",
     accent: "#00D4FF",
   },
 ]

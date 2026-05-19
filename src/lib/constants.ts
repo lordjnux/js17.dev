@@ -76,6 +76,7 @@ export const TECH_STACK = {
 } as const
 
 export const NAV_ITEMS = [
+  { label: "Jack", href: "/jack" },
   { label: "Blog", href: "/blog" },
   { label: "Hobbies", href: "/hobbies" },
   { label: "Changelog", href: "/changelog" },

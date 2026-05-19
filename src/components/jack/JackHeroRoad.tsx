@@ -688,11 +688,11 @@ export function JackHeroRoad() {
       {/* ── BOTTOM CONTENT ── */}
       <div className="relative z-10 mt-auto px-6 pb-20 text-center sm:px-10">
 
-        {/* Hazard alert — flashes when overlay triggers */}
+        {/* Hazard alert — appears, holds 5s, then fades out */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 2.0 }}
+          animate={{ opacity: [0, 1, 1, 0], y: [16, 0, 0, 4] }}
+          transition={{ duration: 6.5, delay: 2.0, times: [0, 0.092, 0.862, 1], ease: "easeOut" }}
           className="mb-10 flex justify-center"
         >
           <HUDPanel
@@ -775,22 +775,11 @@ export function JackHeroRoad() {
             </svg>
           </Link>
 
-          <Link
-            href="#waitlist"
-            className="inline-flex items-center gap-2 rounded-xl px-7 py-3.5 text-sm font-bold tracking-wide transition-all duration-200"
-            style={{ border: "1px solid rgba(0,212,255,0.25)", color: "#00D4FF", background: "rgba(0,212,255,0.05)" }}
-          >
-            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-            </svg>
-            Download APK
-          </Link>
-
           <div className="relative">
             <button
               disabled
-              className="inline-flex cursor-not-allowed items-center gap-2 rounded-xl px-7 py-3.5 text-sm font-bold tracking-wide opacity-35"
-              style={{ border: "1px solid rgba(255,255,255,0.1)", color: "#6b8fa8", background: "transparent" }}
+              className="inline-flex cursor-not-allowed items-center gap-2 rounded-xl px-7 py-3.5 text-sm font-bold tracking-wide"
+              style={{ border: "1px solid rgba(0,212,255,0.40)", color: "#00D4FF", background: "rgba(0,212,255,0.10)" }}
             >
               <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M3.18 23.76A2 2 0 014.95 24c.42 0 .83-.08 1.2-.27l13.03-7.15a2 2 0 000-3.16L6.15.47A2 2 0 003 2.25v19.5c0 .73.39 1.38.97 1.73L4 23.76z" />
