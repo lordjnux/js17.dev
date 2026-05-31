@@ -5,12 +5,19 @@ const LATAM_COUNTRIES = new Set([
   'CR', 'PA', 'GT', 'HN', 'SV', 'NI', 'CU', 'DO', 'PR',
 ])
 
+// next-intl reads this header in getRequestConfig({ requestLocale }) to determine locale
+const LOCALE_HEADER = 'X-NEXT-INTL-LOCALE'
+
 export function middleware(request: NextRequest) {
   const { pathname, search } = request.nextUrl
 
-  // ES-prefixed paths: pass through — Next.js matches [locale]=es directly
+  // ES-prefixed paths: pass through and set locale header so next-intl server context
+  // resolves to 'es'. Without this header, requestLocale falls back to 'en', which
+  // causes usePathname() to not strip /es and produces /es/es on language switch.
   if (pathname === '/es' || pathname.startsWith('/es/')) {
-    return NextResponse.next()
+    const response = NextResponse.next()
+    response.headers.set(LOCALE_HEADER, 'es')
+    return response
   }
 
   // /en-prefixed paths: redirect to canonical unprefixed URL (SEO)
@@ -44,10 +51,11 @@ export function middleware(request: NextRequest) {
   }
 
   // Default EN: rewrite internally to /en/* so Next.js matches [locale]/page.tsx.
-  // This is a server-side rewrite — browser URL stays unprefixed, middleware
-  // does NOT run again for the rewritten URL.
+  // Set locale header so next-intl server context resolves to 'en'.
   const rewriteUrl = new URL(`/en${pathname === '/' ? '' : pathname}${search}`, request.url)
-  return NextResponse.rewrite(rewriteUrl)
+  const response = NextResponse.rewrite(rewriteUrl)
+  response.headers.set(LOCALE_HEADER, 'en')
+  return response
 }
 
 export const config = {

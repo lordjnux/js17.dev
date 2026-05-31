@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 import { getServerSession } from "next-auth"
 import { authOptions, ADMIN_EMAIL } from "@/lib/auth"
 import { redirect } from "next/navigation"
