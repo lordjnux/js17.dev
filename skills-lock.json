@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "skills": {
+    "seo": {
+      "source": "affaan-m/everything-claude-code",
+      "sourceType": "github",
+      "skillPath": "skills/seo/SKILL.md",
+      "computedHash": "bed0668abba0f43512ba190c9c2c46d3a7e983583997783bf600f2ed5587b351"
+    },
+    "technical-seo-checker": {
+      "source": "aaron-he-zhu/seo-geo-claude-skills",
+      "sourceType": "github",
+      "skillPath": "optimize/technical-seo-checker/SKILL.md",
+      "computedHash": "8faf76541ab005e6d9dabe98111dd058c84eac9138530d38d5df6ebba17c6099"
+    }
+  }
+}

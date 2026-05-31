@@ -2,6 +2,7 @@ import createMDX from '@next/mdx'
 import remarkGfm from 'remark-gfm'
 import rehypeSlug from 'rehype-slug'
 import rehypePrettyCode from 'rehype-pretty-code'
+import createNextIntl from 'next-intl/plugin'
 
 /** @type {import('rehype-pretty-code').Options} */
 const prettyCodeOptions = {
@@ -43,4 +44,6 @@ const nextConfig = {
   },
 }
 
-export default withMDX(nextConfig)
+const withNextIntl = createNextIntl('./src/i18n/request.ts')
+
+export default withNextIntl(withMDX(nextConfig))

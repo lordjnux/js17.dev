@@ -17,7 +17,10 @@ function readDoc(slug: string) {
 }
 
 export async function generateStaticParams() {
-  return VALID_DOCS.map((doc) => ({ doc }))
+  return VALID_DOCS.flatMap((doc) => [
+    { locale: "en", doc },
+    { locale: "es", doc },
+  ])
 }
 
 export async function generateMetadata({ params }: { params: { doc: string } }): Promise<Metadata> {
@@ -37,7 +40,6 @@ export default function LegalPage({ params }: { params: { doc: string } }) {
   return (
     <main className="min-h-screen py-16 md:py-24">
       <div className="container max-w-3xl mx-auto px-4">
-        {/* Header */}
         <div className="mb-10 pb-8 border-b">
           <p className="text-xs font-semibold uppercase tracking-widest text-primary mb-3">Legal</p>
           <h1 className="text-3xl font-bold mb-3">{doc.meta.title}</h1>
@@ -53,7 +55,6 @@ export default function LegalPage({ params }: { params: { doc: string } }) {
           )}
         </div>
 
-        {/* Content */}
         <div className="prose prose-sm dark:prose-invert max-w-none
           prose-headings:font-semibold prose-headings:text-foreground
           prose-h2:text-lg prose-h2:mt-8 prose-h2:mb-3
@@ -64,7 +65,6 @@ export default function LegalPage({ params }: { params: { doc: string } }) {
           <MDXRemote source={doc.content} />
         </div>
 
-        {/* Footer nav */}
         <div className="mt-12 pt-8 border-t flex flex-wrap gap-4 text-sm text-muted-foreground">
           <a href="/legal/terms" className="hover:text-primary transition-colors">Terms of Service</a>
           <span>·</span>

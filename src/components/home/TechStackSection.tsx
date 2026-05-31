@@ -2,6 +2,7 @@ import { AnimatedSection } from "@/components/shared/AnimatedSection"
 import { SectionHeader } from "@/components/shared/SectionHeader"
 import { Badge } from "@/components/ui/badge"
 import { TECH_STACK } from "@/lib/constants"
+import { getTranslations } from "next-intl/server"
 
 const categoryIcons: Record<string, string> = {
   AI: "🤖",
@@ -12,15 +13,17 @@ const categoryIcons: Record<string, string> = {
   Testing: "🧪",
 }
 
-export function TechStackSection() {
+export async function TechStackSection() {
+  const t = await getTranslations("home.techStack")
+
   return (
     <section id="tech" className="section-padding">
       <div className="container-custom">
         <AnimatedSection>
           <SectionHeader
-            label="Tech Stack"
-            title="Tools & Technologies"
-            description="Battle-tested tools I reach for when building production systems"
+            label={t("label")}
+            title={t("title")}
+            description={t("description")}
           />
         </AnimatedSection>
 

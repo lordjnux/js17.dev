@@ -4,7 +4,7 @@ import { getChessStats } from "@/lib/chess"
 import { FitWellnessSection } from "@/components/hobbies/FitWellnessSection"
 import type { Metadata } from "next"
 
-export const revalidate = 21600 // 6h ISR
+export const revalidate = 21600
 
 export const metadata: Metadata = {
   title: "Hobbies & Life Stats",

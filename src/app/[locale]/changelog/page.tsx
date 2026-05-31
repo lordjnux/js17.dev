@@ -66,7 +66,6 @@ export default function ChangelogPage() {
           description="What's been built, how it was solved, and why it matters — written for developers and clients equally."
         />
 
-        {/* Legend */}
         <div className="flex flex-wrap gap-3 justify-center mb-14 -mt-4">
           {Object.entries(CATEGORY_META).map(([key, meta]) => (
             <span
@@ -79,9 +78,7 @@ export default function ChangelogPage() {
           ))}
         </div>
 
-        {/* Timeline */}
         <div className="relative">
-          {/* Vertical line */}
           <div className="absolute left-[11px] top-2 bottom-2 w-px bg-border hidden sm:block" />
 
           <div className="space-y-14">
@@ -91,7 +88,6 @@ export default function ChangelogPage() {
 
               return (
                 <div key={entry.slug} className="relative sm:pl-10">
-                  {/* Timeline dot */}
                   <div
                     className={`absolute left-0 top-1.5 hidden sm:flex h-6 w-6 items-center justify-center rounded-full border-2 ${
                       isLatest
@@ -102,9 +98,7 @@ export default function ChangelogPage() {
                     <div className="h-2 w-2 rounded-full bg-current" />
                   </div>
 
-                  {/* Card */}
                   <article className="rounded-xl border bg-card overflow-hidden">
-                    {/* Header */}
                     <div className="p-6 border-b">
                       <div className="flex flex-wrap items-start justify-between gap-3 mb-3">
                         <div className="flex items-center gap-2.5">
@@ -135,7 +129,6 @@ export default function ChangelogPage() {
                       <p className="text-muted-foreground leading-relaxed">{entry.headline}</p>
                     </div>
 
-                    {/* Body — MDX prose */}
                     <div className="p-6 prose prose-sm dark:prose-invert max-w-none
                       prose-headings:font-semibold prose-headings:text-foreground
                       prose-h2:text-base prose-h2:mt-6 prose-h2:mb-3
@@ -147,9 +140,7 @@ export default function ChangelogPage() {
                       <MDXRemote source={entry.content} />
                     </div>
 
-                    {/* Footer — skills + value callouts */}
                     <div className="border-t divide-y">
-                      {/* Client value */}
                       <div className="px-6 py-4 bg-primary/5">
                         <p className="text-xs font-semibold uppercase tracking-wide text-primary mb-1.5">
                           What this means for you as a client
@@ -159,7 +150,6 @@ export default function ChangelogPage() {
                         </p>
                       </div>
 
-                      {/* Dev notes */}
                       <details className="group px-6 py-4">
                         <summary className="cursor-pointer text-xs font-semibold uppercase tracking-wide text-muted-foreground hover:text-foreground transition-colors list-none flex items-center gap-2">
                           <Code2 className="h-3.5 w-3.5" />
@@ -172,7 +162,6 @@ export default function ChangelogPage() {
                         </p>
                       </details>
 
-                      {/* Skills */}
                       <div className="px-6 py-4">
                         <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2.5">
                           Skills demonstrated
@@ -196,7 +185,6 @@ export default function ChangelogPage() {
           </div>
         </div>
 
-        {/* Footer CTA */}
         <div className="mt-16 rounded-xl border bg-card p-8 text-center space-y-4">
           <p className="text-sm text-muted-foreground">
             Want to see what gets built next? Follow along or start a project.

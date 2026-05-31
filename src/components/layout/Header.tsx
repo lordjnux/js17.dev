@@ -10,6 +10,8 @@ import { useState, useEffect } from "react"
 import { Menu, X, Github, Linkedin, ShieldCheck, Lock } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useSession, signOut } from "next-auth/react"
+import { useTranslations } from "next-intl"
+import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher"
 
 export function Header() {
   const pathname = usePathname()
@@ -17,6 +19,15 @@ export function Header() {
   const [mobileOpen, setMobileOpen] = useState(false)
   const { data: session, status } = useSession()
   const isAdmin = session?.user?.isAdmin === true
+  const t = useTranslations("nav")
+
+  const navLabels: Record<string, string> = {
+    Jack: t("jack"),
+    Blog: t("blog"),
+    Hobbies: t("hobbies"),
+    Changelog: t("changelog"),
+    Proposal: t("proposal"),
+  }
 
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 20)
@@ -52,18 +63,19 @@ export function Header() {
               href={item.href}
               className={cn(
                 "text-sm font-medium transition-colors hover:text-foreground",
-                pathname === item.href
+                pathname === item.href || pathname.endsWith(item.href)
                   ? "text-foreground"
                   : "text-muted-foreground"
               )}
             >
-              {item.label}
+              {navLabels[item.label] ?? item.label}
             </Link>
           ))}
         </nav>
 
         {/* Actions */}
         <div className="flex items-center gap-2">
+          <LanguageSwitcher />
           <Link
             href={SITE_CONFIG.github}
             target="_blank"
@@ -85,14 +97,23 @@ export function Header() {
           <CVDownloadButton size="sm" className="hidden md:inline-flex" />
           {status !== "loading" && (
             isAdmin ? (
-              <button
-                onClick={() => signOut({ callbackUrl: "/" })}
-                className="hidden md:inline-flex items-center gap-1.5 text-xs font-mono text-green-500 hover:text-green-400 transition-colors px-2 py-1 rounded-md border border-green-500/20 hover:border-green-500/40"
-                title="Signed in as admin — click to sign out"
-              >
-                <ShieldCheck className="h-3.5 w-3.5" />
-                Admin
-              </button>
+              <div className="hidden md:flex items-center gap-2">
+                <Link
+                  href="/admin"
+                  className="inline-flex items-center gap-1.5 text-xs font-mono text-green-500 hover:text-green-400 transition-colors px-2 py-1 rounded-md border border-green-500/20 hover:border-green-500/40"
+                  title="Go to admin dashboard"
+                >
+                  <ShieldCheck className="h-3.5 w-3.5" />
+                  Admin
+                </Link>
+                <button
+                  onClick={() => signOut({ callbackUrl: "/" })}
+                  className="text-xs font-mono text-muted-foreground hover:text-foreground transition-colors px-2 py-1"
+                  title="Sign out"
+                >
+                  Sign out
+                </button>
+              </div>
             ) : (
               <Link
                 href="/auth/signin"
@@ -126,15 +147,18 @@ export function Header() {
                 href={item.href}
                 className={cn(
                   "rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-accent",
-                  pathname === item.href ? "bg-accent" : ""
+                  pathname === item.href || pathname.endsWith(item.href) ? "bg-accent" : ""
                 )}
                 onClick={() => setMobileOpen(false)}
               >
-                {item.label}
+                {navLabels[item.label] ?? item.label}
               </Link>
             ))}
-            <div className="pt-2">
-              <CVDownloadButton className="w-full" />
+            <div className="pt-2 flex items-center justify-between">
+              <CVDownloadButton className="flex-1" />
+              <div className="ml-2">
+                <LanguageSwitcher />
+              </div>
             </div>
           </nav>
         </div>

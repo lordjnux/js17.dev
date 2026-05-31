@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 
 function SignInContent() {
   const searchParams = useSearchParams()
-  const callbackUrl = searchParams.get("callbackUrl") || "/blog"
+  const callbackUrl = searchParams.get("callbackUrl") || "/admin"
 
   return (
     <div className="min-h-screen flex items-center justify-center">

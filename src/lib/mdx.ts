@@ -4,7 +4,11 @@ import matter from "gray-matter"
 import { Post, PostFrontmatter } from "@/types/blog"
 import { readingTime } from "./utils"
 
-const CONTENT_DIR = path.join(process.cwd(), "src/content/blog")
+const BLOG_ROOT = path.join(process.cwd(), "src/content/blog")
+
+function getContentDir(locale: string = "en") {
+  return path.join(BLOG_ROOT, locale)
+}
 
 /** Parse "YYYY-MM-DD" or "YYYY-MM-DDTHH:mm" as local time — no ambiguity. */
 function parseDateMs(dateStr: string): number {
@@ -17,14 +21,19 @@ function parseDateMs(dateStr: string): number {
   return new Date(y, m - 1, d).getTime()
 }
 
-export function getAllPosts(): Post[] {
-  if (!fs.existsSync(CONTENT_DIR)) return []
+export function getAllPosts(locale: string = "en"): Post[] {
+  const dir = getContentDir(locale)
 
-  const files = fs.readdirSync(CONTENT_DIR).filter((f) => f.endsWith(".mdx"))
+  // Fall back to 'en' dir if locale dir doesn't exist
+  const effectiveDir = fs.existsSync(dir) ? dir : getContentDir("en")
+
+  if (!fs.existsSync(effectiveDir)) return []
+
+  const files = fs.readdirSync(effectiveDir).filter((f) => f.endsWith(".mdx"))
 
   const posts = files.map((file) => {
     const slug = file.replace(/\.mdx$/, "")
-    const filePath = path.join(CONTENT_DIR, file)
+    const filePath = path.join(effectiveDir, file)
     const raw = fs.readFileSync(filePath, "utf-8")
     const { data, content } = matter(raw)
     const frontmatter = data as PostFrontmatter
@@ -34,6 +43,7 @@ export function getAllPosts(): Post[] {
       frontmatter,
       content,
       excerpt: content.slice(0, 200).replace(/[#*`]/g, "").trim() + "...",
+      isFallback: effectiveDir !== dir,
     }
   })
 
@@ -49,23 +59,42 @@ export function getAllPosts(): Post[] {
     }))
 }
 
-export function getPostBySlug(slug: string): Post | null {
-  const filePath = path.join(CONTENT_DIR, `${slug}.mdx`)
-  if (!fs.existsSync(filePath)) return null
+export function getPostBySlug(slug: string, locale: string = "en"): Post | null {
+  const localeDir = getContentDir(locale)
+  const localePath = path.join(localeDir, `${slug}.mdx`)
 
-  const raw = fs.readFileSync(filePath, "utf-8")
-  const { data, content } = matter(raw)
-  const frontmatter = data as PostFrontmatter
-
-  return {
-    slug,
-    frontmatter: {
-      ...frontmatter,
-      readingTime: readingTime(content),
-    },
-    content,
-    excerpt: content.slice(0, 200).replace(/[#*`]/g, "").trim() + "...",
+  // Try locale-specific file first
+  if (fs.existsSync(localePath)) {
+    const raw = fs.readFileSync(localePath, "utf-8")
+    const { data, content } = matter(raw)
+    const frontmatter = data as PostFrontmatter
+    return {
+      slug,
+      frontmatter: { ...frontmatter, readingTime: readingTime(content) },
+      content,
+      excerpt: content.slice(0, 200).replace(/[#*`]/g, "").trim() + "...",
+      isFallback: false,
+    }
   }
+
+  // Fall back to English if locale is not 'en'
+  if (locale !== "en") {
+    const enPath = path.join(getContentDir("en"), `${slug}.mdx`)
+    if (fs.existsSync(enPath)) {
+      const raw = fs.readFileSync(enPath, "utf-8")
+      const { data, content } = matter(raw)
+      const frontmatter = data as PostFrontmatter
+      return {
+        slug,
+        frontmatter: { ...frontmatter, readingTime: readingTime(content) },
+        content,
+        excerpt: content.slice(0, 200).replace(/[#*`]/g, "").trim() + "...",
+        isFallback: true,
+      }
+    }
+  }
+
+  return null
 }
 
 export function generateLinkedInText(post: Post): string {

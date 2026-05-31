@@ -1,0 +1,111 @@
+{
+  "nav": {
+    "jack": "Jack",
+    "blog": "Blog",
+    "hobbies": "Hobbies",
+    "changelog": "Changelog",
+    "proposal": "Proposal"
+  },
+  "home": {
+    "availableBadge": "Available for new projects",
+    "heroTitle1": "Senior",
+    "heroHighlight": "AI-Augmented",
+    "heroTitle2": "Fullstack Systems",
+    "heroTitle3": "Engineer",
+    "heroTagline": "10+ years building scalable production systems. I bridge the gap between cutting-edge AI capabilities and robust engineering — shipping products that perform, scale, and last.",
+    "requestProposal": "Request a Proposal",
+    "downloadCV": "Download CV",
+    "scheduleCall": "Schedule a Free Call",
+    "stats": {
+      "yearsExperience": "Years Experience",
+      "projectsShipped": "Projects Shipped",
+      "uptimeSLA": "Uptime SLA",
+      "aiSystemsBuilt": "AI Systems Built"
+    },
+    "about": {
+      "label": "About",
+      "title": "Engineering systems that scale",
+      "bio1": "I'm Jeroham Sanchez — a Senior Fullstack Systems Engineer with 10+ years of experience building production-grade web applications, APIs, and AI-powered systems for startups and enterprises.",
+      "bio2": "My specialty is the intersection of modern web engineering and AI — designing systems that use language models effectively, not just as a gimmick, but as a genuine multiplier for user value.",
+      "bio3": "I work in short, high-quality iteration cycles. You get clean code, solid documentation, and a system you can actually maintain and extend without me."
+    },
+    "strengths": {
+      "item1": "Full-cycle development: architecture → deploy → monitor",
+      "item2": "AI integration specialist: LLMs, RAG, agentic workflows",
+      "item3": "Security-first mindset with OWASP practices",
+      "item4": "Async-first, remote collaboration expert",
+      "item5": "Performance obsessed: Core Web Vitals, DB optimization",
+      "item6": "Clear technical communication with non-technical stakeholders"
+    },
+    "techStack": {
+      "label": "Tech Stack",
+      "title": "Tools & Technologies",
+      "description": "Battle-tested tools I reach for when building production systems"
+    },
+    "cta": {
+      "subtitle": "Let's Work Together",
+      "title": "Have a project in mind?",
+      "description": "I'm currently available for freelance engagements. Tell me about your project and I'll get back to you within 24 hours.",
+      "startProposal": "Start a Proposal",
+      "readBlog": "Read My Blog"
+    }
+  },
+  "blog": {
+    "label": "Writing",
+    "title": "Blog",
+    "description": "Technical articles on AI engineering, architecture, and building production systems.",
+    "fallbackNotice": "This article is not yet available in Spanish.",
+    "noPostsYet": "No posts published yet. Check back soon.",
+    "minRead": "min read",
+    "readArticle": "Read article"
+  },
+  "hobbies": {
+    "title": "Hobbies & Life Stats",
+    "description": "Beyond the code — running stats, chess ratings, and the systems thinking I apply outside the terminal."
+  },
+  "changelog": {
+    "label": "Release History",
+    "title": "Changelog",
+    "description": "What's been built, how it was solved, and why it matters — written for developers and clients equally.",
+    "latest": "Latest",
+    "clientValue": "What this means for you as a client",
+    "developerNotes": "Developer notes",
+    "skillsDemonstrated": "Skills demonstrated",
+    "viewOnGitHub": "View on GitHub",
+    "startProject": "Start a project"
+  },
+  "proposal": {
+    "label": "Work With Me",
+    "title": "Connect or Collaborate",
+    "description": "Support the open work I create, or bring me in for a project — pick your path below.",
+    "supportMyWork": "Support My Work",
+    "startProject": "Start a Project"
+  },
+  "legal": {
+    "label": "Legal",
+    "englishOnly": "Legal documents are in English as required by applicable law."
+  },
+  "newsletter": {
+    "unsubscribe": {
+      "successTitle": "Unsubscribed",
+      "successRemoved": "has been removed from the js17.dev newsletter.",
+      "successNoMore": "You won't receive any more emails from us.",
+      "changedMind": "Changed your mind?",
+      "resubscribe": "Resubscribe",
+      "invalidTitle": "Invalid link",
+      "invalidMessage": "This unsubscribe link is invalid or has already been used. If you'd like to unsubscribe, email",
+      "defaultTitle": "Unsubscribe",
+      "defaultMessage": "To unsubscribe, use the link in any email you received from js17.dev, or contact",
+      "backHome": "Back to js17.dev"
+    }
+  },
+  "footer": {
+    "rights": "All rights reserved."
+  },
+  "notFound": {
+    "code": "404",
+    "title": "Page Not Found",
+    "description": "The page you're looking for doesn't exist or has been moved.",
+    "backHome": "Back to Home"
+  }
+}

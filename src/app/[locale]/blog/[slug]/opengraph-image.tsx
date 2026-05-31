@@ -4,9 +4,7 @@ export const runtime = "edge"
 export const size = { width: 1200, height: 630 }
 export const contentType = "image/png"
 
-// Title is fetched from route params — no fs/path imports needed in Edge runtime
 export default async function OG({ params }: { params: { slug: string } }) {
-  // Convert slug to readable title: "my-post-title" → "My Post Title"
   const slugTitle = params.slug
     .split("-")
     .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
@@ -28,7 +26,6 @@ export default async function OG({ params }: { params: { slug: string } }) {
           overflow: "hidden",
         }}
       >
-        {/* Grid background */}
         <div
           style={{
             position: "absolute",
@@ -39,7 +36,6 @@ export default async function OG({ params }: { params: { slug: string } }) {
           }}
         />
 
-        {/* Top bar */}
         <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
           <span style={{ fontFamily: "monospace", fontSize: "20px", fontWeight: 700, color: "#3b82f6" }}>
             js17.dev
@@ -48,7 +44,6 @@ export default async function OG({ params }: { params: { slug: string } }) {
           <span style={{ color: "#64748b", fontSize: "20px" }}>blog</span>
         </div>
 
-        {/* Title */}
         <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
           <div
             style={{
@@ -81,7 +76,6 @@ export default async function OG({ params }: { params: { slug: string } }) {
           </h1>
         </div>
 
-        {/* Author row */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
             <div

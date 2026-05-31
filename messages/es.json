@@ -1,0 +1,111 @@
+{
+  "nav": {
+    "jack": "Jack",
+    "blog": "Blog",
+    "hobbies": "Hobbies",
+    "changelog": "Cambios",
+    "proposal": "Propuesta"
+  },
+  "home": {
+    "availableBadge": "Disponible para nuevos proyectos",
+    "heroTitle1": "Ingeniero Senior",
+    "heroHighlight": "Fullstack con IA",
+    "heroTitle2": "Aumentada",
+    "heroTitle3": "",
+    "heroTagline": "Más de 10 años construyendo sistemas de producción escalables. Conecto las capacidades de IA de vanguardia con ingeniería robusta — entregando productos que rinden, escalan y perduran.",
+    "requestProposal": "Solicitar una Propuesta",
+    "downloadCV": "Descargar CV",
+    "scheduleCall": "Agendar una Llamada Gratuita",
+    "stats": {
+      "yearsExperience": "Años de Experiencia",
+      "projectsShipped": "Proyectos Entregados",
+      "uptimeSLA": "SLA de Disponibilidad",
+      "aiSystemsBuilt": "Sistemas de IA Construidos"
+    },
+    "about": {
+      "label": "Sobre mí",
+      "title": "Sistemas de ingeniería que escalan",
+      "bio1": "Soy Jeroham Sanchez — Ingeniero Senior Fullstack con más de 10 años de experiencia construyendo aplicaciones web, APIs y sistemas potenciados por IA para startups y empresas.",
+      "bio2": "Mi especialidad es la intersección entre la ingeniería web moderna y la IA — diseñando sistemas que aprovechan los modelos de lenguaje de forma efectiva, no como un truco, sino como un multiplicador real de valor.",
+      "bio3": "Trabajo en ciclos de iteración cortos y de alta calidad. Obtienes código limpio, documentación sólida y un sistema que puedes mantener y escalar sin depender de mí."
+    },
+    "strengths": {
+      "item1": "Desarrollo de ciclo completo: arquitectura → despliegue → monitoreo",
+      "item2": "Especialista en integración de IA: LLMs, RAG, flujos agénticos",
+      "item3": "Mentalidad de seguridad ante todo con prácticas OWASP",
+      "item4": "Experto en colaboración remota y asíncrona",
+      "item5": "Obsesionado con el rendimiento: Core Web Vitals, optimización de BD",
+      "item6": "Comunicación técnica clara con stakeholders no técnicos"
+    },
+    "techStack": {
+      "label": "Stack Tecnológico",
+      "title": "Herramientas y Tecnologías",
+      "description": "Herramientas probadas en batalla que uso para construir sistemas de producción"
+    },
+    "cta": {
+      "subtitle": "Trabajemos Juntos",
+      "title": "¿Tienes un proyecto en mente?",
+      "description": "Actualmente estoy disponible para proyectos freelance. Cuéntame sobre tu proyecto y te respondo en menos de 24 horas.",
+      "startProposal": "Iniciar una Propuesta",
+      "readBlog": "Leer mi Blog"
+    }
+  },
+  "blog": {
+    "label": "Artículos",
+    "title": "Blog",
+    "description": "Artículos técnicos sobre ingeniería de IA, arquitectura y construcción de sistemas de producción.",
+    "fallbackNotice": "Este artículo aún no está disponible en español.",
+    "noPostsYet": "Aún no hay artículos publicados. Vuelve pronto.",
+    "minRead": "min de lectura",
+    "readArticle": "Leer artículo"
+  },
+  "hobbies": {
+    "title": "Hobbies y Estadísticas de Vida",
+    "description": "Más allá del código — estadísticas de running, ratings de ajedrez y el pensamiento sistémico que aplico fuera de la terminal."
+  },
+  "changelog": {
+    "label": "Historial de Versiones",
+    "title": "Registro de Cambios",
+    "description": "Qué se construyó, cómo se resolvió y por qué importa — escrito para desarrolladores y clientes por igual.",
+    "latest": "Más reciente",
+    "clientValue": "Qué significa esto para ti como cliente",
+    "developerNotes": "Notas del desarrollador",
+    "skillsDemonstrated": "Habilidades demostradas",
+    "viewOnGitHub": "Ver en GitHub",
+    "startProject": "Iniciar un proyecto"
+  },
+  "proposal": {
+    "label": "Trabaja Conmigo",
+    "title": "Conecta o Colabora",
+    "description": "Apoya el trabajo abierto que creo, o tráeme a tu proyecto — elige tu camino abajo.",
+    "supportMyWork": "Apoya Mi Trabajo",
+    "startProject": "Iniciar un Proyecto"
+  },
+  "legal": {
+    "label": "Legal",
+    "englishOnly": "Los documentos legales están en inglés según lo exige la ley aplicable."
+  },
+  "newsletter": {
+    "unsubscribe": {
+      "successTitle": "Cancelado",
+      "successRemoved": "ha sido eliminado del boletín de js17.dev.",
+      "successNoMore": "No recibirás más correos de nuestra parte.",
+      "changedMind": "¿Cambiaste de opinión?",
+      "resubscribe": "Volver a suscribirse",
+      "invalidTitle": "Enlace inválido",
+      "invalidMessage": "Este enlace de cancelación es inválido o ya fue usado. Si deseas cancelar tu suscripción, escríbenos a",
+      "defaultTitle": "Cancelar suscripción",
+      "defaultMessage": "Para cancelar tu suscripción, usa el enlace en cualquier correo que hayas recibido de js17.dev, o contáctanos en",
+      "backHome": "Volver a js17.dev"
+    }
+  },
+  "footer": {
+    "rights": "Todos los derechos reservados."
+  },
+  "notFound": {
+    "code": "404",
+    "title": "Página No Encontrada",
+    "description": "La página que buscas no existe o fue movida.",
+    "backHome": "Volver al Inicio"
+  }
+}

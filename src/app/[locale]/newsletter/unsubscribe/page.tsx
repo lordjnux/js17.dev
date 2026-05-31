@@ -19,7 +19,6 @@ function UnsubscribeContent({ searchParams }: { searchParams: { status?: string;
     <div className="min-h-[60vh] flex items-center justify-center px-4">
       <div className="w-full max-w-sm text-center space-y-6">
 
-        {/* Icon */}
         <div className="flex justify-center">
           {isSuccess ? (
             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-500/10">
@@ -36,7 +35,6 @@ function UnsubscribeContent({ searchParams }: { searchParams: { status?: string;
           )}
         </div>
 
-        {/* Message */}
         {isSuccess && (
           <>
             <div className="space-y-2">
@@ -85,7 +83,6 @@ function UnsubscribeContent({ searchParams }: { searchParams: { status?: string;
           </div>
         )}
 
-        {/* Back link */}
         <Link
           href="/"
           className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"

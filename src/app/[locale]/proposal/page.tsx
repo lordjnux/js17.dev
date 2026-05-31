@@ -13,7 +13,6 @@ export default function ProposalPage() {
     <div className="container-custom py-12 md:py-16">
       <div className="max-w-2xl mx-auto">
 
-        {/* Page Header */}
         <div className="mb-12">
           <p className="text-sm font-semibold uppercase tracking-widest text-blue-500 mb-3">
             Work With Me
@@ -26,9 +25,6 @@ export default function ProposalPage() {
           </p>
         </div>
 
-        {/* ═══════════════════════════════════════
-            SECTION 1 — Support My Work
-        ═══════════════════════════════════════ */}
         <section className="mb-16">
           <div className="mb-5 flex items-start gap-2.5">
             <Heart className="h-4 w-4 text-rose-400 mt-0.5 shrink-0" />
@@ -41,8 +37,6 @@ export default function ProposalPage() {
           </div>
 
           <div className="grid sm:grid-cols-2 gap-4">
-
-            {/* BMaC */}
             <a
               href="https://buymeacoffee.com/jerohamsanchez"
               target="_blank"
@@ -72,7 +66,6 @@ export default function ProposalPage() {
               </span>
             </a>
 
-            {/* PayPal */}
             <a
               href="https://www.paypal.com/paypalme/jerohamsanchez"
               target="_blank"
@@ -94,13 +87,9 @@ export default function ProposalPage() {
                 <ExternalLink className="h-3 w-3" />
               </span>
             </a>
-
           </div>
         </section>
 
-        {/* ═══════════════════════════════════════
-            SECTION 2 — Start a Project (client)
-        ═══════════════════════════════════════ */}
         <section>
           <div className="border-t pt-12 mb-8">
             <div className="flex items-start gap-2.5">

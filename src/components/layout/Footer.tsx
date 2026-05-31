@@ -1,8 +1,10 @@
 import Link from "next/link"
 import { LogoFull } from "@/components/shared/Logo"
+import { getTranslations } from "next-intl/server"
 
-export function Footer() {
+export async function Footer() {
   const year = new Date().getFullYear()
+  const t = await getTranslations("footer")
 
   return (
     <footer className="border-t bg-background">
@@ -15,7 +17,7 @@ export function Footer() {
           <LogoFull size={48} />
         </Link>
         <p className="text-xs text-muted-foreground">
-          © {year} Jeroham Sanchez. All rights reserved.
+          © {year} Jeroham Sanchez. {t("rights")}
         </p>
       </div>
     </footer>

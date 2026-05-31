@@ -24,16 +24,27 @@ import { JackInvestorDeck } from "@/components/blog/JackInvestorDeck"
 import { JackWaitlist } from "@/components/blog/JackWaitlist"
 
 export async function generateStaticParams() {
-  const posts = getAllPosts()
-  return posts.map((post) => ({ slug: post.slug }))
+  const enPosts = getAllPosts("en")
+  const esPosts = getAllPosts("es")
+  const params: { locale: string; slug: string }[] = []
+  enPosts.forEach((p) => params.push({ locale: "en", slug: p.slug }))
+  esPosts.forEach((p) => {
+    if (!params.some((e) => e.locale === "es" && e.slug === p.slug)) {
+      params.push({ locale: "es", slug: p.slug })
+    }
+  })
+  if (!params.some((p) => p.locale === "es")) {
+    enPosts.forEach((p) => params.push({ locale: "es", slug: p.slug }))
+  }
+  return params
 }
 
 export async function generateMetadata({
   params,
 }: {
-  params: { slug: string }
+  params: { locale: string; slug: string }
 }): Promise<Metadata> {
-  const post = getPostBySlug(params.slug)
+  const post = getPostBySlug(params.slug, params.locale)
   if (!post) return {}
 
   return {
@@ -70,15 +81,14 @@ function extractHeadings(content: string) {
 export default async function BlogPostPage({
   params,
 }: {
-  params: { slug: string }
+  params: { locale: string; slug: string }
 }) {
-  const post = getPostBySlug(params.slug)
+  const post = getPostBySlug(params.slug, params.locale)
   if (!post) notFound()
 
   const headings = extractHeadings(post.content)
   const linkedInText = generateLinkedInText(post)
 
-  // Parse MDX
   const { content } = await compileMDX({
     source: post.content,
     options: { parseFrontmatter: false },
@@ -106,8 +116,12 @@ export default async function BlogPostPage({
 
   return (
     <div className="container-custom py-12 md:py-16">
+      {post.isFallback && (
+        <div className="mb-6 rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-600 dark:text-amber-400">
+          Este artículo aún no está disponible en español — mostrando versión en inglés.
+        </div>
+      )}
       <div className="flex gap-12 justify-between">
-        {/* Main content */}
         <article className="min-w-0 flex-1 max-w-3xl">
           <PostHeader frontmatter={post.frontmatter} />
 
@@ -124,7 +138,6 @@ export default async function BlogPostPage({
           </div>
         </article>
 
-        {/* TOC sidebar */}
         {headings.length > 0 && (
           <aside className="hidden xl:block w-56 flex-shrink-0 sticky top-20 self-start max-h-[calc(100vh-6rem)] overflow-auto">
             <TableOfContents headings={headings} />

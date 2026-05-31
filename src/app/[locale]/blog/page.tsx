@@ -16,11 +16,14 @@ export const metadata: Metadata = {
 }
 
 export default function BlogPage({
+  params,
   searchParams,
 }: {
+  params: { locale: string }
   searchParams: { category?: string }
 }) {
-  const posts = getAllPosts()
+  const locale = params.locale ?? "en"
+  const posts = getAllPosts(locale)
   const cat = (searchParams.category ?? "all").toLowerCase()
   const filtered =
     cat === "all"
@@ -38,7 +41,6 @@ export default function BlogPage({
         align="left"
       />
 
-      {/* Subscribe strip */}
       <div className="mb-8 rounded-lg border bg-card px-4 py-3">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <NewsletterSignup variant="banner" />
@@ -49,7 +51,6 @@ export default function BlogPage({
         </Suspense>
       </div>
 
-      {/* Category tabs */}
       <Suspense fallback={null}>
         <BlogCategoryTabs />
       </Suspense>
@@ -58,10 +59,7 @@ export default function BlogPage({
         <p className="text-muted-foreground">No posts published yet. Check back soon.</p>
       ) : (
         <div className="lg:grid lg:grid-cols-[1fr_200px] lg:gap-10">
-          {/* Main feed — chronological desc, latest on top */}
           <BlogFeed posts={filtered} />
-
-          {/* Right sidebar — vertical timeline */}
           <BlogTimeline posts={filtered} />
         </div>
       )}

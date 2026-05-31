@@ -15,6 +15,7 @@ export interface Post {
   frontmatter: PostFrontmatter
   content: string
   excerpt: string
+  isFallback?: boolean
 }
 
 export interface PostHeading {
