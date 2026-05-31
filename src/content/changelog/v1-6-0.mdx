@@ -1,0 +1,53 @@
+---
+version: "1.6.0"
+date: "2026-05-30"
+title: "Multilanguage (EN/ES), LATAM Geo-Detection & Admin Dashboard"
+headline: "The site now speaks English and Spanish. Colombian and LATAM visitors are automatically served in Spanish, all admins get a unified dashboard, and Jack gets a dedicated landing page."
+category: "feature"
+skills:
+  - next-intl v4 (App Router i18n)
+  - LATAM geo-detection (Vercel x-vercel-ip-country header)
+  - Google OAuth + NextAuth v4
+  - Admin dashboard (Recharts, Vercel Blob)
+  - Framer Motion v12
+  - Web Speech API
+---
+
+## What shipped
+
+### Full EN/ES multilanguage support
+Every user-facing page now exists in both English and Spanish. The routing is clean:
+- `js17.dev` → English (default, no URL prefix)
+- `js17.dev/es` → Spanish (explicit prefix for SEO)
+
+All 16 blog posts have Spanish translations. If a post doesn't have a Spanish version yet, it falls back to English with a visible notice.
+
+### LATAM geo-detection
+Visitors from Colombia, Mexico, Argentina, Chile, Peru, and 14 other Latin American countries are automatically redirected to the Spanish version on their first visit. The preference is stored in a cookie — once set, subsequent visits skip the geo-check entirely. Users can always override via the language switcher in the header.
+
+### Language switcher
+A compact EN/ES toggle lives in the navigation bar. Switching locale updates the cookie, strips/adds the `/es` URL prefix correctly, and persists the preference across sessions.
+
+### Admin dashboard
+A unified control hub at `/admin` — accessible after Google sign-in — consolidates everything in one place:
+- **Metrics row** — total posts, newsletter subscriber count, YouTube video count, and total views
+- **Blog posts panel** — every post with its published status, reading time, notify-subscribers button, and notification state (notified / pending)
+- **YouTube metrics chart** — bar chart of views per video, color-coded by format (Short = cyan, Long = indigo)
+- **Newsletter panel** — subscriber count, posts notified vs pending, and a list of recently notified slugs
+
+Post sign-in, the default redirect lands on the dashboard rather than the blog.
+
+### Jack landing page
+A dedicated page at `js17.dev/jack` introduces the Jack driver assistant product:
+- Futuristic dark design (#050505 background, electric cyan accent) — intentionally outside the site theme
+- Animated ticker, capabilities grid, ecosystem diagram, and waitlist section
+- WhatsApp CTA for direct contact
+- Jack linked in the main navigation
+- Conversation pause/resume implemented using cancel + index tracking (fixing broken Web Speech API pause on Chrome)
+- New blog post covering the Jack build log and v0.8 road-to-Android-Auto progress
+
+### Infrastructure fixes
+- Middleware correctly sets the `X-NEXT-INTL-LOCALE` header for both Spanish and English paths, fixing locale context propagation to next-intl server components
+- Admin page marked `force-dynamic` to prevent stale cached renders from serving a null-session redirect loop
+- GitHub Actions CI and release workflows upgraded to Node 24
+- `package-lock.json` regenerated for Node 24 npm compatibility
