@@ -7,6 +7,7 @@ import { BlogFeed } from "@/components/blog/BlogFeed"
 import { BlogTimeline } from "@/components/blog/BlogTimeline"
 import { SubscriberBadge } from "@/components/blog/SubscriberBadge"
 import { BlogCategoryTabs } from "@/components/blog/BlogCategoryTabs"
+import { getTranslations } from "next-intl/server"
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
@@ -15,7 +16,7 @@ export const metadata: Metadata = {
     "Technical writing on AI engineering, fullstack systems, architecture patterns, and engineering productivity.",
 }
 
-export default function BlogPage({
+export default async function BlogPage({
   params,
   searchParams,
 }: {
@@ -23,6 +24,7 @@ export default function BlogPage({
   searchParams: { category?: string }
 }) {
   const locale = params.locale ?? "en"
+  const t = await getTranslations("blog")
   const posts = getAllPosts(locale)
   const cat = (searchParams.category ?? "all").toLowerCase()
   const filtered =
@@ -35,9 +37,9 @@ export default function BlogPage({
   return (
     <div className="container-custom py-12 md:py-16">
       <SectionHeader
-        label="Writing"
-        title="Blog"
-        description="Technical articles on AI engineering, architecture, and building production systems."
+        label={t("label")}
+        title={t("title")}
+        description={t("description")}
         align="left"
       />
 
@@ -56,7 +58,7 @@ export default function BlogPage({
       </Suspense>
 
       {filtered.length === 0 ? (
-        <p className="text-muted-foreground">No posts published yet. Check back soon.</p>
+        <p className="text-muted-foreground">{t("noPostsYet")}</p>
       ) : (
         <div className="lg:grid lg:grid-cols-[1fr_200px] lg:gap-10">
           <BlogFeed posts={filtered} />

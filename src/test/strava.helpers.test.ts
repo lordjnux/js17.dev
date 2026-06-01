@@ -95,6 +95,7 @@ function makeActivity(dateLocal: string, type = "Run"): StravaActivity {
     id: Math.random(),
     name: "Test Run",
     type,
+    sport_type: type,
     distance: 5000,
     moving_time: 1800,
     start_date_local: dateLocal + "T08:00:00Z",

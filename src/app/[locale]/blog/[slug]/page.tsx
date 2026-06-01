@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation"
 import { getAllPosts, getPostBySlug, generateLinkedInText } from "@/lib/mdx"
+import { getTranslations } from "next-intl/server"
 import { PostHeader } from "@/components/blog/PostHeader"
 import { TableOfContents } from "@/components/blog/TableOfContents"
 import { CopyForLinkedIn } from "@/components/blog/CopyForLinkedIn"
@@ -86,6 +87,7 @@ export default async function BlogPostPage({
   const post = getPostBySlug(params.slug, params.locale)
   if (!post) notFound()
 
+  const t = await getTranslations("blog")
   const headings = extractHeadings(post.content)
   const linkedInText = generateLinkedInText(post)
 
@@ -118,7 +120,7 @@ export default async function BlogPostPage({
     <div className="container-custom py-12 md:py-16">
       {post.isFallback && (
         <div className="mb-6 rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-600 dark:text-amber-400">
-          Este artículo aún no está disponible en español — mostrando versión en inglés.
+          {t("fallbackNotice")}
         </div>
       )}
       <div className="flex gap-12 justify-between">

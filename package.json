@@ -1,6 +1,6 @@
 {
   "name": "js17dev",
-  "version": "0.1.1",
+  "version": "0.1.7",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -70,6 +70,7 @@
     "tailwind-merge": "^3.5.0",
     "tailwindcss-animate": "^1.0.7",
     "three": "^0.170.0",
+    "twitter-api-v2": "^1.29.0",
     "web-push": "^3.6.7",
     "zod": "^4.3.6"
   },

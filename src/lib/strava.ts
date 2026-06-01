@@ -151,14 +151,14 @@ async function fetchFromStrava(perPage = 100, isr = false): Promise<StravaStats>
   if (!athleteRes.ok) throw new Error(`GET /athlete failed: ${athleteRes.status}`)
   const athlete: StravaAthlete = await athleteRes.json()
 
-  // Step 2: parallel fetch stats + activities
+  // Step 2: parallel fetch stats + activities (all sport types)
   const [statsRes, activitiesRes] = await Promise.all([
     fetch(`https://www.strava.com/api/v3/athletes/${athlete.id}/stats`, {
       headers,
       ...fetchOpts,
     }),
     fetch(
-      `https://www.strava.com/api/v3/athlete/activities?per_page=${perPage}&type=Run`,
+      `https://www.strava.com/api/v3/athlete/activities?per_page=${perPage}`,
       { headers, ...fetchOpts }
     ),
   ])
@@ -172,7 +172,7 @@ async function fetchFromStrava(perPage = 100, isr = false): Promise<StravaStats>
   if (activitiesRes.ok) {
     allActivities = await activitiesRes.json()
   }
-  const recentActivities = allActivities.filter((a) => a.type === "Run").slice(0, 20)
+  const recentActivities = allActivities.slice(0, 30)
 
   return {
     athlete,

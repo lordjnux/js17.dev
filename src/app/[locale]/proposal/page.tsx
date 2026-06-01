@@ -1,5 +1,6 @@
 import { ProposalSection } from "@/components/proposal/ProposalSection"
 import { ExternalLink, Heart } from "lucide-react"
+import { getTranslations } from "next-intl/server"
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
@@ -8,20 +9,22 @@ export const metadata: Metadata = {
     "Support my open work or send a project proposal — two ways to connect and collaborate.",
 }
 
-export default function ProposalPage() {
+export default async function ProposalPage() {
+  const t = await getTranslations("proposal")
+
   return (
     <div className="container-custom py-12 md:py-16">
       <div className="max-w-2xl mx-auto">
 
         <div className="mb-12">
           <p className="text-sm font-semibold uppercase tracking-widest text-blue-500 mb-3">
-            Work With Me
+            {t("label")}
           </p>
           <h1 className="text-3xl font-bold tracking-tight sm:text-4xl mb-3">
-            Connect or Collaborate
+            {t("title")}
           </h1>
           <p className="text-muted-foreground">
-            Support the open work I create, or bring me in for a project — pick your path below.
+            {t("description")}
           </p>
         </div>
 
@@ -29,7 +32,7 @@ export default function ProposalPage() {
           <div className="mb-5 flex items-start gap-2.5">
             <Heart className="h-4 w-4 text-rose-400 mt-0.5 shrink-0" />
             <div>
-              <h2 className="text-base font-bold leading-snug">Support My Work</h2>
+              <h2 className="text-base font-bold leading-snug">{t("supportMyWork")}</h2>
               <p className="text-sm text-muted-foreground mt-0.5">
                 Fuel the open-source tools, articles, and content I ship publicly.
               </p>
@@ -101,7 +104,7 @@ export default function ProposalPage() {
                 <polyline points="10 9 9 9 8 9" />
               </svg>
               <div>
-                <h2 className="text-base font-bold leading-snug">Start a Project</h2>
+                <h2 className="text-base font-bold leading-snug">{t("startProject")}</h2>
                 <p className="text-sm text-muted-foreground mt-0.5">
                   Have an idea, a system to build, or a team that needs a senior engineer?
                   Pick how you want to connect.

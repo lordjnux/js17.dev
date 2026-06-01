@@ -1,7 +1,6 @@
 export const dynamic = 'force-dynamic'
 
-import { getServerSession } from "next-auth"
-import { authOptions, ADMIN_EMAIL } from "@/lib/auth"
+import { getAdminToken } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import { list } from "@vercel/blob"
 import Link from "next/link"
@@ -9,7 +8,7 @@ import { getAllPosts } from "@/lib/mdx"
 import { BlogPostsPanel } from "@/components/admin/BlogPostsPanel"
 import { YouTubeMetricsChart } from "@/components/admin/YouTubeMetricsChart"
 import { NewsletterSentPanel } from "@/components/admin/NewsletterSentPanel"
-import { FileText, Users, Youtube, Mail, ShieldCheck, LayoutDashboard } from "lucide-react"
+import { FileText, Users, Youtube, Mail, ShieldCheck, LayoutDashboard, Globe } from "lucide-react"
 
 async function getNewsletterStatus() {
   try {
@@ -49,8 +48,8 @@ async function getYouTubeTotals() {
 }
 
 export default async function AdminPage() {
-  const session = await getServerSession(authOptions)
-  if (!session?.user?.email || session.user.email !== ADMIN_EMAIL) {
+  const token = await getAdminToken()
+  if (!token) {
     redirect("/auth/signin?callbackUrl=/admin")
   }
 
@@ -58,7 +57,7 @@ export default async function AdminPage() {
   const [newsletter, youtube] = await Promise.all([getNewsletterStatus(), getYouTubeTotals()])
   const publishedPosts = posts.filter((p) => p.frontmatter.published)
 
-  const firstName = session.user.name?.split(" ")[0] ?? "Admin"
+  const firstName = (token.name as string | undefined)?.split(" ")[0] ?? "Admin"
 
   return (
     <main className="max-w-6xl mx-auto px-4 py-10 space-y-8">
@@ -87,6 +86,13 @@ export default async function AdminPage() {
           >
             <Youtube className="h-3.5 w-3.5" />
             YouTube
+          </Link>
+          <Link
+            href="/admin/social"
+            className="inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+          >
+            <Globe className="h-3.5 w-3.5" />
+            Social
           </Link>
         </nav>
       </div>

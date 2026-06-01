@@ -3,6 +3,7 @@ import path from "path"
 import matter from "gray-matter"
 import { MDXRemote } from "next-mdx-remote/rsc"
 import { notFound } from "next/navigation"
+import { getTranslations } from "next-intl/server"
 import type { Metadata } from "next"
 
 const LEGAL_DIR = path.join(process.cwd(), "src/content/legal")
@@ -32,16 +33,18 @@ export async function generateMetadata({ params }: { params: { doc: string } }):
   }
 }
 
-export default function LegalPage({ params }: { params: { doc: string } }) {
+export default async function LegalPage({ params }: { params: { locale: string; doc: string } }) {
   if (!VALID_DOCS.includes(params.doc as DocSlug)) notFound()
   const doc = readDoc(params.doc)
   if (!doc) notFound()
+
+  const t = await getTranslations("legal")
 
   return (
     <main className="min-h-screen py-16 md:py-24">
       <div className="container max-w-3xl mx-auto px-4">
         <div className="mb-10 pb-8 border-b">
-          <p className="text-xs font-semibold uppercase tracking-widest text-primary mb-3">Legal</p>
+          <p className="text-xs font-semibold uppercase tracking-widest text-primary mb-3">{t("label")}</p>
           <h1 className="text-3xl font-bold mb-3">{doc.meta.title}</h1>
           <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
             <span>Version {doc.meta.version}</span>
@@ -54,6 +57,12 @@ export default function LegalPage({ params }: { params: { doc: string } }) {
             </p>
           )}
         </div>
+
+        {params.locale !== "en" && (
+          <p className="mb-6 text-sm text-muted-foreground border-l-2 border-amber-500/40 pl-4">
+            {t("englishOnly")}
+          </p>
+        )}
 
         <div className="prose prose-sm dark:prose-invert max-w-none
           prose-headings:font-semibold prose-headings:text-foreground

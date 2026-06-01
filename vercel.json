@@ -11,6 +11,10 @@
     {
       "path": "/api/cron/refresh-credly",
       "schedule": "0 8 * * *"
+    },
+    {
+      "path": "/api/cron/strava-insights",
+      "schedule": "30 7 * * *"
     }
   ],
   "headers": [

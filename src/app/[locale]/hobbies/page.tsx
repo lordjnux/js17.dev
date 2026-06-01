@@ -2,14 +2,17 @@ import { Suspense } from "react"
 import { getStravaStats } from "@/lib/strava"
 import { getChessStats } from "@/lib/chess"
 import { FitWellnessSection } from "@/components/hobbies/FitWellnessSection"
+import { getTranslations } from "next-intl/server"
 import type { Metadata } from "next"
 
 export const revalidate = 21600
 
-export const metadata: Metadata = {
-  title: "Hobbies & Life Stats",
-  description:
-    "Beyond the code — running stats, chess ratings, and the systems thinking I apply outside the terminal. Fitness, chess, music: all integrated.",
+export async function generateMetadata({ params }: { params: { locale: string } }): Promise<Metadata> {
+  const t = await getTranslations({ locale: params.locale, namespace: "hobbies" })
+  return {
+    title: t("title"),
+    description: t("description"),
+  }
 }
 
 function HobbiesSkeleton() {

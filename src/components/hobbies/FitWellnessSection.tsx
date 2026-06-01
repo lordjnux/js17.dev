@@ -2,12 +2,13 @@
 
 import { useState } from "react"
 import { motion } from "framer-motion"
-import { StravaStatCard } from "./StravaStatCard"
 import { RecentActivitiesFeed } from "./RecentActivitiesFeed"
 import { ChessSection } from "./ChessSection"
+import { MultiSportStats } from "./MultiSportStats"
+import { ActivityCalendar } from "./ActivityCalendar"
+import { StravaInsightsPanel } from "./StravaInsightsPanel"
 import type { StravaStats } from "@/types/strava"
 import type { ChessStats } from "@/types/chess"
-import { metersToKm, secsToDuration } from "@/lib/strava"
 import Link from "next/link"
 
 interface FitWellnessSectionProps {
@@ -143,101 +144,46 @@ export function FitWellnessSection({ stats, chess }: FitWellnessSectionProps) {
         <ChessSection stats={chess} />
       ) : (
         <>
-          {/* Stat cards */}
-          {!stats ? (
-            <StatsSkeleton />
-          ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              <StravaStatCard
-                label="Total Distance"
-                value={metersToKm(stats.stats.all_run_totals.distance)}
-                subValue={`YTD: ${metersToKm(stats.stats.ytd_run_totals.distance)}`}
-                icon="🗺️"
-                delay={0}
-              />
-              <StravaStatCard
-                label="Total Runs"
-                value={`${stats.stats.all_run_totals.count} runs`}
-                subValue={`YTD: ${stats.stats.ytd_run_totals.count} runs`}
-                icon="👟"
-                delay={0.1}
-              />
-              <StravaStatCard
-                label="Elevation"
-                value={`${Math.round(stats.stats.all_run_totals.elevation_gain).toLocaleString()} m`}
-                subValue={`YTD: ${Math.round(stats.stats.ytd_run_totals.elevation_gain).toLocaleString()} m`}
-                icon="⛰️"
-                delay={0.2}
-              />
-            </div>
-          )}
+          {/* Skeleton */}
+          {!stats && <StatsSkeleton />}
 
-          {/* YTD vs All-Time */}
           {stats && (
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4, duration: 0.5 }}
-              className="rounded-xl border border-border/50 bg-card p-6"
-            >
-              <h2 className="text-sm font-semibold uppercase tracking-widest text-muted-foreground mb-5">
-                YTD vs All-Time Running
-              </h2>
-              <div className="grid grid-cols-2 gap-6">
-                <div className="space-y-3">
-                  <div className="text-xs font-semibold text-orange-400 uppercase tracking-widest mb-3">
-                    This Year
-                  </div>
-                  <Stat label="Runs" value={`${stats.stats.ytd_run_totals.count}`} />
-                  <Stat label="Distance" value={metersToKm(stats.stats.ytd_run_totals.distance)} />
-                  <Stat
-                    label="Time"
-                    value={secsToDuration(stats.stats.ytd_run_totals.moving_time)}
-                  />
-                  <Stat
-                    label="Elevation"
-                    value={`${Math.round(stats.stats.ytd_run_totals.elevation_gain).toLocaleString()} m`}
-                  />
-                </div>
-                <div className="space-y-3">
-                  <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-3">
-                    All Time
-                  </div>
-                  <Stat label="Runs" value={`${stats.stats.all_run_totals.count}`} />
-                  <Stat label="Distance" value={metersToKm(stats.stats.all_run_totals.distance)} />
-                  <Stat
-                    label="Time"
-                    value={secsToDuration(stats.stats.all_run_totals.moving_time)}
-                  />
-                  <Stat
-                    label="Elevation"
-                    value={`${Math.round(stats.stats.all_run_totals.elevation_gain).toLocaleString()} m`}
-                  />
-                </div>
-              </div>
-            </motion.div>
-          )}
+            <>
+              {/* Multi-sport overview + YTD vs All-Time */}
+              <MultiSportStats activities={stats.recentActivities} stats={stats.stats} />
 
-          {/* Recent activities */}
-          {stats && stats.recentActivities.length > 0 && (
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5, duration: 0.5 }}
-              className="space-y-4"
-            >
-              <h2 className="text-sm font-semibold uppercase tracking-widest text-muted-foreground">
-                Recent Runs
-              </h2>
-              <RecentActivitiesFeed activities={stats.recentActivities} />
-            </motion.div>
-          )}
+              {/* Activity calendar heatmap */}
+              <motion.div
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3, duration: 0.5 }}
+              >
+                <ActivityCalendar activities={stats.recentActivities} />
+              </motion.div>
 
-          {/* Strava cache timestamp */}
-          {stats && (
-            <p className="text-center text-xs text-muted-foreground/50">
-              Stats cached · {new Date(stats.cachedAt).toLocaleString()}
-            </p>
+              {/* AI Performance Insights */}
+              <StravaInsightsPanel />
+
+              {/* Recent activities feed */}
+              {stats.recentActivities.length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.5, duration: 0.5 }}
+                  className="space-y-4"
+                >
+                  <h2 className="text-sm font-semibold uppercase tracking-widest text-muted-foreground">
+                    Recent Activities
+                  </h2>
+                  <RecentActivitiesFeed activities={stats.recentActivities.slice(0, 10)} />
+                </motion.div>
+              )}
+
+              {/* Cache timestamp */}
+              <p className="text-center text-xs text-muted-foreground/50">
+                Stats cached · {new Date(stats.cachedAt).toLocaleString()}
+              </p>
+            </>
           )}
         </>
       )}
@@ -265,11 +211,3 @@ export function FitWellnessSection({ stats, chess }: FitWellnessSectionProps) {
   )
 }
 
-function Stat({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex justify-between text-sm">
-      <span className="text-muted-foreground">{label}</span>
-      <span className="font-medium tabular-nums">{value}</span>
-    </div>
-  )
-}

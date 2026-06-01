@@ -1,5 +1,4 @@
-import { getServerSession } from "next-auth"
-import { authOptions, ADMIN_EMAIL } from "@/lib/auth"
+import { getAdminToken } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import { list } from "@vercel/blob"
 import type { SubmissionRecord } from "@/lib/moderation"
@@ -16,8 +15,8 @@ async function getSubmissions() {
 }
 
 export default async function SubmissionsPage() {
-  const session = await getServerSession(authOptions)
-  if (!session?.user?.email || session.user.email !== ADMIN_EMAIL) {
+  const token = await getAdminToken()
+  if (!token) {
     redirect("/auth/signin?callbackUrl=/admin/submissions")
   }
 

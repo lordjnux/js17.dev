@@ -1,0 +1,58 @@
+---
+version: "1.7.0"
+date: "2026-06-01"
+title: "Omnipresence Engine, Multi-Sport Strava & Projects Showcase"
+headline: "Compose once, publish everywhere — a unified social command center lands in the admin, Strava now tracks every sport, and a new projects section shows what's actually been built."
+category: "feature"
+skills:
+  - X API v2 (OAuth 1.0a)
+  - LinkedIn API v2 (UGC Posts, OAuth 2.0)
+  - GPT-4o-mini (platform-optimized copy generation)
+  - Strava API (multi-sport, AI performance insights)
+  - Vercel Blob (token and history persistence)
+  - Framer Motion v12
+---
+
+## What shipped
+
+### Omnipresence Engine (Social Command Center)
+A new admin-only interface at `/admin/social` that lets you write a post once and push it to X and LinkedIn simultaneously:
+
+- **Platform connections panel** — shows OAuth status for X (Twitter), LinkedIn Personal, and LinkedIn Company Page. LinkedIn uses a one-click OAuth 2.0 flow; X uses static OAuth 1.0a credentials stored as environment variables.
+- **AI draft generation** — paste an article title, URL, and optional description, select your target platforms, and GPT-4o-mini generates platform-optimized copy: punchy 250-char tweets with hashtags for X, 1st-person professional narrative posts for LinkedIn Personal, and concise brand-voice copy for LinkedIn Page.
+- **Per-platform editors** — live character counters (280 for X, 3000 for LinkedIn Personal, 1300 for LinkedIn Page) with visual overflow warning. Drafts are fully editable before posting.
+- **One-click publish** — posts to all selected connected platforms in parallel. Results display inline with direct post links for successes or error messages for failures.
+- **Post history** — the last 5 published posts are shown with timestamps and per-platform success/fail status. Full history is persisted in Vercel Blob.
+- **Admin navigation** — "Social" shortcut added to the admin dashboard nav alongside YouTube and Moderation.
+
+### Strava multi-sport tracking
+The fitness dashboard now tracks all activities, not just runs:
+
+- Removed the `&type=Run` filter — the Strava API now returns cycling, swimming, hiking, walking, and all other sport types.
+- Activities are grouped by canonical sport for the stats section (TrailRun → Run, VirtualRide → Ride, etc.) with per-sport cards showing distance, time, and activity count.
+- YTD vs all-time comparison for running remains, now alongside equivalent cards for any sport with data.
+- **Activity heatmap** — a GitHub-style contribution calendar spanning the last 52 weeks, color-coded by sport type (orange = run, blue = ride, teal = swim, green = walk/hike).
+- **AI performance insights** — a daily cron at 07:30 UTC sends the last 30 activities to GPT-4o-mini and caches a structured analysis: 3 strengths, 3 actionable suggestions, and a weekly trend direction (improving / consistent / declining). The insights panel displays on the hobbies page with last-analyzed timestamp.
+- Expanded `StravaActivity` type with `sport_type`, `average_heartrate`, `max_heartrate`, `average_cadence`, `calories`, and `suffer_score` fields.
+
+### Projects showcase
+A new section on the home page between Certifications and the CTA showcases five live and in-progress projects:
+
+- **Jack — AI Mobility Ecosystem** — voice-first driver assistant with Android Auto integration
+- **Live Fitness Dashboard** — real-time multi-sport pipeline on Strava API with daily cache refresh
+- **Chess Intelligence Tracker** — Chess.com rating progression with live API sync and streak tracking
+- **LinkedIn Job Automator** — automated cold outreach system using Hunter.io contact discovery
+- **Omnipresence Engine** — unified social command center (this release)
+
+Cards animate in on scroll with staggered Framer Motion transitions, gradient border on hover, and tech badge pills. External project links open in a new tab; the Omnipresence Engine card shows a "Coming Soon" badge for public access.
+
+### i18n wiring completed
+All remaining pages that had hardcoded English strings are now fully wired to the translation system:
+
+- Blog listing, blog article fallback notice, hobbies metadata, changelog (8 strings), proposal (5 strings), legal documents (English-only notice banner in Spanish), and newsletter unsubscribe (10 strings) now pull from the EN/ES translation files.
+
+### Infrastructure
+- Admin auth migrated from `getServerSession()` to `decode()` + `cookies()` from `next-auth/jwt` — fixes silent null session in Next.js 14 App Router server components.
+- New daily cron `/api/cron/strava-insights` at 07:30 UTC for AI fitness analysis.
+- X API env vars: `X_API_KEY`, `X_API_SECRET`, `X_ACCESS_TOKEN`, `X_ACCESS_TOKEN_SECRET` — production only, never in git.
+- LinkedIn OAuth env vars: `LINKEDIN_CLIENT_ID`, `LINKEDIN_CLIENT_SECRET`, `LINKEDIN_PAGE_URN`.

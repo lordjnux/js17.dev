@@ -2,6 +2,7 @@ import { getAllChangelog, ChangelogCategory } from "@/lib/changelog"
 import { MDXRemote } from "next-mdx-remote/rsc"
 import { SectionHeader } from "@/components/shared/SectionHeader"
 import { Code2, Rocket, Shield, Wrench, Zap, ExternalLink } from "lucide-react"
+import { getTranslations } from "next-intl/server"
 import type { Metadata } from "next"
 
 export const metadata: Metadata = {
@@ -54,16 +55,17 @@ function formatDate(iso: string) {
   }).format(new Date(iso))
 }
 
-export default function ChangelogPage() {
+export default async function ChangelogPage() {
+  const t = await getTranslations("changelog")
   const entries = getAllChangelog()
 
   return (
     <main className="min-h-screen py-16 md:py-24">
       <div className="container max-w-4xl mx-auto px-4">
         <SectionHeader
-          label="Release History"
-          title="Changelog"
-          description="What's been built, how it was solved, and why it matters — written for developers and clients equally."
+          label={t("label")}
+          title={t("title")}
+          description={t("description")}
         />
 
         <div className="flex flex-wrap gap-3 justify-center mb-14 -mt-4">
@@ -107,7 +109,7 @@ export default function ChangelogPage() {
                           </span>
                           {isLatest && (
                             <span className="rounded-full bg-primary/15 px-2 py-0.5 text-xs font-semibold text-primary">
-                              Latest
+                              {t("latest")}
                             </span>
                           )}
                           <span
@@ -143,7 +145,7 @@ export default function ChangelogPage() {
                     <div className="border-t divide-y">
                       <div className="px-6 py-4 bg-primary/5">
                         <p className="text-xs font-semibold uppercase tracking-wide text-primary mb-1.5">
-                          What this means for you as a client
+                          {t("clientValue")}
                         </p>
                         <p className="text-sm text-muted-foreground leading-relaxed">
                           {entry.clientValue}
@@ -153,7 +155,7 @@ export default function ChangelogPage() {
                       <details className="group px-6 py-4">
                         <summary className="cursor-pointer text-xs font-semibold uppercase tracking-wide text-muted-foreground hover:text-foreground transition-colors list-none flex items-center gap-2">
                           <Code2 className="h-3.5 w-3.5" />
-                          Developer notes
+                          {t("developerNotes")}
                           <span className="ml-auto text-[10px] group-open:hidden">▼ expand</span>
                           <span className="ml-auto text-[10px] hidden group-open:inline">▲ collapse</span>
                         </summary>
@@ -164,7 +166,7 @@ export default function ChangelogPage() {
 
                       <div className="px-6 py-4">
                         <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2.5">
-                          Skills demonstrated
+                          {t("skillsDemonstrated")}
                         </p>
                         <div className="flex flex-wrap gap-1.5">
                           {entry.skills.map((skill) => (
@@ -196,14 +198,14 @@ export default function ChangelogPage() {
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 rounded-md border px-4 py-2 text-sm font-medium hover:bg-muted transition-colors"
             >
-              View on GitHub
+              {t("viewOnGitHub")}
               <ExternalLink className="h-3.5 w-3.5 opacity-60" />
             </a>
             <a
               href="/proposal"
               className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90 transition-opacity"
             >
-              Start a project
+              {t("startProject")}
             </a>
           </div>
         </div>
