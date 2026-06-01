@@ -1,6 +1,6 @@
 export const dynamic = "force-dynamic"
 
-import { getAdminToken } from "@/lib/auth"
+import { getAdminToken } from "@/lib/server-auth"
 import { redirect } from "next/navigation"
 import { SocialCommandCenter } from "@/components/admin/SocialCommandCenter"
 

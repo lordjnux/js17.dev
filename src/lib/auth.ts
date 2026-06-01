@@ -1,31 +1,9 @@
 import type { NextAuthOptions } from "next-auth"
 import GoogleProvider from "next-auth/providers/google"
-import { getToken, decode } from "next-auth/jwt"
+import { getToken } from "next-auth/jwt"
 import type { NextRequest } from "next/server"
-import { cookies } from "next/headers"
 
 export const ADMIN_EMAIL = (process.env.ADMIN_EMAIL || "jeroham.sanchez@gmail.com").trim()
-
-/**
- * For server components (pages, layouts). Reads the JWT cookie directly via decode().
- * Use this instead of getServerSession(), which is unreliable in Next.js 14 App Router.
- */
-export async function getAdminToken() {
-  const secret = (process.env.NEXTAUTH_SECRET || "").trim()
-  if (!secret) return null
-  const cookieStore = await cookies()
-  const sessionToken =
-    cookieStore.get("__Secure-next-auth.session-token")?.value ??
-    cookieStore.get("next-auth.session-token")?.value
-  if (!sessionToken) return null
-  try {
-    const decoded = await decode({ token: sessionToken, secret })
-    if (!decoded || decoded.email !== ADMIN_EMAIL) return null
-    return decoded
-  } catch {
-    return null
-  }
-}
 
 /**
  * Use this in App Router route handlers instead of getServerSession.

@@ -1,4 +1,4 @@
-import { getAdminToken } from "@/lib/auth"
+import { getAdminToken } from "@/lib/server-auth"
 import { redirect } from "next/navigation"
 import { list } from "@vercel/blob"
 import type { SubmissionRecord } from "@/lib/moderation"

@@ -42,7 +42,7 @@ export function ActivityCalendar({ activities }: Props) {
 
     const weeks: Array<Array<{ date: string; acts: StravaActivity[] }>> = []
     const monthLabels: Array<{ label: string; col: number }> = []
-    let current = new Date(start)
+    const current = new Date(start)
     let lastMonth = -1
 
     for (let w = 0; w < 52; w++) {
